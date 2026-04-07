@@ -1,0 +1,37 @@
+body{
+	margin: 0;
+	font- Arial, sans-serif;
+	
+}
+.logo {
+display: flex;
+justify-content: space-between;
+width: 100%;
+	
+}	
+.l1{
+color: green;	
+}
+.l2{
+color: orange;
+}	
+.l3{
+color: red;	
+}
+.barra {
+background: #a5d8ff;
+}
+
+.caixa{
+background: #a5d8ff;
+width: 25%;
+margin: 10px auto;
+
+}
+footer{
+background: #a5d8ff;
+padding: 10px 20px;
+display:flex; 
+justify-content: space-between;
+bottom: 
+}

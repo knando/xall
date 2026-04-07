@@ -1,0 +1,44 @@
+
+.titulo-separado{
+  display: flex;
+  justify-content: space-between; 
+  width: 100%;
+}
+.titulo-separado2{
+  display: flex;
+  justify-content: space-between; 
+  width: 100%;
+}
+.quadradopag1{
+width: 25%; 
+margin: auto;
+  background-color:lightblue;
+  border: 2px; border-style:solid; border-radius:30%; 
+  text-align: center;
+}
+footer {
+	display:flex;
+    position: fixed;
+    bottom: 0;
+	left:0;
+    width: 100%;
+	justify-content:space-between;
+	background-color: lightblue;
+	margin-left:;
+}
+.line{
+	background-color:lightblue;
+	height:20px;
+	margin-bottom:100;
+	text-align:right;
+}
+.line a{
+	text-decoration: none;
+	color:black;
+}
+
+.button1{
+	border: 10px;
+	border-style: solid;
+	width:20;
+}
