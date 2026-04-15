@@ -1,0 +1,47 @@
+<html>
+<head>
+<link rel="stylesheet" href="index.css">
+<script>
+	let jq = document.createElement('script');
+	jq.src = "https://code.jquery.com/jquery-3.7.1.min.js"; // Use a specific version from an official jQuery CDN URL
+	document.getElementsByTagName('head')[0].appendChild(jq);
+	var $ = jq;
+	$("#cabecalho").load("cabecalho.html");
+</script>
+<style>
+footer {
+	background-color:lightblue;
+	height: 5vh;
+	width:100vw;
+	position:absolute;
+	bottom: 0;
+	left: 0;
+	display:flex;
+	justify-content: space-between;
+}
+footer span {
+	margin-left: 0.5vw;
+	margin-right: 0.5vw;
+	margin-top: 1vh;
+}
+</style>
+<title>UFT</title>
+</head>
+<body>
+<div id="cabecalho">
+</div>
+
+<div class="corpo">
+<p><a href="uft1/newgenstupido .html">Página 1;</a>
+<p><a href="uft2/pag1.html">Página 2;</a>
+<p><a href="uft3/uft.html">Página 3;</a>
+<p><a href="uft4/uft.html">Página 4;</a>
+<p><a href="uft5/bebe.html">Página 5;</a>
+</div>
+  
+<footer>
+    <span> Rua 2, Esteio - RS</span>
+	<span> Desde 2025 </span>
+</footer>
+</body>
+</html>

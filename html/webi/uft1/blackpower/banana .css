@@ -1,0 +1,13 @@
+.container-imagens {
+    display: flex;                /* Ativa o Flexbox */
+    justify-content: center;      /* Centraliza horizontalmente */
+    gap: 15px;                    /* Espaço entre as imagens (opcional) */
+    flex-wrap: wrap;              /* Quebra linha se a tela for pequena */
+}
+
+.container-imagens img {
+    max-width: 100%;              /* Garante responsividade */
+    height: auto;
+    /* opcional: definir uma altura fixa para todas */
+    /* height: 200px; */
+}
