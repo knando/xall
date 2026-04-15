@@ -13,37 +13,37 @@ class Header extends HTMLElement {
 			<hr>
 			<ul class="nav nav-pills flex-column mb-auto">
 			  <li class="nav-item">
-				<a href="./progmodi/home.html" id="progmodi" class="nav-link text-white">
+				<a href="./html/progmodi/home.html" id="progmodi" class="nav-link text-white">
 				  <i class="bi me-2 bi-bar-chart-steps" width="16" height="16"></i>
 				  Programação Modular I
 				</a>
 			  </li>
 			  <li class="nav-item progmodi" hidden>
-				<a href="./progmodi/visualg.html" class="nav-link text-white">
+				<a href="./html/progmodi/visualg.html" class="nav-link text-white">
 				  <i class="bi me-5" width="16" height="16"></i>
 				  VisualG
 				</a>
 			  </li>
 			  <li hidden>
-				<a href="./devmob/home.html" id="devmob" class="nav-link text-white">
+				<a href="./html/devmob/home.html" id="devmob" class="nav-link text-white">
 				  <i class="bi me-2 bi-phone" width="16" height="16"></i>
 				  Desenvolvimento Mobile
 				</a>
 			  </li>
 			  <li hidden>
-				<a href="./engsoft/home.html" id="engsoft" class="nav-link text-white">
+				<a href="./html/engsoft/home.html" id="engsoft" class="nav-link text-white">
 				  <i class="bi me-2 bi-pencil" width="16" height="16"></i>
 				  Engenharia de Software
 				</a>
 			  </li>
 			  <li hidden>
-				<a href="./webi/home.html" id="webi" class="nav-link text-white">
+				<a href="./html/webi/home.html" id="webi" class="nav-link text-white">
 				  <i class="bi me-2 bi-at" width="16" height="16"></i>
 				  Web I
 				</a>
 			  </li>
 			  <li hidden>
-				<a href="./webii/home.html" id="webii" class="nav-link text-white">
+				<a href="./html/webii/home.html" id="webii" class="nav-link text-white">
 				  <i class="bi me-2 bi-browser-chrome" width="16" height="16"></i>
 				  Web II
 				</a>
