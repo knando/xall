@@ -1,9 +1,9 @@
 .content-component, .content-component a:link, .content-component a:visited {
-	color: white;
+	color: white!important;
 }
 .content-component a {
-	text-decoration: none;
+	text-decoration: none!important;
 }
 .content-component a:hover {
-	color:green;
+	color:green!important;
 }
