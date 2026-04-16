@@ -4,8 +4,9 @@
 	color: white;
 }
 #content-component a {
+	color: white;
 	text-decoration: none;
 }
 #content-component a:hover {
-	color:green;
+	color: darkgreen;
 }
