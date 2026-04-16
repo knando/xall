@@ -5,19 +5,22 @@
 	</head>
 	<link href="https://getbootstrap.com/docs/5.0/dist/css/bootstrap.min.css" rel="stylesheet">
 	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+	<link rel="stylesheet" href="/xall/css/base.css">
 	<link href="https://getbootstrap.com/docs/5.0/examples/sidebars/sidebars.css" rel="stylesheet">
 	<script src="https://getbootstrap.com/docs/5.0/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
-    <script src="../../js/components/sidebar.js" type="text/javascript" defer></script>
+    <script src="/xall/js/components/sidebar.js" type="text/javascript" defer></script>
 	<body class="bg-secondary" onload="setActivePageOnSidebar('progmodi')">
 		<main>
 			<sidebar-custom-component></sidebar-custom-component>
-			<h2>Repositório da turma 108 da Tarde</h2>
-			<p>Códigos de aula:</p>
-			<ul>
-				<li><a href="codigo/codigo1.html">Aula de Quarta (08/04)</a></li>
-				<li><a href="codigo/codigo2.html">Aula de Quinta (09/04)</a></li>
-				<li><a href="codigo/codigo3.html">Aula de Quarta (15/04)</a></li>
-			</ul>
+			<div id="content-component">
+				<h2>Repositório da turma 108 da Tarde</h2>
+				<p>Códigos de aula:</p>
+				<ul>
+					<li><a href="codigo/codigo1.html">Aula de Quarta (08/04)</a></li>
+					<li><a href="codigo/codigo2.html">Aula de Quinta (09/04)</a></li>
+					<li><a href="codigo/codigo3.html">Aula de Quarta (15/04)</a></li>
+				</ul>
+			</div>
 		</main>
 	</body>
 </html>

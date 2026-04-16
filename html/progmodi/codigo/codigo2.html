@@ -5,95 +5,93 @@
 	</head>
 	<link href="https://getbootstrap.com/docs/5.0/dist/css/bootstrap.min.css" rel="stylesheet">
 	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+	<link rel="stylesheet" href="/xall/css/base.css">
 	<link href="https://getbootstrap.com/docs/5.0/examples/sidebars/sidebars.css" rel="stylesheet">
 	<script src="https://getbootstrap.com/docs/5.0/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
-    <script src="../../../js/components/sidebar.js" type="text/javascript" defer></script>
+    <script src="/xall/js/components/sidebar.js" type="text/javascript" defer></script>
 	<body class="bg-secondary" onload="setActivePageOnSidebar('progmodi')">
 		<main>
 			<sidebar-custom-component></sidebar-custom-component>
 			<div id="cod1">
-			<h2>Código para jogar par ou ímpar</h2>	
-			<pre>
-			<code>
-			algoritmo "Primeiro Programa"
+				<h2>Código para jogar par ou ímpar</h2>	
+				<pre>
+				<code>
+	algoritmo "Par ou Impar"
 
-			var
-			  nome: caractere
-			  numeroDoUsuario: inteiro
-			  numeroDoComputador: inteiro
-			  contadorVitoria: inteiro
-			  contadorDerrotas: inteiro
-			inicio
-			  // assumo que o jogador é par
-			  numeroDoComputador <- 1
-			  contadorVitoria <- 0
-			  // vamos jogar até dar par 3 vezes
-			  enquanto contadorVitoria < 3 e contadorDerrotas < 3 faca
-				leia(numeroDoUsuario)
-				// gera número aleatório de 0 a 1 (menor que 2)
-				numeroDoComputador <- RandI(2)
-				escreval("Numero do jogador é ", numeroDoUsuario)
-				escreval("Numero do computador é ", numeroDoComputador)
-				se((numeroDoComputador + numeroDoUsuario) mod 2 = 0) entao
-				  // contadorVitoria = 2
-				  contadorVitoria <- contadorVitoria + 1
-				  escreval("Você venceu ", contadorVitoria, " vezes")
-				senao
-				  escreval("É impar, você perdeu. Tente novamente.")
-				  contadorDerrotas <- contadorDerrotas + 1
-				fimse
-			  fimenquanto
+	var
+	  nome: caractere
+	  numeroDoUsuario: inteiro
+	  numeroDoComputador: inteiro
+	  contadorVitoria: inteiro
+	  contadorDerrotas: inteiro
+	inicio
+	  // assumo que o jogador é par
+	  numeroDoComputador <- 1
+	  contadorVitoria <- 0
+	  // vamos jogar até dar par 3 vezes
+	  enquanto contadorVitoria < 3 e contadorDerrotas < 3 faca
+		leia(numeroDoUsuario)
+		// gera número aleatório de 0 a 1 (menor que 2)
+		numeroDoComputador <- RandI(2)
+		escreval("Numero do jogador é ", numeroDoUsuario)
+		escreval("Numero do computador é ", numeroDoComputador)
+		se((numeroDoComputador + numeroDoUsuario) mod 2 = 0) entao
+		  // contadorVitoria = 2
+		  contadorVitoria <- contadorVitoria + 1
+		  escreval("Você venceu ", contadorVitoria, " vezes")
+		senao
+		  escreval("É impar, você perdeu. Tente novamente.")
+		  contadorDerrotas <- contadorDerrotas + 1
+		fimse
+	  fimenquanto
 
-			  se contadorVitoria = 3 entao
-				escreval("Você venceu ", contadorVitoria, " vezes. Parabéns! Fim de jogo")
-			  senao
-				escreval("Você perdeu ", contadorDerrotas, " vezes. Parabéns! Fim de jogo")
-			  fimse
+	  se contadorVitoria = 3 entao
+		escreval("Você venceu ", contadorVitoria, " vezes. Parabéns! Fim de jogo")
+	  senao
+		escreval("Você perdeu ", contadorDerrotas, " vezes. Parabéns! Fim de jogo")
+	  fimse
 
-			fimalgoritmo
-			</code>
-			</pre></div><hr>
+	fimalgoritmo
+				</code>
+				</pre>
+			</div><hr>
 			<div id="cod2">
-			<h2>Código validando se um nome e sobrenome foram digitados</h2>
-			<pre>
-			<code>
-			algoritmo "Enquanto, contador e flag"
+				<h2>Código validando se um nome e sobrenome foram digitados</h2>
+				<pre>
+				<code>
+	algoritmo "Enquanto, contador e flag"
 
-			var
-			  nome: caractere
-			  contador: inteiro
-			  // Flag significa bandeira. Neste contexto é como se levantassemos uma bandeira indicando algo - similar ao que é feito em esportes.
-			  flagNomeEhValido: logico
+	var
+	  nome: caractere
+	  contador: inteiro
+	  // Flag significa bandeira. Neste contexto é como se levantassemos uma bandeira indicando algo - similar ao que é feito em esportes.
+	  flagNomeEhValido: logico
 
-			inicio
-			  // ENQUANTO o texto tiver menos que 1 caractere OU não encontrar um ESPAÇO (ou seja, não foi digitado nome E sobrenome)
-			  enquanto nao flagNomeEhValido e contador < 3 faca
-				escreval("Digite seu nome completo: ")
-				leia(nome)
+	inicio
+	  // ENQUANTO o texto tiver menos que 1 caractere OU não encontrar um ESPAÇO (ou seja, não foi digitado nome E sobrenome)
+	  enquanto nao flagNomeEhValido e contador < 3 faca
+		escreval("Digite seu nome completo: ")
+		leia(nome)
 
-				// Ao adicionar o resultado de um teste a uma variável lógica, tornamos possível reutilizar este resultado
-				flagNomeEhValido <- Compr(nome) > 1 e Pos(nome, " ") <> 0
+		// Ao adicionar o resultado de um teste a uma variável lógica, tornamos possível reutilizar este resultado
+		flagNomeEhValido <- Compr(nome) > 1 e Pos(nome, " ") <> 0
 
-				se nao flagNomeEhValido entao
-				  contador <- contador + 1
-				  escreval("Erro: Você não digitou um nome e sobrenome.")
-				fimse
-			  fimenquanto
-			  limpatela
-			  // Utilizamos a flag para indicar que, ao fim da execução, não atingimos o resultado esperado.
-			  se flagNomeEhValido entao
-				escreval("Ocorreram ", contador, " erros e o nome é ", nome)
-			  senao
-				escreval("O usuário não digitou um nome válido e excedeu as tentativas.")
-			  fimse
-			fimalgoritmo
-
-			  // Compr(texto) RETORNA o comprimento do texto
-			  // Pos(texto, textoAProcurar) procura o segundo texto dentro do primeiro e RETORNA a posição onde este foi encontrado
-			  // Copia(texto, inicio, quantidade) RETORNA uma cópia do texto começando na posição indicada e até atingir a quantidade de caracteres
-
-			</code>
-			</pre></div><hr>
+		se nao flagNomeEhValido entao
+		  contador <- contador + 1
+		  escreval("Erro: Você não digitou um nome e sobrenome.")
+		fimse
+	  fimenquanto
+	  limpatela
+	  // Utilizamos a flag para indicar que, ao fim da execução, não atingimos o resultado esperado.
+	  se flagNomeEhValido entao
+		escreval("Ocorreram ", contador, " erros e o nome é ", nome)
+	  senao
+		escreval("O usuário não digitou um nome válido e excedeu as tentativas.")
+	  fimse
+	fimalgoritmo
+				</code>
+				</pre>
+			</div><hr>
 		</main>
 	</body>
 </html>

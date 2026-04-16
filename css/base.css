@@ -1,0 +1,9 @@
+.content-component, .content-component a:link, .content-component a:visited {
+	color: white;
+}
+.content-component a {
+	text-decoration: none;
+}
+.content-component a:hover {
+	color:green;
+}
