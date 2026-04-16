@@ -1,9 +1,11 @@
-.content-component, .content-component a:link, .content-component a:visited {
-	color: white!important;
+#content-component {
+	margin-left:1vw;
+	margin-top:1vh;
+	color: white;
 }
-.content-component a {
-	text-decoration: none!important;
+#content-component a {
+	text-decoration: none;
 }
-.content-component a:hover {
-	color:green!important;
+#content-component a:hover {
+	color:green;
 }
