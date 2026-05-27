@@ -1,0 +1,1539 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>C Básico — Guia Visual</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;600;700&family=Syne:wght@400;700;800&family=DM+Sans:ital,wght@0,300;0,400;1,300&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:        #0b0d12;
+    --surface:   #111420;
+    --surface2:  #171b28;
+    --border:    #1e2436;
+    --accent:    #00e5ff;
+    --accent2:   #7c3aed;
+    --accent3:   #f59e0b;
+    --green:     #22d3a4;
+    --red:       #f87171;
+    --text:      #c9d1e0;
+    --muted:     #5a6280;
+    --heading:   #eef2ff;
+    --mono:      'JetBrains Mono', monospace;
+    --sans:      'DM Sans', sans-serif;
+    --display:   'Times', serif;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--sans);
+    font-size: 15px;
+    line-height: 1.7;
+    min-height: 100vh;
+	font-variant-ligatures: none;
+  }
+
+  /* ── NOISE OVERLAY ── */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 0;
+    opacity: .45;
+  }
+
+  /* ── NAV ── */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    background: rgba(11,13,18,.88);
+    backdrop-filter: blur(14px);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 0;
+    padding: 0 2rem;
+    height: 56px;
+    overflow-x: none;
+  }
+
+  nav .logo {
+    font-family: var(--display);
+    font-weight: 800;
+    font-size: 1.1rem;
+    color: var(--accent);
+    white-space: nowrap;
+    margin-right: 2rem;
+    letter-spacing: -0.03em;
+  }
+
+  nav a {
+    color: var(--muted);
+    text-decoration: none;
+    font-family: var(--mono);
+    font-size: .72rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: .08em;
+    padding: 0 .9rem;
+    height: 56px;
+    display: flex;
+    align-items: center;
+    white-space: nowrap;
+    border-bottom: 2px solid transparent;
+    transition: color .2s, border-color .2s;
+  }
+  nav a:hover { color: var(--heading); border-color: var(--accent); }
+
+  /* ── HERO ── */
+  #hero {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 6rem 2rem 4rem;
+    position: relative;
+    overflow: hidden;
+  }
+
+  #hero::before {
+    content: '';
+    position: absolute;
+    width: 700px; height: 700px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(0,229,255,.07) 0%, transparent 70%);
+    top: 50%; left: 50%;
+    transform: translate(-50%,-50%);
+    animation: pulse 6s ease-in-out infinite;
+  }
+
+  @keyframes pulse {
+    0%,100% { transform: translate(-50%,-50%) scale(1); opacity: .6; }
+    50%      { transform: translate(-50%,-50%) scale(1.15); opacity: 1; }
+  }
+
+  .hero-tag {
+    font-family: var(--mono);
+    font-size: .72rem;
+    color: var(--accent);
+    letter-spacing: .18em;
+    text-transform: uppercase;
+    margin-bottom: 1.5rem;
+    opacity: 0;
+    animation: fadeUp .6s .2s forwards;
+  }
+
+  #hero h1 {
+    font-family: var(--display);
+    font-size: clamp(3.5rem, 10vw, 7rem);
+    font-weight: 600;
+    line-height: .95;
+    letter-spacing: -.04em;
+    color: var(--heading);
+    opacity: 0;
+    animation: fadeUp .7s .4s forwards;
+  }
+
+  #hero h1 span { color: var(--accent); }
+
+  .hero-sub {
+    max-width: 520px;
+    margin: 1.5rem auto 0;
+    color: var(--muted);
+    font-size: 1rem;
+    font-weight: 300;
+    opacity: 0;
+    animation: fadeUp .7s .6s forwards;
+  }
+
+  .hero-badges {
+    display: flex;
+    gap: .75rem;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin-top: 2.5rem;
+    opacity: 0;
+    animation: fadeUp .7s .8s forwards;
+  }
+
+  .badge {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: .35rem .9rem;
+    font-family: var(--mono);
+    font-size: .72rem;
+    color: var(--muted);
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .scroll-hint {
+    position: absolute;
+    bottom: 2.5rem;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: .4rem;
+    color: var(--muted);
+    font-family: var(--mono);
+    font-size: .65rem;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    opacity: 0;
+    animation: fadeUp .7s 1.2s forwards;
+  }
+
+  .scroll-hint::after {
+    content: '';
+    width: 1px; height: 40px;
+    background: linear-gradient(to bottom, var(--accent), transparent);
+    animation: scrollLine 2s ease-in-out infinite;
+  }
+
+  @keyframes scrollLine {
+    0%,100% { opacity: 1; }
+    50%      { opacity: .2; }
+  }
+
+  /* ── SECTIONS ── */
+  section { padding: 5rem 2rem; max-width: 980px; margin: 0 auto; }
+  section + section { border-top: 1px solid var(--border); }
+
+  .section-label {
+    font-family: var(--mono);
+    font-size: .65rem;
+    letter-spacing: .2em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: .75rem;
+  }
+
+  .section-title {
+    font-family: var(--display);
+    font-size: clamp(2rem, 5vw, 3rem);
+    font-weight: 600;
+    color: var(--heading);
+    letter-spacing: -.03em;
+    line-height: 1.1;
+    margin-bottom: 1.5rem;
+  }
+
+  .section-desc {
+    color: var(--muted);
+    max-width: 640px;
+    margin-bottom: 3rem;
+    font-weight: 300;
+  }
+
+  /* ── DEFINITION CARDS ── */
+  .def-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 1rem;
+    margin-bottom: 2.5rem;
+  }
+
+  .def-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1.25rem 1.4rem;
+    position: relative;
+    overflow: hidden;
+    transition: border-color .25s, transform .2s;
+  }
+
+  .def-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0;
+    width: 3px; height: 100%;
+    background: var(--accent);
+    border-radius: 0 2px 2px 0;
+  }
+
+  .def-card:hover {
+    border-color: rgba(0,229,255,.3);
+    transform: translateY(-2px);
+  }
+
+  .def-card.green::before  { background: var(--green); }
+  .def-card.amber::before  { background: var(--accent3); }
+  .def-card.purple::before { background: var(--accent2); }
+  .def-card.red::before    { background: var(--red); }
+
+  .def-term {
+    font-family: var(--mono);
+    font-size: .78rem;
+    font-weight: 700;
+    color: var(--accent);
+    text-transform: uppercase;
+    letter-spacing: .1em;
+    margin-bottom: .3rem;
+  }
+
+  .def-card.green  .def-term { color: var(--green); }
+  .def-card.amber  .def-term { color: var(--accent3); }
+  .def-card.purple .def-term { color: var(--accent2); }
+  .def-card.red    .def-term { color: var(--red); }
+
+  .def-desc {
+    font-size: .88rem;
+    color: var(--text);
+    line-height: 1.55;
+  }
+
+  /* ── CODE BLOCK ── */
+  .code-wrap {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+    margin: 1.5rem 0;
+    position: relative;
+  }
+
+  .code-header {
+    background: var(--surface2);
+    border-bottom: 1px solid var(--border);
+    padding: .55rem 1rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .code-dots { display: flex; gap: 6px; }
+  .code-dots span {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+  }
+  .code-dots span:nth-child(1) { background: #ff5f57; }
+  .code-dots span:nth-child(2) { background: #febc2e; }
+  .code-dots span:nth-child(3) { background: #28c840; }
+
+  .code-filename {
+    font-family: var(--mono);
+    font-size: .68rem;
+    color: var(--muted);
+    letter-spacing: .04em;
+  }
+
+  pre {
+    padding: 1.4rem 1.5rem;
+    overflow-x: auto;
+    font-family: var(--mono);
+    font-size: .82rem;
+    line-height: 1.75;
+    tab-size: 4;
+  }
+
+  /* Syntax colors */
+  .k  { color: #c792ea; font-weight: 600; }  /* keyword */
+  .t  { color: #80cbc4; }                     /* type */
+  .fn { color: #82aaff; }                     /* function */
+  .s  { color: #c3e88d; }                     /* string */
+  .n  { color: #f78c6c; }                     /* number */
+  .c  { color: #546e7a; font-style: italic; } /* comment */
+  .p  { color: var(--accent); }               /* punctuation/op */
+  .v  { color: #eeffff; }                     /* variable */
+  .m  { color: var(--accent3); }              /* macro/include */
+
+  /* ── TYPE TABLE ── */
+  .type-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: var(--mono);
+    font-size: .8rem;
+    margin: 1.5rem 0;
+  }
+
+  .type-table th {
+    text-align: left;
+    padding: .6rem 1rem;
+    border-bottom: 2px solid var(--accent);
+    color: var(--accent);
+    font-size: .68rem;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+  }
+
+  .type-table td {
+    padding: .65rem 1rem;
+    border-bottom: 1px solid var(--border);
+    color: var(--text);
+  }
+
+  .type-table tr:hover td { background: var(--surface2); }
+  .type-table .keyword { color: #c792ea; }
+  .type-table .bytes   { color: var(--accent3); text-align: center; }
+  .type-table .example { color: var(--green); }
+
+  /* ── OP TABLE ── */
+  .op-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: .75rem;
+    margin: 1.5rem 0;
+  }
+
+  .op-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: .9rem 1.1rem;
+    display: flex;
+    align-items: flex-start;
+    gap: .75rem;
+    transition: border-color .2s;
+  }
+
+  .op-card:hover { border-color: rgba(0,229,255,.25);}
+
+  .op-sym {
+    font-family: var(--mono);
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: var(--accent);
+    min-width: 2rem;
+    text-align: center;
+    line-height: 1;
+    padding-top: 2px;
+  }
+
+  .op-card.green  .op-sym { color: var(--green);}
+  .op-card.amber  .op-sym { color: var(--accent3); }
+  .op-card.purple .op-sym { color: #c792ea; }
+
+  .op-info { flex: 1; }
+  .op-name { font-size: .8rem; color: var(--heading); font-weight: 600; line-height: 1.3; }
+  .op-eg   { font-family: var(--mono); font-size: .72rem; color: var(--muted); margin-top: .2rem; }
+
+  /* ── FLOW DIAGRAM ── */
+  .flow-wrap {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 2rem;
+    margin: 1.5rem 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0;
+    font-family: var(--mono);
+    font-size: .78rem;
+  }
+
+  .flow-box {
+    border-radius: 6px;
+    padding: .55rem 1.6rem;
+    text-align: center;
+    min-width: 180px;
+    color: var(--heading);
+  }
+
+  .flow-box.start  { background: var(--accent2); }
+  .flow-box.cond   { background: var(--surface2); border: 2px solid var(--accent3); color: var(--accent3); transform: rotate(0deg); clip-path: polygon(50% 0%,100% 50%,50% 100%,0% 50%); min-width: 200px; padding: 1.1rem 2rem; }
+  .flow-box.action { background: var(--surface2); border: 1px solid var(--green); color: var(--green); }
+  .flow-box.end    { background: var(--red); color: #fff; }
+
+  .flow-arrow {
+    width: 2px; height: 28px;
+    background: var(--muted);
+    position: relative;
+  }
+  .flow-arrow::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 50%;
+    transform: translateX(-50%);
+    border: 5px solid transparent;
+    border-top-color: var(--muted);
+    margin-bottom: -10px;
+  }
+
+  .flow-row {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    width: 100%;
+    justify-content: center;
+  }
+
+  .flow-label {
+    font-size: .65rem;
+    color: var(--muted);
+    padding: 0 .6rem;
+  }
+
+  /* ── EXERCISE CARD ── */
+  .exercise {
+    background: linear-gradient(135deg, rgba(0,229,255,.04) 0%, rgba(124,58,237,.06) 100%);
+    border: 1px solid rgba(0,229,255,.2);
+    border-radius: 8px;
+    padding: 1.5rem 1.75rem;
+    margin: 2rem 0;
+  }
+
+  .exercise-header {
+    display: flex;
+    align-items: center;
+    gap: .75rem;
+    margin-bottom: 1rem;
+  }
+
+  .exercise-num {
+    background: var(--accent);
+    color: #000;
+    font-family: var(--mono);
+    font-size: .72rem;
+    font-weight: 700;
+    padding: .2rem .6rem;
+    border-radius: 3px;
+  }
+
+  .exercise-title {
+    font-family: var(--display);
+    font-weight: 700;
+    color: var(--heading);
+    font-size: 1rem;
+  }
+
+  .exercise ul {
+    padding-left: 1.2rem;
+    color: var(--text);
+    font-size: .9rem;
+  }
+
+  .exercise li { margin-bottom: .3rem; }
+
+  .exercise .tip {
+    margin-top: 1rem;
+    padding: .75rem 1rem;
+    background: rgba(245,158,11,.07);
+    border-left: 3px solid var(--accent3);
+    border-radius: 0 4px 4px 0;
+    font-size: .85rem;
+    color: var(--accent3);
+  }
+
+  /* ── HIGHLIGHT NOTE ── */
+  .note {
+    display: flex;
+    gap: .75rem;
+    align-items: flex-start;
+    padding: .9rem 1.1rem;
+    border-radius: 6px;
+    margin: 1rem 0;
+    font-size: .88rem;
+  }
+
+  .note.info    { background: rgba(0,229,255,.07); border: 1px solid rgba(0,229,255,.2); }
+  .note.warning { background: rgba(245,158,11,.07); border: 1px solid rgba(245,158,11,.2); }
+  .note.danger  { background: rgba(248,113,113,.07); border: 1px solid rgba(248,113,113,.2); }
+
+  .note-icon { font-size: 1rem; flex-shrink: 0; padding-top: .1rem; }
+  .note.info    .note-icon { color: var(--accent); }
+  .note.warning .note-icon { color: var(--accent3); }
+  .note.danger  .note-icon { color: var(--red); }
+
+  /* ── LOOP VISUALIZER ── */
+  .loop-vis {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin: 1.5rem 0;
+  }
+
+  .loop-row {
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+    font-family: var(--mono);
+    font-size: .78rem;
+    padding: .3rem 0;
+    color: var(--muted);
+    border-left: 2px solid transparent;
+    padding-left: .75rem;
+    transition: all .15s;
+  }
+
+  .loop-row.active {
+    color: var(--heading);
+    border-left-color: var(--accent);
+    background: rgba(0,229,255,.04);
+  }
+
+  .loop-i { color: var(--accent3); font-weight: 700; min-width: 60px; }
+  .loop-cond { color: var(--green); }
+  .loop-out  { color: var(--accent); }
+
+  /* ── TIMELINE (operators precedence) ── */
+  .prec-list {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    margin: 1.5rem 0;
+  }
+
+  .prec-row {
+    display: flex;
+    align-items: center;
+    gap: .75rem;
+  }
+
+  .prec-level {
+    font-family: var(--mono);
+    font-size: .65rem;
+    color: var(--muted);
+    min-width: 24px;
+    text-align: right;
+  }
+
+  .prec-bar {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    padding: .3rem .8rem;
+    font-family: var(--mono);
+    font-size: .8rem;
+    color: var(--text);
+    flex: 1;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .prec-ops { color: var(--accent); font-weight: 600; }
+  .prec-name { color: var(--muted); font-size: .68rem; }
+
+  /* ── FOOTER ── */
+  footer {
+    text-align: center;
+    padding: 4rem 2rem;
+    color: var(--muted);
+    font-family: var(--mono);
+    font-size: .72rem;
+    letter-spacing: .06em;
+    border-top: 1px solid var(--border);
+  }
+
+  footer span { color: var(--accent); }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 640px) {
+    nav a { padding: 0 .6rem; font-size: .65rem; }
+    nav .logo { margin-right: 1rem; }
+    .op-grid { grid-template-columns: 1fr 1fr; }
+    .def-grid { grid-template-columns: 1fr; }
+  }
+
+  /* ── SCROLL ANIMATIONS ── */
+  .reveal {
+    opacity: 0;
+    transform: translateY(24px);
+    transition: opacity .55s ease, transform .55s ease;
+  }
+  .reveal.visible {
+    opacity: 1;
+    transform: none;
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="logo">C&lt;básico&gt;</div>
+  <a href="#variaveis">Variáveis</a>
+  <a href="#operadores">Operadores</a>
+  <a href="#condicionais">Condicionais</a>
+  <a href="#loops">Laços</a>
+  <a href="#exercicios">Exercícios</a>
+</nav>
+
+<!-- HERO -->
+<section id="hero">
+  <div class="hero-tag">Linguagem C • Guia Visual em Português</div>
+  <h1>Aprenda <span>C</span><br>do zero</h1>
+  <p class="hero-sub">Variáveis, operadores, condicionais e laços — explicados com exemplos reais, glossário rápido e exercícios práticos.</p>
+  <div class="hero-badges">
+    <span class="badge">#include &lt;stdio.h&gt;</span>
+    <span class="badge">int main()</span>
+    <span class="badge">compilável</span>
+    <span class="badge">interativo</span>
+  </div>
+  <div class="scroll-hint">role para baixo</div>
+</section>
+
+
+<!-- ════════════════════════════════════════════
+     SEÇÃO 1 — VARIÁVEIS
+════════════════════════════════════════════ -->
+<section id="variaveis">
+  <div class="section-label reveal">01 — Fundamentos</div>
+  <h2 class="section-title reveal">Variáveis &amp; Tipos</h2>
+  <p class="section-desc reveal">Uma variável é uma <strong style="color:var(--heading)">caixa com nome</strong> na memória do computador. Ela guarda um valor que pode mudar durante o programa.</p>
+
+  <!-- Glossário -->
+  <div class="def-grid reveal">
+    <div class="def-card">
+      <div class="def-term">Variável</div>
+      <div class="def-desc">Espaço nomeado na memória que armazena um valor.</div>
+    </div>
+    <div class="def-card green">
+      <div class="def-term">Tipo de Dado</div>
+      <div class="def-desc">Define o que a variável pode guardar (número, texto, etc.) e quanto espaço ocupa.</div>
+    </div>
+    <div class="def-card amber">
+      <div class="def-term">Declaração</div>
+      <div class="def-desc">Momento em que se cria a variável no código: <code style="color:var(--accent3)">tipo nome;</code></div>
+    </div>
+    <div class="def-card purple">
+      <div class="def-term">Inicialização</div>
+      <div class="def-desc">Atribuir um valor na hora da declaração: <code style="color:#c792ea">int x = 5;</code></div>
+    </div>
+    <div class="def-card red">
+      <div class="def-term">Escopo</div>
+      <div class="def-desc">Região do código onde a variável existe e pode ser usada.</div>
+    </div>
+    <div class="def-card">
+      <div class="def-term">printf / scanf</div>
+      <div class="def-desc">Funções para <em>imprimir</em> e <em>ler</em> valores do usuário no terminal.</div>
+    </div>
+  </div>
+
+  <!-- Tabela de tipos -->
+  <div class="reveal">
+    <table class="type-table">
+      <thead>
+        <tr>
+          <th>Tipo</th>
+          <th>Tamanho</th>
+          <th>O que guarda</th>
+          <th>Exemplo</th>
+          <th>Formato printf</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="keyword">int</td>
+          <td class="bytes">4 bytes</td>
+          <td>Inteiros (sem vírgula)</td>
+          <td class="example">42, -7, 0</td>
+          <td class="example">%d</td>
+        </tr>
+        <tr>
+          <td class="keyword">float</td>
+          <td class="bytes">4 bytes</td>
+          <td>Decimais (precisão simples)</td>
+          <td class="example">3.14f, -0.5f</td>
+          <td class="example">%f</td>
+        </tr>
+        <tr>
+          <td class="keyword">double</td>
+          <td class="bytes">8 bytes</td>
+          <td>Decimais (precisão dupla)</td>
+          <td class="example">3.141592653</td>
+          <td class="example">%lf</td>
+        </tr>
+        <tr>
+          <td class="keyword">char</td>
+          <td class="bytes">1 byte</td>
+          <td>Um único caractere</td>
+          <td class="example">'A', 'z', '5'</td>
+          <td class="example">%c</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Código exemplo -->
+  <div class="code-wrap reveal">
+    <div class="code-header">
+      <div class="code-dots"><span></span><span></span><span></span></div>
+      <span class="code-filename">variaveis.c</span>
+    </div>
+    <pre><span class="m">#include &lt;stdio.h&gt;</span>
+
+<span class="k">int</span> <span class="fn">main</span>() {
+
+    <span class="c">/* ── Declaração e inicialização ── */</span>
+    <span class="t">int</span>    <span class="v">idade</span>       <span class="p">=</span> <span class="n">20</span><span class="p">;</span>
+    <span class="t">float</span>  <span class="v">nota</span>        <span class="p">=</span> <span class="n">8.5f</span><span class="p">;</span>
+    <span class="t">double</span> <span class="v">pi</span>          <span class="p">=</span> <span class="n">3.14159265</span><span class="p">;</span>
+    <span class="t">char</span>   <span class="v">inicial</span>     <span class="p">=</span> <span class="s">'A'</span><span class="p">;</span>
+
+    <span class="c">/* ── Exibir valores ── */</span>
+    <span class="fn">printf</span>(<span class="s">"Idade:   %d\n"</span>,  <span class="v">idade</span>)<span class="p">;</span>
+    <span class="fn">printf</span>(<span class="s">"Nota:    %.1f\n"</span>, <span class="v">nota</span>)<span class="p">;</span>
+    <span class="fn">printf</span>(<span class="s">"Pi:      %lf\n"</span>, <span class="v">pi</span>)<span class="p">;</span>
+    <span class="fn">printf</span>(<span class="s">"Inicial: %c\n"</span>,  <span class="v">inicial</span>)<span class="p">;</span>
+
+    <span class="c">/* ── Ler do usuário ── */</span>
+    <span class="fn">printf</span>(<span class="s">"Digite sua idade: "</span>)<span class="p">;</span>
+    <span class="fn">scanf</span>(<span class="s">"%d"</span>, <span class="p">&amp;</span><span class="v">idade</span>)<span class="p">;</span>   <span class="c">// &amp; = endereço de memória</span>
+    <span class="fn">printf</span>(<span class="s">"Você tem %d anos.\n"</span>, <span class="v">idade</span>)<span class="p">;</span>
+
+    <span class="k">return</span> <span class="n">0</span><span class="p">;</span>
+}</pre>
+  </div>
+
+  <div class="note info reveal">
+    <span class="note-icon">💡</span>
+    <div><strong style="color:var(--heading)">Por que &amp; no scanf?</strong> — O <code>&amp;</code> passa o <em>endereço</em> da variável, para que <code>scanf</code> saiba onde na memória escrever o valor digitado pelo usuário.</div>
+  </div>
+</section>
+
+
+<!-- ════════════════════════════════════════════
+     SEÇÃO 2 — OPERADORES
+════════════════════════════════════════════ -->
+<section id="operadores">
+  <div class="section-label reveal">02 — Cálculos &amp; Comparações</div>
+  <h2 class="section-title reveal">Operadores</h2>
+  <p class="section-desc reveal">Operadores são <strong style="color:var(--heading)">símbolos que realizam operações</strong> sobre valores e variáveis. Existem três grupos principais.</p>
+
+  <!-- Aritméticos -->
+  <h3 class="reveal" style="font-family:var(--display);color:var(--heading);font-size:1.3rem;">Aritméticos — fazem contas</h3>
+  <div class="op-grid reveal">
+    <div class="op-card">
+      <div class="op-sym">+</div>
+      <div class="op-info">
+        <div class="op-name">Adição</div>
+        <div class="op-eg">a + b → soma</div>
+      </div>
+    </div>
+    <div class="op-card">
+      <div class="op-sym">-</div>
+      <div class="op-info">
+        <div class="op-name">Subtração</div>
+        <div class="op-eg">a - b → diferença</div>
+      </div>
+    </div>
+    <div class="op-card">
+      <div class="op-sym">*</div>
+      <div class="op-info">
+        <div class="op-name">Multiplicação</div>
+        <div class="op-eg">a * b → produto</div>
+      </div>
+    </div>
+    <div class="op-card">
+      <div class="op-sym">/</div>
+      <div class="op-info">
+        <div class="op-name">Divisão</div>
+        <div class="op-eg">10 / 3 → 3 (int!)</div>
+      </div>
+    </div>
+    <div class="op-card amber">
+      <div class="op-sym">%</div>
+      <div class="op-info">
+        <div class="op-name">Módulo (resto)</div>
+        <div class="op-eg">10 % 3 → 1</div>
+      </div>
+    </div>
+    <div class="op-card amber">
+      <div class="op-sym">++</div>
+      <div class="op-info">
+        <div class="op-name">Incremento</div>
+        <div class="op-eg">x++ → x = x + 1</div>
+      </div>
+    </div>
+    <div class="op-card amber">
+      <div class="op-sym">--</div>
+      <div class="op-info">
+        <div class="op-name">Decremento</div>
+        <div class="op-eg">x-- → x = x - 1</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Relacionais -->
+  <h3 class="reveal" style="font-family:var(--display);color:var(--heading);font-size:1.3rem;">Relacionais — comparam valores</h3>
+  <div class="op-grid reveal">
+    <div class="op-card green">
+      <div class="op-sym" style="color:var(--green)">&gt;</div>
+      <div class="op-info">
+        <div class="op-name">Maior que</div>
+        <div class="op-eg">5 &gt; 3 → 1 (true)</div>
+      </div>
+    </div>
+    <div class="op-card green">
+      <div class="op-sym" style="color:var(--green)">&lt;</div>
+      <div class="op-info">
+        <div class="op-name">Menor que</div>
+        <div class="op-eg">2 &lt; 8 → 1 (true)</div>
+      </div>
+    </div>
+    <div class="op-card green">
+      <div class="op-sym" style="color:var(--green)">==</div>
+      <div class="op-info">
+        <div class="op-name">Igual a</div>
+        <div class="op-eg">3 == 3 → 1 (true)</div>
+      </div>
+    </div>
+    <div class="op-card green">
+      <div class="op-sym" style="color:var(--green)">!=</div>
+      <div class="op-info">
+        <div class="op-name">Diferente de</div>
+        <div class="op-eg">4 != 5 → 1 (true)</div>
+      </div>
+    </div>
+    <div class="op-card green">
+      <div class="op-sym" style="color:var(--green)">&gt;=</div>
+      <div class="op-info">
+        <div class="op-name">Maior ou igual</div>
+        <div class="op-eg">5 &gt;= 5 → 1 (true)</div>
+      </div>
+    </div>
+    <div class="op-card green">
+      <div class="op-sym" style="color:var(--green)">&lt;=</div>
+      <div class="op-info">
+        <div class="op-name">Menor ou igual</div>
+        <div class="op-eg">2 &lt;= 9 → 1 (true)</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="note warning reveal">
+    <span class="note-icon">⚠️</span>
+    <div><strong style="color:var(--heading)">= vs ==</strong> — Em C, <code>=</code> <em>atribui</em> um valor. <code>==</code> <em>compara</em>. Confundir os dois é um dos erros mais comuns para iniciantes!</div>
+  </div>
+
+  <!-- Lógicos -->
+  <h3 class="reveal" style="font-family:var(--display);color:var(--heading);font-size:1.3rem;">Lógicos — combinam condições</h3>
+  <div class="op-grid reveal">
+    <div class="op-card purple">
+      <div class="op-sym">&&</div>
+      <div class="op-info">
+        <div class="op-name">E lógico (AND)</div>
+        <div class="op-eg">true só se ambos forem true</div>
+      </div>
+    </div>
+    <div class="op-card purple">
+      <div class="op-sym">||</div>
+      <div class="op-info">
+        <div class="op-name">OU lógico (OR)</div>
+        <div class="op-eg">true se pelo menos um for true</div>
+      </div>
+    </div>
+    <div class="op-card purple">
+      <div class="op-sym">!</div>
+      <div class="op-info">
+        <div class="op-name">NÃO lógico (NOT)</div>
+        <div class="op-eg">inverte: !true → false</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Código operadores -->
+  <div class="code-wrap reveal">
+    <div class="code-header">
+      <div class="code-dots"><span></span><span></span><span></span></div>
+      <span class="code-filename">operadores.c</span>
+    </div>
+    <pre><span class="m">#include &lt;stdio.h&gt;</span>
+
+<span class="k">int</span> <span class="fn">main</span>() {
+    <span class="t">int</span> <span class="v">a</span> <span class="p">=</span> <span class="n">10</span><span class="p">,</span> <span class="v">b</span> <span class="p">=</span> <span class="n">3</span><span class="p">;</span>
+
+    <span class="c">/* Aritméticos */</span>
+    <span class="fn">printf</span>(<span class="s">"%d + %d = %d\n"</span>, <span class="v">a</span>, <span class="v">b</span>, <span class="v">a</span><span class="p">+</span><span class="v">b</span>)<span class="p">;</span>  <span class="c">// 13</span>
+    <span class="fn">printf</span>(<span class="s">"%d %% %d = %d\n"</span>, <span class="v">a</span>, <span class="v">b</span>, <span class="v">a</span><span class="p">%</span><span class="v">b</span>)<span class="p">;</span>  <span class="c">// 1 (resto)</span>
+
+    <span class="c">/* Relacionais — retornam 0 ou 1 */</span>
+    <span class="fn">printf</span>(<span class="s">"a &gt; b: %d\n"</span>, <span class="v">a</span> <span class="p">&gt;</span> <span class="v">b</span>)<span class="p">;</span>    <span class="c">// 1 (verdadeiro)</span>
+    <span class="fn">printf</span>(<span class="s">"a == b: %d\n"</span>, <span class="v">a</span> <span class="p">==</span> <span class="v">b</span>)<span class="p">;</span>  <span class="c">// 0 (falso)</span>
+
+    <span class="c">/* Lógicos */</span>
+    <span class="fn">printf</span>(<span class="s">"a&gt;5 && b&lt;5: %d\n"</span>, <span class="v">a</span><span class="p">&gt;</span><span class="n">5</span> <span class="p">&amp;&amp;</span> <span class="v">b</span><span class="p">&lt;</span><span class="n">5</span>)<span class="p">;</span>  <span class="c">// 1</span>
+    <span class="fn">printf</span>(<span class="s">"!(a == b): %d\n"</span>, <span class="p">!</span>(<span class="v">a</span><span class="p">==</span><span class="v">b</span>))<span class="p">;</span>       <span class="c">// 1</span>
+
+    <span class="c">/* Incremento */</span>
+    <span class="v">a</span><span class="p">++;</span>
+    <span class="fn">printf</span>(<span class="s">"a após ++: %d\n"</span>, <span class="v">a</span>)<span class="p">;</span>  <span class="c">// 11</span>
+
+    <span class="k">return</span> <span class="n">0</span><span class="p">;</span>
+}</pre>
+  </div>
+
+  <!-- Precedência simplificada -->
+  <h3 class="reveal" style="font-family:var(--display);color:var(--heading);margin:2rem 0 .75rem;font-size:1.2rem;">Precedência — quem é avaliado primeiro?</h3>
+  <div class="prec-list reveal">
+    <div class="prec-row">
+      <span class="prec-level">1°</span>
+      <div class="prec-bar"><span class="prec-ops">( )</span><span class="prec-name">parênteses</span></div>
+    </div>
+    <div class="prec-row">
+      <span class="prec-level">2°</span>
+      <div class="prec-bar"><span class="prec-ops">++ --  !</span><span class="prec-name">unários</span></div>
+    </div>
+    <div class="prec-row">
+      <span class="prec-level">3°</span>
+      <div class="prec-bar"><span class="prec-ops">*  /  %</span><span class="prec-name">multiplicação / divisão / módulo</span></div>
+    </div>
+    <div class="prec-row">
+      <span class="prec-level">4°</span>
+      <div class="prec-bar"><span class="prec-ops">+  -</span><span class="prec-name">adição / subtração</span></div>
+    </div>
+    <div class="prec-row">
+      <span class="prec-level">5°</span>
+      <div class="prec-bar"><span class="prec-ops">&lt;  &gt;  &lt;=  &gt;=</span><span class="prec-name">relacionais</span></div>
+    </div>
+    <div class="prec-row">
+      <span class="prec-level">6°</span>
+      <div class="prec-bar"><span class="prec-ops">==  !=</span><span class="prec-name">igualdade</span></div>
+    </div>
+    <div class="prec-row">
+      <span class="prec-level">7°</span>
+      <div class="prec-bar"><span class="prec-ops">&&</span><span class="prec-name">AND lógico</span></div>
+    </div>
+    <div class="prec-row">
+      <span class="prec-level">8°</span>
+      <div class="prec-bar"><span class="prec-ops">||</span><span class="prec-name">OR lógico</span></div>
+    </div>
+    <div class="prec-row">
+      <span class="prec-level">9°</span>
+      <div class="prec-bar"><span class="prec-ops">=</span><span class="prec-name">atribuição (por último!)</span></div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ════════════════════════════════════════════
+     SEÇÃO 3 — CONDICIONAIS
+════════════════════════════════════════════ -->
+<section id="condicionais">
+  <div class="section-label reveal">03 — Decisões</div>
+  <h2 class="section-title reveal">Estruturas Condicionais</h2>
+  <p class="section-desc reveal">O programa <strong style="color:var(--heading)">escolhe um caminho</strong> baseado em uma condição. Se a condição for verdadeira (≠ 0) → executa um bloco; caso contrário → executa outro.</p>
+
+  <!-- Glossário condicionais -->
+  <div class="def-grid reveal">
+    <div class="def-card">
+      <div class="def-term">if</div>
+      <div class="def-desc">"Se" — executa o bloco somente se a condição for verdadeira.</div>
+    </div>
+    <div class="def-card amber">
+      <div class="def-term">else</div>
+      <div class="def-desc">"Senão" — executado quando nenhum <code>if</code> anterior foi verdadeiro.</div>
+    </div>
+    <div class="def-card green">
+      <div class="def-term">else if</div>
+      <div class="def-desc">Encadeia múltiplas condições, testadas em ordem.</div>
+    </div>
+    <div class="def-card purple">
+      <div class="def-term">switch</div>
+      <div class="def-desc">Compara uma variável com vários valores fixos (<code>case</code>).</div>
+    </div>
+    <div class="def-card red">
+      <div class="def-term">break</div>
+      <div class="def-desc">Encerra o <code>switch</code> (ou laço) imediatamente.</div>
+    </div>
+    <div class="def-card">
+      <div class="def-term">default</div>
+      <div class="def-desc">Bloco do <code>switch</code> executado quando nenhum <code>case</code> bate.</div>
+    </div>
+  </div>
+
+  <!-- Fluxo if/else -->
+  <h3 class="reveal" style="font-family:var(--display);color:var(--heading);margin-bottom:1rem;font-size:1.3rem;">Fluxo do if / else if / else</h3>
+  <div class="flow-wrap reveal">
+    <div class="flow-box start" style="min-width:200px">INÍCIO</div>
+    <div class="flow-arrow"></div>
+    <div class="flow-box cond">nota &gt;= 7 ?</div>
+    <div style="display:flex;align-items:flex-start;gap:3rem;width:100%;justify-content:center;margin-top:-10px">
+      <div style="display:flex;flex-direction:column;align-items:center;gap:0">
+        <span style="font-family:var(--mono);font-size:.65rem;color:var(--green);padding:.3rem">SIM</span>
+        <div class="flow-arrow"></div>
+        <div class="flow-box action">"Aprovado"</div>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:center;gap:0">
+        <span style="font-family:var(--mono);font-size:.65rem;color:var(--red);padding:.3rem">NÃO</span>
+        <div class="flow-arrow"></div>
+        <div class="flow-box cond" style="clip-path:none;padding:.55rem 1.6rem;color:var(--accent3);border-color:var(--accent3)">nota &gt;= 5 ?</div>
+        <div style="display:flex;align-items:flex-start;gap:2rem;margin-top:0">
+          <div style="display:flex;flex-direction:column;align-items:center;gap:0">
+            <span style="font-family:var(--mono);font-size:.65rem;color:var(--green);padding:.3rem">SIM</span>
+            <div class="flow-arrow"></div>
+            <div class="flow-box action">"Recuperação"</div>
+          </div>
+          <div style="display:flex;flex-direction:column;align-items:center;gap:0">
+            <span style="font-family:var(--mono);font-size:.65rem;color:var(--red);padding:.3rem">NÃO</span>
+            <div class="flow-arrow"></div>
+            <div class="flow-box end">"Reprovado"</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Código if/else -->
+  <div class="code-wrap reveal">
+    <div class="code-header">
+      <div class="code-dots"><span></span><span></span><span></span></div>
+      <span class="code-filename">if_else.c</span>
+    </div>
+    <pre><span class="m">#include &lt;stdio.h&gt;</span>
+
+<span class="k">int</span> <span class="fn">main</span>() {
+    <span class="t">float</span> <span class="v">nota</span><span class="p">;</span>
+    <span class="fn">printf</span>(<span class="s">"Digite sua nota (0-10): "</span>)<span class="p">;</span>
+    <span class="fn">scanf</span>(<span class="s">"%f"</span>, <span class="p">&amp;</span><span class="v">nota</span>)<span class="p">;</span>
+
+    <span class="k">if</span> (<span class="v">nota</span> <span class="p">&gt;=</span> <span class="n">7.0f</span>) {
+        <span class="fn">printf</span>(<span class="s">"✅ Aprovado!\n"</span>)<span class="p">;</span>
+    } <span class="k">else if</span> (<span class="v">nota</span> <span class="p">&gt;=</span> <span class="n">5.0f</span>) {
+        <span class="fn">printf</span>(<span class="s">"⚠️  Recuperação.\n"</span>)<span class="p">;</span>
+    } <span class="k">else</span> {
+        <span class="fn">printf</span>(<span class="s">"❌ Reprovado.\n"</span>)<span class="p">;</span>
+    }
+
+    <span class="k">return</span> <span class="n">0</span><span class="p">;</span>
+}</pre>
+  </div>
+
+  <!-- Switch -->
+  <h3 class="reveal" style="font-family:var(--display);color:var(--heading);margin:2.5rem 0 .75rem;font-size:1.3rem;">switch — múltiplas opções fixas</h3>
+
+  <div class="note info reveal">
+    <span class="note-icon">💡</span>
+    <div><strong style="color:var(--heading)">Quando usar switch?</strong> — Prefira <code>switch</code> quando você compara uma variável com <em>valores inteiros ou char fixos</em>. Fica mais legível do que vários <code>else if</code>.</div>
+  </div>
+
+  <div class="code-wrap reveal">
+    <div class="code-header">
+      <div class="code-dots"><span></span><span></span><span></span></div>
+      <span class="code-filename">switch.c</span>
+    </div>
+    <pre><span class="m">#include &lt;stdio.h&gt;</span>
+
+<span class="k">int</span> <span class="fn">main</span>() {
+    <span class="t">int</span> <span class="v">dia</span><span class="p">;</span>
+    <span class="fn">printf</span>(<span class="s">"Dia da semana (1-7): "</span>)<span class="p">;</span>
+    <span class="fn">scanf</span>(<span class="s">"%d"</span>, <span class="p">&amp;</span><span class="v">dia</span>)<span class="p">;</span>
+
+    <span class="k">switch</span> (<span class="v">dia</span>) {
+        <span class="k">case</span> <span class="n">1</span><span class="p">:</span>
+            <span class="fn">printf</span>(<span class="s">"Domingo\n"</span>)<span class="p">;</span>
+            <span class="k">break</span><span class="p">;</span>
+        <span class="k">case</span> <span class="n">2</span><span class="p">:</span>
+            <span class="fn">printf</span>(<span class="s">"Segunda-feira\n"</span>)<span class="p">;</span>
+            <span class="k">break</span><span class="p">;</span>
+        <span class="k">case</span> <span class="n">7</span><span class="p">:</span>
+            <span class="fn">printf</span>(<span class="s">"Sábado\n"</span>)<span class="p">;</span>
+            <span class="k">break</span><span class="p">;</span>
+        <span class="k">default</span><span class="p">:</span>
+            <span class="fn">printf</span>(<span class="s">"Dia de semana comum.\n"</span>)<span class="p">;</span>
+    }
+
+    <span class="k">return</span> <span class="n">0</span><span class="p">;</span>
+}</pre>
+  </div>
+
+  <div class="note danger reveal">
+    <span class="note-icon">🔴</span>
+    <div><strong style="color:var(--heading)">Esqueceu o break?</strong> — Sem <code>break</code>, o C continua executando os <code>case</code> seguintes automaticamente (<em>fall-through</em>). Às vezes intencional; geralmente é um bug!</div>
+  </div>
+</section>
+
+
+<!-- ════════════════════════════════════════════
+     SEÇÃO 4 — LAÇOS
+════════════════════════════════════════════ -->
+<section id="loops">
+  <div class="section-label reveal">04 — Repetição</div>
+  <h2 class="section-title reveal">Laços (Loops)</h2>
+  <p class="section-desc reveal">Laços <strong style="color:var(--heading)">repetem um bloco de código</strong> enquanto uma condição for verdadeira. Evitam copiar e colar o mesmo código muitas vezes.</p>
+
+  <div class="def-grid reveal">
+    <div class="def-card">
+      <div class="def-term">for</div>
+      <div class="def-desc">Usado quando o número de repetições é <em>conhecido</em>. Possui inicialização, condição e incremento na mesma linha.</div>
+    </div>
+    <div class="def-card green">
+      <div class="def-term">while</div>
+      <div class="def-desc">Repete <em>enquanto</em> a condição for verdadeira. Testa <strong>antes</strong> de executar — pode nunca rodar.</div>
+    </div>
+    <div class="def-card amber">
+      <div class="def-term">do…while</div>
+      <div class="def-desc">Executa o bloco <strong>ao menos uma vez</strong>, depois testa a condição.</div>
+    </div>
+    <div class="def-card red">
+      <div class="def-term">break</div>
+      <div class="def-desc">Sai do laço imediatamente, antes de a condição ser falsa.</div>
+    </div>
+    <div class="def-card purple">
+      <div class="def-term">continue</div>
+      <div class="def-desc">Pula para a próxima iteração sem executar o restante do bloco.</div>
+    </div>
+    <div class="def-card">
+      <div class="def-term">Variável de controle</div>
+      <div class="def-desc">Variável (geralmente <code>i</code>, <code>j</code>) que conta as iterações.</div>
+    </div>
+  </div>
+
+  <!-- FOR -->
+  <h3 class="reveal" style="font-family:var(--display);color:var(--heading);margin:2rem 0 .5rem;font-size:1.3rem;">for — número de voltas conhecido</h3>
+  <p class="reveal" style="color:var(--muted);font-size:.9rem;margin-bottom:1rem;">Sintaxe: <code style="color:var(--accent)">for (inicialização; condição; incremento) { ... }</code></p>
+
+  <!-- Visualizador for -->
+  <div class="loop-vis reveal">
+    <div style="font-family:var(--mono);font-size:.65rem;color:var(--muted);letter-spacing:.1em;text-transform:uppercase;">for (i = 0; i &lt; 5; i++)</div>
+    <div class="loop-row active">
+      <span class="loop-i">i = 0</span>
+      <span class="loop-cond">0 &lt; 5 ✓</span>
+      <span style="color:var(--muted);flex:1">→</span>
+      <span class="loop-out">printf("%d", 0)  →  executa</span>
+    </div>
+    <div class="loop-row active">
+      <span class="loop-i">i = 1</span>
+      <span class="loop-cond">1 &lt; 5 ✓</span>
+      <span style="color:var(--muted);flex:1">→</span>
+      <span class="loop-out">printf("%d", 1)  →  executa</span>
+    </div>
+    <div class="loop-row active">
+      <span class="loop-i">i = 2</span>
+      <span class="loop-cond">2 &lt; 5 ✓</span>
+      <span style="color:var(--muted);flex:1">→</span>
+      <span class="loop-out">printf("%d", 2)  →  executa</span>
+    </div>
+    <div class="loop-row active">
+      <span class="loop-i">i = 3</span>
+      <span class="loop-cond">3 &lt; 5 ✓</span>
+      <span style="color:var(--muted);flex:1">→</span>
+      <span class="loop-out">printf("%d", 3)  →  executa</span>
+    </div>
+    <div class="loop-row active">
+      <span class="loop-i">i = 4</span>
+      <span class="loop-cond">4 &lt; 5 ✓</span>
+      <span style="color:var(--muted);flex:1">→</span>
+      <span class="loop-out">printf("%d", 4)  →  executa</span>
+    </div>
+    <div class="loop-row" style="color:var(--red)">
+      <span class="loop-i" style="color:var(--red)">i = 5</span>
+      <span style="color:var(--red)">5 &lt; 5 ✗  →  PARA</span>
+    </div>
+  </div>
+
+  <div class="code-wrap reveal">
+    <div class="code-header">
+      <div class="code-dots"><span></span><span></span><span></span></div>
+      <span class="code-filename">for.c</span>
+    </div>
+    <pre><span class="m">#include &lt;stdio.h&gt;</span>
+
+<span class="k">int</span> <span class="fn">main</span>() {
+
+    <span class="c">/* ── Contagem de 0 a 4 ── */</span>
+    <span class="k">for</span> (<span class="t">int</span> <span class="v">i</span> <span class="p">=</span> <span class="n">0</span><span class="p">;</span> <span class="v">i</span> <span class="p">&lt;</span> <span class="n">5</span><span class="p">;</span> <span class="v">i</span><span class="p">++</span>) {
+        <span class="fn">printf</span>(<span class="s">"%d "</span>, <span class="v">i</span>)<span class="p">;</span>       <span class="c">// 0 1 2 3 4</span>
+    }
+    <span class="fn">printf</span>(<span class="s">"\n"</span>)<span class="p">;</span>
+
+    <span class="c">/* ── Soma de 1 a 100 ── */</span>
+    <span class="t">int</span> <span class="v">soma</span> <span class="p">=</span> <span class="n">0</span><span class="p">;</span>
+    <span class="k">for</span> (<span class="t">int</span> <span class="v">i</span> <span class="p">=</span> <span class="n">1</span><span class="p">;</span> <span class="v">i</span> <span class="p">&lt;=</span> <span class="n">100</span><span class="p">;</span> <span class="v">i</span><span class="p">++</span>) {
+        <span class="v">soma</span> <span class="p">+=</span> <span class="v">i</span><span class="p">;</span>
+    }
+    <span class="fn">printf</span>(<span class="s">"Soma 1-100: %d\n"</span>, <span class="v">soma</span>)<span class="p">;</span>  <span class="c">// 5050</span>
+
+    <span class="c">/* ── Contagem regressiva ── */</span>
+    <span class="k">for</span> (<span class="t">int</span> <span class="v">i</span> <span class="p">=</span> <span class="n">10</span><span class="p">;</span> <span class="v">i</span> <span class="p">&gt;=</span> <span class="n">0</span><span class="p">;</span> <span class="v">i</span><span class="p">--</span>) {
+        <span class="fn">printf</span>(<span class="s">"%d "</span>, <span class="v">i</span>)<span class="p">;</span>
+    }
+    <span class="fn">printf</span>(<span class="s">"🚀\n"</span>)<span class="p">;</span>
+
+    <span class="k">return</span> <span class="n">0</span><span class="p">;</span>
+}</pre>
+  </div>
+
+  <!-- WHILE -->
+  <h3 class="reveal" style="font-family:var(--display);color:var(--heading);margin:2.5rem 0 .5rem;font-size:1.3rem;">while — número de voltas indefinido</h3>
+  <p class="reveal" style="color:var(--muted);font-size:.9rem;margin-bottom:1rem;">Sintaxe: <code style="color:var(--green)">while (condição) { ... }</code> — a condição é testada <em>antes</em> de cada iteração.</p>
+
+  <div class="code-wrap reveal">
+    <div class="code-header">
+      <div class="code-dots"><span></span><span></span><span></span></div>
+      <span class="code-filename">while.c</span>
+    </div>
+    <pre><span class="m">#include &lt;stdio.h&gt;</span>
+
+<span class="k">int</span> <span class="fn">main</span>() {
+
+    <span class="c">/* ── Dobrar número até passar de 1000 ── */</span>
+    <span class="t">int</span> <span class="v">n</span> <span class="p">=</span> <span class="n">1</span><span class="p">;</span>
+    <span class="k">while</span> (<span class="v">n</span> <span class="p">&lt;=</span> <span class="n">1000</span>) {
+        <span class="fn">printf</span>(<span class="s">"%d\n"</span>, <span class="v">n</span>)<span class="p">;</span>
+        <span class="v">n</span> <span class="p">*=</span> <span class="n">2</span><span class="p">;</span>   <span class="c">// n = n * 2</span>
+    }
+
+    <span class="c">/* ── Validar entrada do usuário ── */</span>
+    <span class="t">int</span> <span class="v">senha</span><span class="p">;</span>
+    <span class="k">while</span> (<span class="n">1</span>) {              <span class="c">// laço "infinito"</span>
+        <span class="fn">printf</span>(<span class="s">"Digite a senha: "</span>)<span class="p">;</span>
+        <span class="fn">scanf</span>(<span class="s">"%d"</span>, <span class="p">&amp;</span><span class="v">senha</span>)<span class="p">;</span>
+        <span class="k">if</span> (<span class="v">senha</span> <span class="p">==</span> <span class="n">1234</span>) <span class="k">break</span><span class="p">;</span>   <span class="c">// sai quando acertar</span>
+        <span class="fn">printf</span>(<span class="s">"Errado! Tente novamente.\n"</span>)<span class="p">;</span>
+    }
+    <span class="fn">printf</span>(<span class="s">"Acesso liberado!\n"</span>)<span class="p">;</span>
+
+    <span class="k">return</span> <span class="n">0</span><span class="p">;</span>
+}</pre>
+  </div>
+
+  <!-- DO WHILE -->
+  <h3 class="reveal" style="font-family:var(--display);color:var(--heading);margin:2.5rem 0 .5rem;font-size:1.3rem;">do…while — executa pelo menos uma vez</h3>
+  <p class="reveal" style="color:var(--muted);font-size:.9rem;margin-bottom:1rem;">Sintaxe: <code style="color:var(--accent3)">do { ... } while (condição);</code> — o bloco roda <em>antes</em> de checar a condição.</p>
+
+  <div class="code-wrap reveal">
+    <div class="code-header">
+      <div class="code-dots"><span></span><span></span><span></span></div>
+      <span class="code-filename">do_while.c</span>
+    </div>
+    <pre><span class="m">#include &lt;stdio.h&gt;</span>
+
+<span class="k">int</span> <span class="fn">main</span>() {
+
+    <span class="t">int</span> <span class="v">opcao</span><span class="p">;</span>
+
+    <span class="k">do</span> {
+        <span class="fn">printf</span>(<span class="s">"\n=== MENU ===\n"</span>)<span class="p">;</span>
+        <span class="fn">printf</span>(<span class="s">"1. Jogar\n"</span>)<span class="p">;</span>
+        <span class="fn">printf</span>(<span class="s">"2. Configurações\n"</span>)<span class="p">;</span>
+        <span class="fn">printf</span>(<span class="s">"0. Sair\n"</span>)<span class="p">;</span>
+        <span class="fn">printf</span>(<span class="s">"Escolha: "</span>)<span class="p">;</span>
+        <span class="fn">scanf</span>(<span class="s">"%d"</span>, <span class="p">&amp;</span><span class="v">opcao</span>)<span class="p">;</span>
+
+        <span class="k">if</span> (<span class="v">opcao</span> <span class="p">==</span> <span class="n">1</span>) <span class="fn">printf</span>(<span class="s">"Iniciando jogo...\n"</span>)<span class="p">;</span>
+        <span class="k">if</span> (<span class="v">opcao</span> <span class="p">==</span> <span class="n">2</span>) <span class="fn">printf</span>(<span class="s">"Abrindo configs...\n"</span>)<span class="p">;</span>
+
+    } <span class="k">while</span> (<span class="v">opcao</span> <span class="p">!=</span> <span class="n">0</span>)<span class="p">;</span>   <span class="c">// repete até 0</span>
+
+    <span class="fn">printf</span>(<span class="s">"Até logo!\n"</span>)<span class="p">;</span>
+    <span class="k">return</span> <span class="n">0</span><span class="p">;</span>
+}</pre>
+  </div>
+
+  <!-- break / continue -->
+  <h3 class="reveal" style="font-family:var(--display);color:var(--heading);margin:2.5rem 0 .75rem;font-size:1.3rem;">break &amp; continue — controlando o fluxo interno</h3>
+  <div class="code-wrap reveal">
+    <div class="code-header">
+      <div class="code-dots"><span></span><span></span><span></span></div>
+      <span class="code-filename">break_continue.c</span>
+    </div>
+    <pre><span class="m">#include &lt;stdio.h&gt;</span>
+
+<span class="k">int</span> <span class="fn">main</span>() {
+
+    <span class="c">/* continue — pula números pares */</span>
+    <span class="fn">printf</span>(<span class="s">"Ímpares de 1-10: "</span>)<span class="p">;</span>
+    <span class="k">for</span> (<span class="t">int</span> <span class="v">i</span> <span class="p">=</span> <span class="n">1</span><span class="p">;</span> <span class="v">i</span> <span class="p">&lt;=</span> <span class="n">10</span><span class="p">;</span> <span class="v">i</span><span class="p">++</span>) {
+        <span class="k">if</span> (<span class="v">i</span> <span class="p">%</span> <span class="n">2</span> <span class="p">==</span> <span class="n">0</span>) <span class="k">continue</span><span class="p">;</span>  <span class="c">// pula par</span>
+        <span class="fn">printf</span>(<span class="s">"%d "</span>, <span class="v">i</span>)<span class="p">;</span>
+    }
+    <span class="fn">printf</span>(<span class="s">"\n"</span>)<span class="p">;</span>    <span class="c">// 1 3 5 7 9</span>
+
+    <span class="c">/* break — acha primeiro múltiplo de 7 */</span>
+    <span class="k">for</span> (<span class="t">int</span> <span class="v">i</span> <span class="p">=</span> <span class="n">1</span><span class="p">;</span> <span class="v">i</span> <span class="p">&lt;=</span> <span class="n">100</span><span class="p">;</span> <span class="v">i</span><span class="p">++</span>) {
+        <span class="k">if</span> (<span class="v">i</span> <span class="p">%</span> <span class="n">7</span> <span class="p">==</span> <span class="n">0</span>) {
+            <span class="fn">printf</span>(<span class="s">"Primeiro múltiplo de 7: %d\n"</span>, <span class="v">i</span>)<span class="p">;</span>
+            <span class="k">break</span><span class="p">;</span>    <span class="c">// não precisa continuar</span>
+        }
+    }
+
+    <span class="k">return</span> <span class="n">0</span><span class="p">;</span>
+}</pre>
+  </div>
+
+  <!-- Comparação dos três laços -->
+  <div class="reveal" style="margin-top:2rem">
+    <table class="type-table">
+      <thead>
+        <tr>
+          <th>Laço</th>
+          <th>Testa condição</th>
+          <th>Quando usar</th>
+          <th>Execuções mínimas</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="keyword">for</td>
+          <td>antes</td>
+          <td>Quantidade conhecida</td>
+          <td class="example">0</td>
+        </tr>
+        <tr>
+          <td class="keyword">while</td>
+          <td>antes</td>
+          <td>Quantidade desconhecida</td>
+          <td class="example">0</td>
+        </tr>
+        <tr>
+          <td class="keyword">do…while</td>
+          <td>depois</td>
+          <td>Precisa executar ao menos 1x</td>
+          <td class="example" style="color:var(--accent3)">1</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+
+<!-- ════════════════════════════════════════════
+     SEÇÃO 5 — EXERCÍCIOS
+════════════════════════════════════════════ -->
+<section id="exercicios">
+  <div class="section-label reveal">05 — Pratique</div>
+  <h2 class="section-title reveal">Exercícios</h2>
+  <p class="section-desc reveal">A melhor forma de aprender é codando. Tente resolver cada exercício antes de ver a dica!</p>
+
+  <div class="exercise reveal">
+    <div class="exercise-header">
+      <span class="exercise-num">EX 01</span>
+      <span class="exercise-title">Calculadora Simples</span>
+    </div>
+    <ul>
+      <li>Leia dois números inteiros do usuário.</li>
+      <li>Leia o operador (<code>+</code>, <code>-</code>, <code>*</code>, <code>/</code>).</li>
+      <li>Exiba o resultado correto usando <code>switch</code>.</li>
+      <li>Trate a divisão por zero com uma mensagem de erro.</li>
+    </ul>
+    <div class="tip">💡 Dica: use <code>char op; scanf(" %c", &amp;op);</code> — o espaço antes de <code>%c</code> ignora o Enter anterior.</div>
+  </div>
+
+  <div class="exercise reveal" style="border-color:rgba(34,211,164,.2)">
+    <div class="exercise-header">
+      <span class="exercise-num" style="background:var(--green);color:#000">EX 02</span>
+      <span class="exercise-title">Tabuada Interativa</span>
+    </div>
+    <ul>
+      <li>Peça um número ao usuário.</li>
+      <li>Use um laço <code>for</code> para exibir a tabuada desse número de 1 a 10.</li>
+      <li>Formato: <code>5 x 3 = 15</code></li>
+    </ul>
+    <div class="tip" style="border-color:var(--green);color:var(--green)">💡 Dica: variáveis de controle no <code>for</code> podem ter qualquer nome — aqui, tente <code>for (int mult = 1; mult &lt;= 10; mult++)</code>.</div>
+  </div>
+
+  <div class="exercise reveal" style="border-color:rgba(245,158,11,.2)">
+    <div class="exercise-header">
+      <span class="exercise-num" style="background:var(--accent3);color:#000">EX 03</span>
+      <span class="exercise-title">Detector de Par ou Ímpar + Positivo ou Negativo</span>
+    </div>
+    <ul>
+      <li>Leia um número inteiro.</li>
+      <li>Usando <code>if/else</code>, diga se é par ou ímpar.</li>
+      <li>Usando outro <code>if/else</code>, diga se é positivo, negativo ou zero.</li>
+    </ul>
+    <div class="tip" style="border-color:var(--accent3);color:var(--accent3)">💡 Dica: par → <code>n % 2 == 0</code>. Combine condições com <code>&amp;&amp;</code> para reduzir código.</div>
+  </div>
+
+  <div class="exercise reveal" style="border-color:rgba(124,58,237,.2)">
+    <div class="exercise-header">
+      <span class="exercise-num" style="background:var(--accent2)">EX 04</span>
+      <span class="exercise-title">Contador de Números Primos</span>
+    </div>
+    <ul>
+      <li>Leia um número limite N.</li>
+      <li>Use um <code>for</code> externo de 2 até N.</li>
+      <li>Para cada número, use um <code>for</code> interno para verificar se é primo.</li>
+      <li>Conte e exiba quantos primos existem até N.</li>
+    </ul>
+    <div class="tip" style="border-color:var(--accent2);color:#c792ea">💡 Dica: um número é primo se <strong>nenhum</strong> número de 2 até ele-1 o divide. Use uma variável <code>int primo = 1;</code> e <code>break</code> quando encontrar um divisor.</div>
+  </div>
+
+  <div class="exercise reveal" style="border-color:rgba(248,113,113,.2)">
+    <div class="exercise-header">
+      <span class="exercise-num" style="background:var(--red)">EX 05</span>
+      <span class="exercise-title">Jogo Adivinhe o Número</span>
+    </div>
+    <ul>
+      <li>Defina um número secreto no código: <code>int secreto = 42;</code></li>
+      <li>Use um <code>do…while</code> para pedir palpites ao usuário.</li>
+      <li>A cada palpite, diga se é maior, menor ou igual ao secreto.</li>
+      <li>Conte quantas tentativas foram necessárias.</li>
+    </ul>
+    <div class="tip" style="border-color:var(--red);color:var(--red)">💡 Dica: <code>do { ... } while (palpite != secreto);</code> garante que o usuário tente ao menos uma vez.</div>
+  </div>
+
+  <!-- Gabarito mínimo EX 02 -->
+  <h3 class="reveal" style="font-family:var(--display);color:var(--heading);margin:2.5rem 0 .75rem;font-size:1.2rem;">Gabarito — Exercício 02 (tabuada)</h3>
+  <div class="code-wrap reveal">
+    <div class="code-header">
+      <div class="code-dots"><span></span><span></span><span></span></div>
+      <span class="code-filename">tabuada.c</span>
+    </div>
+    <pre><span class="m">#include &lt;stdio.h&gt;</span>
+
+<span class="k">int</span> <span class="fn">main</span>() {
+    <span class="t">int</span> <span class="v">num</span><span class="p">;</span>
+    <span class="fn">printf</span>(<span class="s">"Tabuada de qual número? "</span>)<span class="p">;</span>
+    <span class="fn">scanf</span>(<span class="s">"%d"</span>, <span class="p">&amp;</span><span class="v">num</span>)<span class="p">;</span>
+
+    <span class="fn">printf</span>(<span class="s">"\n── Tabuada do %d ──\n"</span>, <span class="v">num</span>)<span class="p">;</span>
+    <span class="k">for</span> (<span class="t">int</span> <span class="v">mult</span> <span class="p">=</span> <span class="n">1</span><span class="p">;</span> <span class="v">mult</span> <span class="p">&lt;=</span> <span class="n">10</span><span class="p">;</span> <span class="v">mult</span><span class="p">++</span>) {
+        <span class="fn">printf</span>(<span class="s">"%d x %2d = %d\n"</span>, <span class="v">num</span>, <span class="v">mult</span>, <span class="v">num</span> <span class="p">*</span> <span class="v">mult</span>)<span class="p">;</span>
+    }
+
+    <span class="k">return</span> <span class="n">0</span><span class="p">;</span>
+}</pre>
+  </div>
+</section>
+
+
+<!-- FOOTER -->
+<footer>
+  <div>Feito para os alunos do Mesquita com <span>#include &lt;paciencia.h&gt;</span> e IA.</div>
+  <div style="margin-top:.5rem;color:#2e3450">Guia Visual C Básico • 2025</div>
+</footer>
+
+<script>
+  // Scroll reveal
+  const reveals = document.querySelectorAll('.reveal');
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.08, rootMargin: '0px 0px -40px 0px' });
+
+  reveals.forEach(el => observer.observe(el));
+
+  // Nav active highlight
+  const sections = document.querySelectorAll('section[id]');
+  const navLinks = document.querySelectorAll('nav a');
+
+  window.addEventListener('scroll', () => {
+    let current = '';
+    sections.forEach(section => {
+      const top = section.offsetTop - 80;
+      if (window.scrollY >= top) current = section.getAttribute('id');
+    });
+    navLinks.forEach(a => {
+      a.style.color = a.getAttribute('href') === '#' + current ? 'var(--heading)' : '';
+      a.style.borderColor = a.getAttribute('href') === '#' + current ? 'var(--accent)' : 'transparent';
+    });
+  });
+</script>
+</body>
+</html>
