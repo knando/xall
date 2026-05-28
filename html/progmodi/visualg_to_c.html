@@ -1,0 +1,1519 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>De VisuAlg para C — Guia Visual</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;600;700&family=Syne:wght@400;700;800&family=DM+Sans:ital,wght@0,300;0,400;1,300&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:        #0b0d12;
+    --surface:   #111420;
+    --surface2:  #171b28;
+    --border:    #1e2436;
+    --accent:    #00e5ff;
+    --accent2:   #7c3aed;
+    --accent3:   #f59e0b;
+    --green:     #22d3a4;
+    --red:       #f87171;
+    --text:      #c9d1e0;
+    --muted:     #5a6280;
+    --heading:   #eef2ff;
+    --vis:       #a78bfa;   /* VisuAlg purple */
+    --mono:      'JetBrains Mono', monospace;
+    --sans:      'DM Sans', sans-serif;
+    --display:   'Times', serif;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--sans);
+    font-size: 15px;
+    line-height: 1.7;
+    min-height: 100vh;
+    font-variant-ligatures: none;
+  }
+
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none; z-index: 0; opacity: .45;
+  }
+
+  /* ── NAV ── */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0;
+    z-index: 100;
+    background: rgba(11,13,18,.88);
+    backdrop-filter: blur(14px);
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center;
+    padding: 0 2rem; height: 56px; overflow-x: auto;
+	overflow: hidden;
+  }
+  nav .logo {
+    font-family: var(--display); font-weight: 600; font-size: 1.1rem;
+    color: var(--accent); white-space: nowrap; margin-right: 2rem; letter-spacing: -.03em;
+  }
+  nav a {
+    color: var(--muted); text-decoration: none;
+    font-family: var(--mono); font-size: .72rem; font-weight: 600;
+    text-transform: uppercase; letter-spacing: .08em;
+    padding: 0 .9rem; height: 56px; display: flex; align-items: center;
+    white-space: nowrap; border-bottom: 2px solid transparent;
+    transition: color .2s, border-color .2s;
+  }
+  nav a:hover { color: var(--heading); border-color: var(--accent); }
+
+  /* ── HERO ── */
+  #hero {
+    min-height: 100vh; display: flex; flex-direction: column;
+    justify-content: center; align-items: center; text-align: center;
+    padding: 6rem 2rem 4rem; position: relative; overflow: hidden;
+  }
+  #hero::before {
+    content: ''; position: absolute;
+    width: 700px; height: 700px; border-radius: 50%;
+    background: radial-gradient(circle, rgba(167,139,250,.07) 0%, transparent 70%);
+    top: 50%; left: 50%; transform: translate(-50%,-50%);
+    animation: pulse 6s ease-in-out infinite;
+  }
+  @keyframes pulse {
+    0%,100% { transform: translate(-50%,-50%) scale(1); opacity: .6; }
+    50%      { transform: translate(-50%,-50%) scale(1.15); opacity: 1; }
+  }
+  .hero-tag {
+    font-family: var(--mono); font-size: .72rem; color: var(--vis);
+    letter-spacing: .18em; text-transform: uppercase; margin-bottom: 1.5rem;
+    opacity: 0; animation: fadeUp .6s .2s forwards; position: relative; z-index: 1;
+  }
+  #hero h1 {
+    font-family: var(--display); font-size: clamp(3rem, 9vw, 6.5rem);
+    font-weight: 600; line-height: .95; letter-spacing: -.04em; color: var(--heading);
+    opacity: 0; animation: fadeUp .7s .4s forwards; position: relative; z-index: 1;
+  }
+  #hero h1 .vis  { color: var(--vis); }
+  #hero h1 .sep  { color: var(--muted); font-size: 60%; vertical-align: middle; padding: 0 .2em; }
+  #hero h1 .clang { color: var(--accent); }
+  .hero-sub {
+    max-width: 540px; margin: 1.5rem auto 0; color: var(--muted);
+    font-size: 1rem; font-weight: 300;
+    opacity: 0; animation: fadeUp .7s .6s forwards; position: relative; z-index: 1;
+  }
+  .hero-badges {
+    display: flex; gap: .75rem; flex-wrap: wrap; justify-content: center;
+    margin-top: 2.5rem; opacity: 0; animation: fadeUp .7s .8s forwards;
+    position: relative; z-index: 1;
+  }
+  .badge {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 4px;
+    padding: .35rem .9rem; font-family: var(--mono); font-size: .72rem; color: var(--muted);
+  }
+  .badge.vis-badge  { border-color: rgba(167,139,250,.3); color: var(--vis); }
+  .badge.c-badge    { border-color: rgba(0,229,255,.3);   color: var(--accent); }
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .scroll-hint {
+    position: absolute; bottom: 2.5rem; left: 50%; transform: translateX(-50%);
+    display: flex; flex-direction: column; align-items: center; gap: .4rem;
+    color: var(--muted); font-family: var(--mono); font-size: .65rem;
+    letter-spacing: .12em; text-transform: uppercase;
+    opacity: 0; animation: fadeUp .7s 1.2s forwards; z-index: 1;
+  }
+  .scroll-hint::after {
+    content: ''; width: 1px; height: 40px;
+    background: linear-gradient(to bottom, var(--vis), transparent);
+    animation: scrollLine 2s ease-in-out infinite;
+  }
+  @keyframes scrollLine { 0%,100% { opacity:1; } 50% { opacity:.2; } }
+
+  /* ── SECTIONS ── */
+  section { padding: 5rem 2rem; max-width: 1020px; margin: 0 auto; }
+  section + section { border-top: 1px solid var(--border); }
+
+  .section-label {
+    font-family: var(--mono); font-size: .65rem; letter-spacing: .2em;
+    text-transform: uppercase; color: var(--vis); margin-bottom: .75rem;
+  }
+  .section-title {
+    font-family: var(--display); font-size: clamp(2rem, 5vw, 3rem);
+    font-weight: 600; color: var(--heading); letter-spacing: -.03em;
+    line-height: 1.1; margin-bottom: 1.5rem;
+  }
+  .section-desc {
+    color: var(--muted); max-width: 640px; margin-bottom: 3rem; font-weight: 300;
+  }
+
+  /* ── SIDE-BY-SIDE COMPARISON BLOCK ── */
+  .compare {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+    margin: 1.5rem 0;
+    background: var(--surface);
+  }
+
+  .compare-header {
+    grid-column: 1 / -1;
+    background: var(--surface2);
+    border-bottom: 1px solid var(--border);
+    padding: .55rem 1rem;
+    display: flex;
+    align-items: center;
+    gap: .75rem;
+  }
+  .compare-header .dots { display: flex; gap: 6px; }
+  .compare-header .dots span { width:10px; height:10px; border-radius:50%; }
+  .compare-header .dots span:nth-child(1) { background:#ff5f57; }
+  .compare-header .dots span:nth-child(2) { background:#febc2e; }
+  .compare-header .dots span:nth-child(3) { background:#28c840; }
+  .compare-header .compare-title {
+    font-family: var(--mono); font-size: .72rem; color: var(--muted);
+    letter-spacing: .05em; flex: 1; text-align: center;
+  }
+
+  .compare-col {
+    padding: 0;
+    border-right: 1px solid var(--border);
+    display: flex; flex-direction: column;
+  }
+  .compare-col:last-child { border-right: none; }
+
+  .compare-lang {
+    display: flex; align-items: center; gap: .5rem;
+    padding: .45rem 1rem;
+    border-bottom: 1px solid var(--border);
+    font-family: var(--mono); font-size: .7rem; font-weight: 600;
+    letter-spacing: .1em; text-transform: uppercase;
+  }
+  .compare-lang.vis-lang  { color: var(--vis);    background: rgba(167,139,250,.06); }
+  .compare-lang.c-lang    { color: var(--accent);  background: rgba(0,229,255,.06); }
+
+  .compare-lang .lang-dot {
+    width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0;
+  }
+  .vis-lang  .lang-dot { background: var(--vis); }
+  .c-lang    .lang-dot { background: var(--accent); }
+
+  .compare-col pre {
+    padding: 1.2rem 1.4rem;
+    font-family: var(--mono); font-size: .8rem; line-height: 1.75;
+    overflow-x: auto; flex: 1;
+    font-variant-ligatures: none;
+  }
+
+  /* diff stripe on C side */
+  .compare-col.c-col { background: rgba(0,229,255,.015); }
+  .compare-col.vis-col { background: rgba(167,139,250,.015); }
+
+  /* ── ARROW BRIDGE ── */
+  .arrow-bridge {
+    display: flex; align-items: center; justify-content: center;
+    gap: .75rem; margin: .75rem 0;
+    font-family: var(--mono); font-size: .72rem; color: var(--muted);
+  }
+  .arrow-bridge::before,
+  .arrow-bridge::after {
+    content: ''; flex: 1; height: 1px;
+    background: linear-gradient(to right, transparent, var(--border));
+  }
+  .arrow-bridge::after {
+    background: linear-gradient(to left, transparent, var(--border));
+  }
+
+  /* ── DEFINITION CARDS ── */
+  .def-grid {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(260px,1fr));
+    gap: 1rem; margin-bottom: 2.5rem;
+  }
+  .def-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 8px; padding: 1.25rem 1.4rem;
+    position: relative; overflow: hidden;
+    transition: border-color .25s, transform .2s;
+  }
+  .def-card::before {
+    content: ''; position: absolute; top:0; left:0;
+    width:3px; height:100%; background: var(--accent); border-radius: 0 2px 2px 0;
+  }
+  .def-card:hover { border-color: rgba(167,139,250,.3); transform: translateY(-2px); }
+  .def-card.green::before  { background: var(--green); }
+  .def-card.amber::before  { background: var(--accent3); }
+  .def-card.purple::before { background: var(--accent2); }
+  .def-card.red::before    { background: var(--red); }
+  .def-card.vis::before    { background: var(--vis); }
+  .def-term {
+    font-family: var(--mono); font-size: .78rem; font-weight: 600;
+    color: var(--accent); text-transform: uppercase; letter-spacing: .1em; margin-bottom: .3rem;
+  }
+  .def-card.green  .def-term { color: var(--green); }
+  .def-card.amber  .def-term { color: var(--accent3); }
+  .def-card.purple .def-term { color: var(--accent2); }
+  .def-card.red    .def-term { color: var(--red); }
+  .def-card.vis    .def-term { color: var(--vis); }
+  .def-desc { font-size: .88rem; color: var(--text); line-height: 1.55; }
+
+  /* ── NOTES ── */
+  .note {
+    display: flex; gap: .75rem; align-items: flex-start;
+    padding: .9rem 1.1rem; border-radius: 6px; margin: 1rem 0; font-size: .88rem;
+  }
+  .note.info    { background: rgba(0,229,255,.07);   border: 1px solid rgba(0,229,255,.2); }
+  .note.warning { background: rgba(245,158,11,.07);  border: 1px solid rgba(245,158,11,.2); }
+  .note.danger  { background: rgba(248,113,113,.07); border: 1px solid rgba(248,113,113,.2); }
+  .note.green   { background: rgba(34,211,164,.07);  border: 1px solid rgba(34,211,164,.2); }
+  .note.vis     { background: rgba(167,139,250,.07); border: 1px solid rgba(167,139,250,.2); }
+  .note-icon { font-size:1rem; flex-shrink:0; padding-top:.1rem; }
+  .note.info    .note-icon { color: var(--accent); }
+  .note.warning .note-icon { color: var(--accent3); }
+  .note.danger  .note-icon { color: var(--red); }
+  .note.green   .note-icon { color: var(--green); }
+  .note.vis     .note-icon { color: var(--vis); }
+
+  /* ── DIFF TABLE ── */
+  .diff-table {
+    width:100%; border-collapse:collapse;
+    font-family: var(--mono); font-size: .8rem; margin: 1.5rem 0;
+  }
+  .diff-table th {
+    text-align:left; padding: .6rem 1rem;
+    border-bottom: 2px solid var(--border);
+    font-size: .68rem; letter-spacing: .12em; text-transform: uppercase;
+  }
+  .diff-table th.vis-th { color: var(--vis);   border-color: var(--vis); }
+  .diff-table th.c-th   { color: var(--accent); border-color: var(--accent); }
+  .diff-table th.note-th { color: var(--muted); border-color: var(--border); }
+  .diff-table td { padding: .65rem 1rem; border-bottom: 1px solid var(--border); vertical-align:top; }
+  .diff-table tr:hover td { background: var(--surface2); }
+  .diff-table .vis-val { color: var(--vis); }
+  .diff-table .c-val   { color: var(--accent); }
+  .diff-table .note-val { color: var(--muted); font-size:.75rem; font-family:var(--sans); line-height:1.4; }
+
+  /* ── EXERCISE ── */
+  .exercise {
+    background: linear-gradient(135deg, rgba(167,139,250,.04) 0%, rgba(0,229,255,.05) 100%);
+    border: 1px solid rgba(167,139,250,.2); border-radius: 8px;
+    padding: 1.5rem 1.75rem; margin: 2rem 0;
+  }
+  .exercise-header { display:flex; align-items:center; gap:.75rem; margin-bottom:1rem; }
+  .exercise-num {
+    background: var(--vis); color: #fff;
+    font-family: var(--mono); font-size: .72rem; font-weight: 600;
+    padding: .2rem .6rem; border-radius: 3px;
+  }
+  .exercise-title { font-family:var(--display); font-weight:600; color:var(--heading); font-size:1rem; }
+  .exercise ul { padding-left:1.2rem; color:var(--text); font-size:.9rem; }
+  .exercise li { margin-bottom:.3rem; }
+  .exercise .tip {
+    margin-top:1rem; padding:.75rem 1rem;
+    background:rgba(245,158,11,.07); border-left:3px solid var(--accent3);
+    border-radius: 0 4px 4px 0; font-size:.85rem; color:var(--accent3);
+  }
+
+  /* ── SYNTAX HIGHLIGHTING ── */
+  /* VisuAlg */
+  .vk  { color: #a78bfa; font-weight:600; }   /* keyword */
+  .vt  { color: #80cbc4; }                     /* type */
+  .vs  { color: #c3e88d; }                     /* string */
+  .vn  { color: #f78c6c; }                     /* number */
+  .vc  { color: #546e7a; font-style:italic; }  /* comment */
+  .vv  { color: #eeffff; }                     /* variable */
+  .vop { color: #a78bfa; }                     /* operator */
+  /* C */
+  .k   { color: #c792ea; font-weight:600; }
+  .t   { color: #80cbc4; }
+  .fn  { color: #82aaff; }
+  .s   { color: #c3e88d; }
+  .n   { color: #f78c6c; }
+  .c   { color: #546e7a; font-style:italic; }
+  .p   { color: var(--accent); }
+  .v   { color: #eeffff; }
+  .m   { color: var(--accent3); }
+
+  /* ── PILLAR CARDS (estruturas lado a lado em grid) ── */
+  .pillar-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px,1fr));
+    gap: 1rem; margin: 1.5rem 0;
+  }
+  .pillar-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 8px; overflow: hidden;
+    transition: border-color .2s, transform .2s;
+  }
+  .pillar-card:hover { border-color: rgba(167,139,250,.3); transform: translateY(-2px); }
+  .pillar-label {
+    padding: .45rem 1rem;
+    font-family: var(--mono); font-size: .68rem; font-weight:600;
+    letter-spacing: .1em; text-transform: uppercase;
+    border-bottom: 1px solid var(--border);
+  }
+  .pillar-label.vis-label { color:var(--vis);    background:rgba(167,139,250,.07); }
+  .pillar-label.c-label   { color:var(--accent); background:rgba(0,229,255,.07); }
+  .pillar-card pre { padding:1rem 1.2rem; font-size:.78rem; line-height:1.7; }
+
+  /* ── SCROLL REVEAL ── */
+  .reveal {
+    opacity: 0; transform: translateY(24px);
+    transition: opacity .55s ease, transform .55s ease;
+  }
+  .reveal.visible { opacity:1; transform:none; }
+
+  /* ── FOOTER ── */
+  footer {
+    text-align:center; padding:4rem 2rem;
+    color:var(--muted); font-family:var(--mono); font-size:.72rem;
+    letter-spacing:.06em; border-top:1px solid var(--border);
+  }
+  footer span { color: var(--vis); }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 680px) {
+    .compare { grid-template-columns: 1fr; }
+    .compare-col { border-right: none; border-bottom: 1px solid var(--border); }
+    .compare-col:last-child { border-bottom: none; }
+    nav a { padding:0 .6rem; font-size:.65rem; }
+    nav .logo { margin-right:1rem; }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="logo">Visualg → C</div>
+  <a href="#estrutura">Estrutura</a>
+  <a href="#variaveis">Variáveis</a>
+  <a href="#operadores">Operadores</a>
+  <a href="#entrada-saida">Entrada/Saída</a>
+  <a href="#condicionais">Condicionais</a>
+  <a href="#loops">Laços</a>
+  <a href="#exercicios">Exercícios</a>
+</nav>
+
+<!-- HERO -->
+<section id="hero">
+  <div class="hero-tag">Guia de Migração • VisuAlg / Portugol → C</div>
+  <h1>
+    <span class="vis">VisuAlg</span>
+    <span class="sep">→</span>
+    <span class="clang">C</span>
+  </h1>
+  <p class="hero-sub">
+    Você já sabe lógica de programação. Agora veja como tudo que aprendeu no VisuAlg se traduz diretamente para a linguagem C — lado a lado, sem surpresas.
+  </p>
+  <div class="hero-badges">
+    <span class="badge vis-badge">algoritmo … fimalgoritmo</span>
+    <span class="badge c-badge">int main() { … }</span>
+    <span class="badge vis-badge">escreva / leia</span>
+    <span class="badge c-badge">printf / scanf</span>
+  </div>
+  <div class="scroll-hint">role para baixo</div>
+</section>
+
+
+<!-- ══════════════════════════════════════════
+     SEÇÃO 0 — O QUE MUDA (VISÃO GERAL)
+══════════════════════════════════════════ -->
+<section id="visao-geral">
+  <div class="section-label reveal">00 — Antes de começar</div>
+  <h2 class="section-title reveal">O que muda — e o que não muda</h2>
+  <p class="section-desc reveal">
+    A <strong style="color:var(--heading)">lógica é a mesma.</strong>
+    O que muda é a <em>sintaxe</em> — o jeito de escrever. Se você já faz programas no VisuAlg, já pensa como programador. Só precisa aprender o novo vocabulário.
+  </p>
+
+  <div class="def-grid reveal">
+    <div class="def-card vis">
+      <div class="def-term">O que NÃO muda</div>
+      <div class="def-desc">Variáveis, operadores, <code>se/então</code>, <code>para/enquanto</code>, lógica de decisão — tudo isso existe em C com o mesmo propósito.</div>
+    </div>
+    <div class="def-card amber">
+      <div class="def-term">O que muda</div>
+      <div class="def-desc">Palavras-chave em inglês, tipos de dados com nomes diferentes, ponto-e-vírgula obrigatório no final de cada instrução.</div>
+    </div>
+    <div class="def-card green">
+      <div class="def-term">Compilado vs Interpretado</div>
+      <div class="def-desc">VisuAlg <em>interpreta</em> linha a linha. C é <em>compilado</em> — você gera um executável antes de rodar. Isso o torna muito mais rápido.</div>
+    </div>
+    <div class="def-card red">
+      <div class="def-term">Case-sensitive</div>
+      <div class="def-desc">Em C, <code>Nota</code> e <code>nota</code> são variáveis <strong>diferentes</strong>. VisuAlg não diferencia maiúsculas de minúsculas.</div>
+    </div>
+    <div class="def-card">
+      <div class="def-term">Ponto-e-vírgula</div>
+      <div class="def-desc">Toda instrução em C termina com <code>;</code>. Em VisuAlg isso não existe. Esquecer o <code>;</code> é o erro nº 1 de iniciantes.</div>
+    </div>
+    <div class="def-card purple">
+      <div class="def-term">Blocos com { }</div>
+      <div class="def-desc">VisuAlg usa palavras como <code>fimse</code>, <code>fimpara</code>. C usa chaves <code>{ }</code> para delimitar blocos de código.</div>
+    </div>
+  </div>
+
+  <!-- Tabela geral de equivalências rápidas -->
+  <div class="reveal">
+    <table class="diff-table">
+      <thead>
+        <tr>
+          <th class="vis-th">VisuAlg / Portugol</th>
+          <th class="c-th">C</th>
+          <th class="note-th">Observação</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="vis-val">algoritmo "nome"</td>
+          <td class="c-val">— (não existe)</td>
+          <td class="note-val">Em C não há declaração de nome de algoritmo.</td>
+        </tr>
+        <tr>
+          <td class="vis-val">var … inicio … fimalgoritmo</td>
+          <td class="c-val">int main() { … return 0; }</td>
+          <td class="note-val">O corpo do programa fica dentro de main().</td>
+        </tr>
+        <tr>
+          <td class="vis-val">escreva / escreval</td>
+          <td class="c-val">printf()</td>
+          <td class="note-val">escreval = printf com \n no final.</td>
+        </tr>
+        <tr>
+          <td class="vis-val">leia</td>
+          <td class="c-val">scanf()</td>
+          <td class="note-val">Em C é preciso informar o tipo com %d, %f, %s…</td>
+        </tr>
+        <tr>
+          <td class="vis-val">inteiro</td>
+          <td class="c-val">int</td>
+          <td class="note-val">Números inteiros.</td>
+        </tr>
+        <tr>
+          <td class="vis-val">real</td>
+          <td class="c-val">float / double</td>
+          <td class="note-val">Números com vírgula (ponto em C).</td>
+        </tr>
+        <tr>
+          <td class="vis-val">caractere</td>
+          <td class="c-val">char[]</td>
+          <td class="note-val">Texto em C é um array de char.</td>
+        </tr>
+        <tr>
+          <td class="vis-val">logico</td>
+          <td class="c-val">int (0 ou 1)</td>
+          <td class="note-val">C não tem tipo bool nativo (C89/C90). Use int ou #include &lt;stdbool.h&gt;.</td>
+        </tr>
+        <tr>
+          <td class="vis-val"><- (atribuição)</td>
+          <td class="c-val">= (atribuição)</td>
+          <td class="note-val">Em C o sinal de igual atribui valor.</td>
+        </tr>
+        <tr>
+          <td class="vis-val">{ } (conjunto de valores)</td>
+          <td class="c-val">{ } (bloco de código)</td>
+          <td class="note-val">Chaves delimitam blocos em C.</td>
+        </tr>
+        <tr>
+          <td class="vis-val">// ou { comentário }</td>
+          <td class="c-val">// ou /* */</td>
+          <td class="note-val">Comentários de linha e de bloco.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════════
+     SEÇÃO 1 — ESTRUTURA DO PROGRAMA
+══════════════════════════════════════════ -->
+<section id="estrutura">
+  <div class="section-label reveal">01 — Esqueleto</div>
+  <h2 class="section-title reveal">Estrutura do Programa</h2>
+  <p class="section-desc reveal">
+    Todo programa em VisuAlg começa com <code style="color:var(--vis)">algoritmo</code> e termina com
+    <code style="color:var(--vis)">fimalgoritmo</code>. Em C, tudo vive dentro da função
+    <code style="color:var(--accent)">main()</code>.
+  </p>
+
+  <div class="compare reveal">
+    <div class="compare-header">
+      <div class="dots"><span></span><span></span><span></span></div>
+      <span class="compare-title">Estrutura mínima — "Olá, Mundo!"</span>
+    </div>
+    <div class="compare-col vis-col">
+      <div class="compare-lang vis-lang"><span class="lang-dot"></span>VisuAlg</div>
+      <pre><span class="vk">algoritmo</span> <span class="vs">"OlaMundo"</span>
+
+<span class="vk">var</span>
+  <span class="vc">{ variáveis aqui }</span>
+
+<span class="vk">inicio</span>
+
+  <span class="vk">escreval</span>(<span class="vs">"Olá, Mundo!"</span>)
+
+<span class="vk">fimalgoritmo</span></pre>
+    </div>
+    <div class="compare-col c-col">
+      <div class="compare-lang c-lang"><span class="lang-dot"></span>C</div>
+      <pre><span class="m">#include &lt;stdio.h&gt;</span>
+
+<span class="k">int</span> <span class="fn">main</span>() {
+
+  <span class="c">/* variáveis aqui */</span>
+
+  <span class="fn">printf</span>(<span class="s">"Olá, Mundo!\n"</span>)<span class="p">;</span>
+
+  <span class="k">return</span> <span class="n">0</span><span class="p">;</span>
+}</pre>
+    </div>
+  </div>
+
+  <div class="def-grid reveal" style="grid-template-columns: repeat(auto-fill,minmax(280px,1fr))">
+    <div class="def-card vis">
+      <div class="def-term">algoritmo "nome"</div>
+      <div class="def-desc">Cabeçalho obrigatório no VisuAlg. Define o nome do programa. Em C isso não existe — o arquivo <code>.c</code> tem o nome.</div>
+    </div>
+    <div class="def-card">
+      <div class="def-term">#include &lt;stdio.h&gt;</div>
+      <div class="def-desc">Inclui a biblioteca de entrada/saída padrão — necessária para usar <code>printf</code> e <code>scanf</code>. Equivale a "ligar" funções prontas.</div>
+    </div>
+    <div class="def-card amber">
+      <div class="def-term">var … inicio</div>
+      <div class="def-desc">Em VisuAlg variáveis ficam numa seção separada. Em C são declaradas <em>dentro de qualquer bloco de código</em>, antes de serem usadas.</div>
+    </div>
+    <div class="def-card green">
+      <div class="def-term">return 0;</div>
+      <div class="def-desc">Encerra <code>main()</code> devolvendo 0 ao sistema operacional. Zero significa "programa terminou com sucesso".</div>
+    </div>
+    <div class="def-card purple">
+      <div class="def-term">escreval vs printf</div>
+      <div class="def-desc"><code>escreval</code> já pula linha automaticamente. <code>printf</code> não — você precisa colocar <code>\n</code> no final da string.</div>
+    </div>
+    <div class="def-card red">
+      <div class="def-term">fimalgoritmo vs }</div>
+      <div class="def-desc">A chave de fechamento <code>}</code> encerra o bloco <code>main()</code>, assim como <code>fimalgoritmo</code> encerra o algoritmo.</div>
+    </div>
+  </div>
+
+  <div class="note vis reveal">
+    <span class="note-icon">🔵</span>
+    <div><strong style="color:var(--heading)">Regra de ouro:</strong> sempre que você ver <code>fimXXX</code> no VisuAlg, em C ele vira uma chave <code>}</code>. E sempre que fechar um bloco no VisuAlg com uma palavra-chave, em C você fecha com <code>}</code>.</div>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════════
+     SEÇÃO 2 — VARIÁVEIS E TIPOS
+══════════════════════════════════════════ -->
+<section id="variaveis">
+  <div class="section-label reveal">02 — Dados</div>
+  <h2 class="section-title reveal">Variáveis &amp; Tipos</h2>
+  <p class="section-desc reveal">
+    Os tipos de VisuAlg têm nomes em português. Em C os nomes são em inglês e existem variações de precisão e tamanho.
+  </p>
+
+  <div class="reveal">
+    <table class="diff-table">
+      <thead>
+        <tr>
+          <th class="vis-th">VisuAlg</th>
+          <th class="c-th">C</th>
+          <th class="c-th" style="color:var(--green);border-color:var(--green)">Formato printf</th>
+          <th class="note-th">Diferença importante</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="vis-val">inteiro</td>
+          <td class="c-val">int</td>
+          <td class="c-val" style="color:var(--green)">%d</td>
+          <td class="note-val">Idêntico em propósito. Em C tem 4 bytes (−2 bilhões a +2 bilhões).</td>
+        </tr>
+        <tr>
+          <td class="vis-val">real</td>
+          <td class="c-val">float</td>
+          <td class="c-val" style="color:var(--green)">%f</td>
+          <td class="note-val">VisuAlg usa vírgula; C usa ponto: <code>3.14</code> não <code>3,14</code>.</td>
+        </tr>
+        <tr>
+          <td class="vis-val">real (mais preciso)</td>
+          <td class="c-val">double</td>
+          <td class="c-val" style="color:var(--green)">%lf</td>
+          <td class="note-val">Prefira double para cálculos científicos. Ocupa 8 bytes.</td>
+        </tr>
+        <tr>
+          <td class="vis-val">caractere</td>
+          <td class="c-val">char[]</td>
+          <td class="c-val" style="color:var(--green)">%s</td>
+          <td class="note-val">Em C texto é array de char com \0 no fim. Não é um tipo simples.</td>
+        </tr>
+        <tr>
+          <td class="vis-val">logico</td>
+          <td class="c-val">int (0 / 1)</td>
+          <td class="c-val" style="color:var(--green)">%d</td>
+          <td class="note-val">Sem tipo bool nativo em C89. Use stdbool.h para ter true/false.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Comparação lado a lado: declaração -->
+  <h3 class="reveal" style="font-family:var(--display);color:var(--heading);margin:2rem 0 .5rem;font-size:1.3rem;">Declarando variáveis</h3>
+  <div class="compare reveal">
+    <div class="compare-header">
+      <div class="dots"><span></span><span></span><span></span></div>
+      <span class="compare-title">Declaração e atribuição de variáveis</span>
+    </div>
+    <div class="compare-col vis-col">
+      <div class="compare-lang vis-lang"><span class="lang-dot"></span>VisuAlg</div>
+      <pre><span class="vk">var</span>
+  <span class="vv">idade</span>    : <span class="vt">inteiro</span>
+  <span class="vv">nota</span>     : <span class="vt">real</span>
+  <span class="vv">nome</span>     : <span class="vt">caractere</span>
+  <span class="vv">aprovado</span> : <span class="vt">logico</span>
+
+<span class="vk">inicio</span>
+  <span class="vv">idade</span>    <span class="vop">&lt;-</span> <span class="vn">20</span>
+  <span class="vv">nota</span>     <span class="vop">&lt;-</span> <span class="vn">8.5</span>
+  <span class="vv">nome</span>     <span class="vop">&lt;-</span> <span class="vs">"Ana"</span>
+  <span class="vv">aprovado</span> <span class="vop">&lt;-</span> verdadeiro</pre>
+    </div>
+    <div class="compare-col c-col">
+      <div class="compare-lang c-lang"><span class="lang-dot"></span>C</div>
+      <pre><span class="c">/* dentro de main() */</span>
+
+  <span class="t">int</span>   <span class="v">idade</span>    <span class="p">=</span> <span class="n">20</span><span class="p">;</span>
+  <span class="t">float</span> <span class="v">nota</span>     <span class="p">=</span> <span class="n">8.5f</span><span class="p">;</span>
+  <span class="t">char</span>  <span class="v">nome</span>[<span class="n">50</span>] <span class="p">=</span> <span class="s">"Ana"</span><span class="p">;</span>
+  <span class="t">int</span>   <span class="v">aprovado</span> <span class="p">=</span> <span class="n">1</span><span class="p">;</span>   <span class="c">// 1 = verdadeiro</span>
+
+  <span class="c">/* não há seção var separada */</span></pre>
+    </div>
+  </div>
+
+  <div class="note warning reveal">
+    <span class="note-icon">⚠️</span>
+    <div><strong style="color:var(--heading)">Vírgula vs Ponto:</strong> em algumas versões do VisuAlg números reais usam vírgula (<code>8,5</code>). Em C usam <strong>ponto</strong> (<code>8.5f</code>). Escrever <code>8,5</code> em C é um erro de sintaxe.</div>
+  </div>
+  <div class="note vis reveal">
+    <span class="note-icon">🔵</span>
+    <div><strong style="color:var(--heading)">logico em C:</strong> o valor <code>0</code> é falso, qualquer coisa diferente de zero é verdadeiro. Para ter <code>true</code> e <code>false</code> explícitos, adicione <code>#include &lt;stdbool.h&gt;</code> e use o tipo <code>bool</code>.</div>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════════
+     SEÇÃO 3 — OPERADORES
+══════════════════════════════════════════ -->
+<section id="operadores">
+  <div class="section-label reveal">03 — Expressões</div>
+  <h2 class="section-title reveal">Operadores</h2>
+  <p class="section-desc reveal">Os operadores aritméticos são quase idênticos. Os lógicos e relacionais mudam de palavra para símbolo.</p>
+
+  <div class="reveal">
+    <table class="diff-table">
+      <thead>
+        <tr>
+          <th class="note-th">Categoria</th>
+          <th class="vis-th">VisuAlg</th>
+          <th class="c-th">C</th>
+          <th class="note-th">Exemplo em C</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td colspan="4" style="background:rgba(167,139,250,.04);color:var(--vis);font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;padding:.4rem 1rem;">Aritméticos</td></tr>
+        <tr>
+          <td class="note-val">Adição</td>
+          <td class="vis-val">+</td>
+          <td class="c-val">+</td>
+          <td class="note-val">a + b</td>
+        </tr>
+        <tr>
+          <td class="note-val">Subtração</td>
+          <td class="vis-val">-</td>
+          <td class="c-val">-</td>
+          <td class="note-val">a - b</td>
+        </tr>
+        <tr>
+          <td class="note-val">Multiplicação</td>
+          <td class="vis-val">*</td>
+          <td class="c-val">*</td>
+          <td class="note-val">a * b</td>
+        </tr>
+        <tr>
+          <td class="note-val">Divisão</td>
+          <td class="vis-val">/</td>
+          <td class="c-val">/</td>
+          <td class="note-val">a / b (inteiro ÷ inteiro = inteiro!)</td>
+        </tr>
+        <tr>
+          <td class="note-val">Resto (mod)</td>
+          <td class="vis-val">MOD</td>
+          <td class="c-val">%</td>
+          <td class="note-val">10 % 3 → 1</td>
+        </tr>
+        <tr>
+          <td class="note-val">Potência</td>
+          <td class="vis-val">^</td>
+          <td class="c-val">pow(b, e)</td>
+          <td class="note-val">pow(2,3) → 8.0 — requer math.h</td>
+        </tr>
+        <tr><td colspan="4" style="background:rgba(34,211,164,.04);color:var(--green);font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;padding:.4rem 1rem;">Relacionais</td></tr>
+        <tr>
+          <td class="note-val">Igual</td>
+          <td class="vis-val">= (comparação)</td>
+          <td class="c-val">==</td>
+          <td class="note-val">if (a == b) — DOIS sinais de igual!</td>
+        </tr>
+        <tr>
+          <td class="note-val">Diferente</td>
+          <td class="vis-val">&lt;&gt;</td>
+          <td class="c-val">!=</td>
+          <td class="note-val">if (a != b)</td>
+        </tr>
+        <tr>
+          <td class="note-val">Maior que</td>
+          <td class="vis-val">&gt;</td>
+          <td class="c-val">&gt;</td>
+          <td class="note-val">if (a &gt; b)</td>
+        </tr>
+        <tr>
+          <td class="note-val">Menor que</td>
+          <td class="vis-val">&lt;</td>
+          <td class="c-val">&lt;</td>
+          <td class="note-val">if (a &lt; b)</td>
+        </tr>
+        <tr>
+          <td class="note-val">Maior ou igual</td>
+          <td class="vis-val">&gt;=</td>
+          <td class="c-val">&gt;=</td>
+          <td class="note-val">if (a &gt;= b)</td>
+        </tr>
+        <tr>
+          <td class="note-val">Menor ou igual</td>
+          <td class="vis-val">&lt;=</td>
+          <td class="c-val">&lt;=</td>
+          <td class="note-val">if (a &lt;= b)</td>
+        </tr>
+        <tr><td colspan="4" style="background:rgba(245,158,11,.04);color:var(--accent3);font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;padding:.4rem 1rem;">Lógicos</td></tr>
+        <tr>
+          <td class="note-val">E lógico</td>
+          <td class="vis-val">e</td>
+          <td class="c-val">&amp;&amp;</td>
+          <td class="note-val">if (a &gt; 0 &amp;&amp; b &gt; 0)</td>
+        </tr>
+        <tr>
+          <td class="note-val">OU lógico</td>
+          <td class="vis-val">ou</td>
+          <td class="c-val">||</td>
+          <td class="note-val">if (a == 0 || b == 0)</td>
+        </tr>
+        <tr>
+          <td class="note-val">NÃO lógico</td>
+          <td class="vis-val">nao</td>
+          <td class="c-val">!</td>
+          <td class="note-val">if (!aprovado)</td>
+        </tr>
+        <tr><td colspan="4" style="background:rgba(0,229,255,.04);color:var(--accent);font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;padding:.4rem 1rem;">Atribuição</td></tr>
+        <tr>
+          <td class="note-val">Atribuição simples</td>
+          <td class="vis-val">&lt;-</td>
+          <td class="c-val">=</td>
+          <td class="note-val">x = 5;</td>
+        </tr>
+        <tr>
+          <td class="note-val">Incrementar</td>
+          <td class="vis-val">x &lt;- x + 1</td>
+          <td class="c-val">x++ ou x += 1</td>
+          <td class="note-val">Atalho muito usado em laços.</td>
+        </tr>
+        <tr>
+          <td class="note-val">Decrementar</td>
+          <td class="vis-val">x &lt;- x - 1</td>
+          <td class="c-val">x-- ou x -= 1</td>
+          <td class="note-val">Conta regressiva.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="note danger reveal">
+    <span class="note-icon">🔴</span>
+    <div>
+      <strong style="color:var(--heading)">Armadilha clássica — = vs ==</strong><br>
+      No VisuAlg <code>=</code> em condição <em>compara</em>. Em C, <code>=</code> <em>atribui</em> e <code>==</code> <em>compara</em>.<br>
+      <code style="color:var(--red)">if (x = 5)</code> → sempre verdadeiro (atribui 5 e testa se 5 != 0)!<br>
+      <code style="color:var(--green)">if (x == 5)</code> → compara x com 5. ✓
+    </div>
+  </div>
+
+  <!-- Código de operadores lado a lado -->
+  <div class="compare reveal">
+    <div class="compare-header">
+      <div class="dots"><span></span><span></span><span></span></div>
+      <span class="compare-title">Operadores na prática</span>
+    </div>
+    <div class="compare-col vis-col">
+      <div class="compare-lang vis-lang"><span class="lang-dot"></span>VisuAlg</div>
+      <pre><span class="vk">var</span>
+  <span class="vv">a</span>, <span class="vv">b</span>, <span class="vv">res</span> : <span class="vt">inteiro</span>
+
+<span class="vk">inicio</span>
+  <span class="vv">a</span> <span class="vop">&lt;-</span> <span class="vn">10</span>
+  <span class="vv">b</span> <span class="vop">&lt;-</span> <span class="vn">3</span>
+
+  <span class="vv">res</span> <span class="vop">&lt;-</span> <span class="vv">a</span> <span class="vop">+</span> <span class="vv">b</span>
+  <span class="vk">escreval</span>(<span class="vv">res</span>)          <span class="vc">{ 13 }</span>
+
+  <span class="vv">res</span> <span class="vop">&lt;-</span> <span class="vv">a</span> <span class="vop">MOD</span> <span class="vv">b</span>
+  <span class="vk">escreval</span>(<span class="vv">res</span>)          <span class="vc">{ 1 }</span>
+
+  <span class="vv">res</span> <span class="vop">&lt;-</span> <span class="vv">a</span> <span class="vop">^</span> <span class="vv">b</span>
+  <span class="vk">escreval</span>(<span class="vv">res</span>)          <span class="vc">{ 1000 }</span>
+<span class="vk">fimalgoritmo</span></pre>
+    </div>
+    <div class="compare-col c-col">
+      <div class="compare-lang c-lang"><span class="lang-dot"></span>C</div>
+      <pre><span class="m">#include &lt;stdio.h&gt;</span>
+<span class="m">#include &lt;math.h&gt;</span>   <span class="c">// para pow()</span>
+
+<span class="k">int</span> <span class="fn">main</span>() {
+  <span class="t">int</span> <span class="v">a</span> <span class="p">=</span> <span class="n">10</span><span class="p">,</span> <span class="v">b</span> <span class="p">=</span> <span class="n">3</span><span class="p">,</span> <span class="v">res</span><span class="p">;</span>
+
+  <span class="v">res</span> <span class="p">=</span> <span class="v">a</span> <span class="p">+</span> <span class="v">b</span><span class="p">;</span>
+  <span class="fn">printf</span>(<span class="s">"%d\n"</span>, <span class="v">res</span>)<span class="p">;</span>  <span class="c">// 13</span>
+
+  <span class="v">res</span> <span class="p">=</span> <span class="v">a</span> <span class="p">%</span> <span class="v">b</span><span class="p">;</span>
+  <span class="fn">printf</span>(<span class="s">"%d\n"</span>, <span class="v">res</span>)<span class="p">;</span>  <span class="c">// 1</span>
+
+  <span class="fn">printf</span>(<span class="s">"%.0f\n"</span>, <span class="fn">pow</span>(<span class="v">a</span>,<span class="v">b</span>))<span class="p">;</span> <span class="c">// 1000</span>
+  <span class="k">return</span> <span class="n">0</span><span class="p">;</span>
+}</pre>
+    </div>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════════
+     SEÇÃO 4 — ENTRADA E SAÍDA
+══════════════════════════════════════════ -->
+<section id="entrada-saida">
+  <div class="section-label reveal">04 — Comunicação</div>
+  <h2 class="section-title reveal">Entrada &amp; Saída</h2>
+  <p class="section-desc reveal">
+    <code style="color:var(--vis)">escreva / leia</code> são substituídos por
+    <code style="color:var(--accent)">printf / scanf</code>.
+    A grande diferença: em C é preciso dizer o <strong style="color:var(--heading)">tipo</strong> do dado com especificadores de formato.
+  </p>
+
+  <!-- Especificadores -->
+  <div class="def-grid reveal">
+    <div class="def-card">
+      <div class="def-term">%d</div>
+      <div class="def-desc">Inteiro (<code>int</code>). Usa-se tanto no printf quanto no scanf.</div>
+    </div>
+    <div class="def-card green">
+      <div class="def-term">%f</div>
+      <div class="def-desc">Float no printf. No scanf também lê float. Para double no scanf use <code>%lf</code>.</div>
+    </div>
+    <div class="def-card amber">
+      <div class="def-term">%s</div>
+      <div class="def-desc">String (char[]). <code>scanf("%s")</code> para no primeiro espaço. Use <code>fgets</code> para frases.</div>
+    </div>
+    <div class="def-card purple">
+      <div class="def-term">%c</div>
+      <div class="def-desc">Um único caractere (<code>char</code>). Dica: coloque espaço antes — <code>" %c"</code> — para ignorar o Enter anterior.</div>
+    </div>
+    <div class="def-card red">
+      <div class="def-term">&amp; no scanf</div>
+      <div class="def-desc">O <code>&amp;</code> passa o <em>endereço</em> da variável. Sem ele o scanf não consegue gravar o valor. Exceção: strings (char[]) já são endereços.</div>
+    </div>
+    <div class="def-card">
+      <div class="def-term">\n no printf</div>
+      <div class="def-desc"><code>escreval</code> pula linha automaticamente. <code>printf</code> não — acrescente <code>\n</code> ao final da string para quebrar a linha.</div>
+    </div>
+  </div>
+
+  <div class="compare reveal">
+    <div class="compare-header">
+      <div class="dots"><span></span><span></span><span></span></div>
+      <span class="compare-title">Entrada e saída de dados</span>
+    </div>
+    <div class="compare-col vis-col">
+      <div class="compare-lang vis-lang"><span class="lang-dot"></span>VisuAlg</div>
+      <pre><span class="vk">var</span>
+  <span class="vv">nome</span>  : <span class="vt">caractere</span>
+  <span class="vv">idade</span> : <span class="vt">inteiro</span>
+  <span class="vv">nota</span>  : <span class="vt">real</span>
+
+<span class="vk">inicio</span>
+  <span class="vk">escreva</span>(<span class="vs">"Nome: "</span>)
+  <span class="vk">leia</span>(<span class="vv">nome</span>)
+
+  <span class="vk">escreva</span>(<span class="vs">"Idade: "</span>)
+  <span class="vk">leia</span>(<span class="vv">idade</span>)
+
+  <span class="vk">escreva</span>(<span class="vs">"Nota: "</span>)
+  <span class="vk">leia</span>(<span class="vv">nota</span>)
+
+  <span class="vk">escreval</span>(<span class="vs">"Olá, "</span>, <span class="vv">nome</span>)
+  <span class="vk">escreval</span>(<span class="vs">"Idade: "</span>, <span class="vv">idade</span>)
+  <span class="vk">escreval</span>(<span class="vs">"Nota:  "</span>, <span class="vv">nota</span>:<span class="vn">1</span>:<span class="vn">2</span>)
+<span class="vk">fimalgoritmo</span></pre>
+    </div>
+    <div class="compare-col c-col">
+      <div class="compare-lang c-lang"><span class="lang-dot"></span>C</div>
+      <pre><span class="m">#include &lt;stdio.h&gt;</span>
+<span class="m">#include &lt;string.h&gt;</span>
+
+<span class="k">int</span> <span class="fn">main</span>() {
+  <span class="t">char</span>  <span class="v">nome</span>[<span class="n">50</span>]<span class="p">;</span>
+  <span class="t">int</span>   <span class="v">idade</span><span class="p">;</span>
+  <span class="t">float</span> <span class="v">nota</span><span class="p">;</span>
+
+  <span class="fn">printf</span>(<span class="s">"Nome: "</span>)<span class="p">;</span>
+  <span class="fn">fgets</span>(<span class="v">nome</span>, <span class="k">sizeof</span>(<span class="v">nome</span>), <span class="v">stdin</span>)<span class="p">;</span>
+  <span class="v">nome</span>[<span class="fn">strcspn</span>(<span class="v">nome</span>,<span class="s">"\n"</span>)] <span class="p">=</span> <span class="s">'\0'</span><span class="p">;</span>
+
+  <span class="fn">printf</span>(<span class="s">"Idade: "</span>)<span class="p">;</span>
+  <span class="fn">scanf</span>(<span class="s">"%d"</span>, <span class="p">&amp;</span><span class="v">idade</span>)<span class="p">;</span>
+
+  <span class="fn">printf</span>(<span class="s">"Nota: "</span>)<span class="p">;</span>
+  <span class="fn">scanf</span>(<span class="s">"%f"</span>, <span class="p">&amp;</span><span class="v">nota</span>)<span class="p">;</span>
+
+  <span class="fn">printf</span>(<span class="s">"Olá, %s\n"</span>, <span class="v">nome</span>)<span class="p">;</span>
+  <span class="fn">printf</span>(<span class="s">"Idade: %d\n"</span>, <span class="v">idade</span>)<span class="p">;</span>
+  <span class="fn">printf</span>(<span class="s">"Nota:  %.2f\n"</span>, <span class="v">nota</span>)<span class="p">;</span>
+  <span class="k">return</span> <span class="n">0</span><span class="p">;</span>
+}</pre>
+    </div>
+  </div>
+
+  <div class="note info reveal">
+    <span class="note-icon">💡</span>
+    <div><strong style="color:var(--heading)">Formatando números no printf:</strong> <code>%.2f</code> é o equivalente ao <code>nota:1:2</code> do VisuAlg — exibe o float com 2 casas decimais. A sintaxe é <code>%[largura].[casas]f</code>.</div>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════════
+     SEÇÃO 5 — CONDICIONAIS
+══════════════════════════════════════════ -->
+<section id="condicionais">
+  <div class="section-label reveal">05 — Decisões</div>
+  <h2 class="section-title reveal">Estruturas Condicionais</h2>
+  <p class="section-desc reveal">
+    <code style="color:var(--vis)">se … entao … senao … fimse</code> vira
+    <code style="color:var(--accent)">if … else</code> com chaves.
+    A lógica é exatamente a mesma.
+  </p>
+
+  <!-- se/entao/senao vs if/else -->
+  <h3 class="reveal" style="font-family:var(--display);color:var(--heading);margin-bottom:.75rem;font-size:1.3rem;">se / senao → if / else</h3>
+  <div class="compare reveal">
+    <div class="compare-header">
+      <div class="dots"><span></span><span></span><span></span></div>
+      <span class="compare-title">Verificar aprovação do aluno</span>
+    </div>
+    <div class="compare-col vis-col">
+      <div class="compare-lang vis-lang"><span class="lang-dot"></span>VisuAlg</div>
+      <pre><span class="vk">var</span>
+  <span class="vv">nota</span> : <span class="vt">real</span>
+<span class="vk">inicio</span>
+  <span class="vk">leia</span>(<span class="vv">nota</span>)
+
+  <span class="vk">se</span> (<span class="vv">nota</span> <span class="vop">&gt;=</span> <span class="vn">7</span>) <span class="vk">entao</span>
+    <span class="vk">escreval</span>(<span class="vs">"Aprovado"</span>)
+  <span class="vk">senao</span>
+    <span class="vk">se</span> (<span class="vv">nota</span> <span class="vop">&gt;=</span> <span class="vn">5</span>) <span class="vk">entao</span>
+      <span class="vk">escreval</span>(<span class="vs">"Recuperação"</span>)
+    <span class="vk">senao</span>
+      <span class="vk">escreval</span>(<span class="vs">"Reprovado"</span>)
+    <span class="vk">fimse</span>
+  <span class="vk">fimse</span>
+<span class="vk">fimalgoritmo</span></pre>
+    </div>
+    <div class="compare-col c-col">
+      <div class="compare-lang c-lang"><span class="lang-dot"></span>C</div>
+      <pre><span class="m">#include &lt;stdio.h&gt;</span>
+<span class="k">int</span> <span class="fn">main</span>() {
+  <span class="t">float</span> <span class="v">nota</span><span class="p">;</span>
+  <span class="fn">scanf</span>(<span class="s">"%f"</span>, <span class="p">&amp;</span><span class="v">nota</span>)<span class="p">;</span>
+
+  <span class="k">if</span> (<span class="v">nota</span> <span class="p">&gt;=</span> <span class="n">7</span>) {
+    <span class="fn">printf</span>(<span class="s">"Aprovado\n"</span>)<span class="p">;</span>
+  } <span class="k">else if</span> (<span class="v">nota</span> <span class="p">&gt;=</span> <span class="n">5</span>) {
+    <span class="fn">printf</span>(<span class="s">"Recuperação\n"</span>)<span class="p">;</span>
+  } <span class="k">else</span> {
+    <span class="fn">printf</span>(<span class="s">"Reprovado\n"</span>)<span class="p">;</span>
+  }
+
+  <span class="k">return</span> <span class="n">0</span><span class="p">;</span>
+}</pre>
+    </div>
+  </div>
+
+  <div class="note vis reveal">
+    <span class="note-icon">🔵</span>
+    <div><strong style="color:var(--heading)">fimse → }</strong> — Cada <code>fimse</code> do VisuAlg corresponde a uma chave <code>}</code> de fechamento em C. <code>senao se</code> vira <code>else if</code> (tudo numa linha só, sem chave entre eles).</div>
+  </div>
+
+  <!-- escolha/caso vs switch -->
+  <h3 class="reveal" style="font-family:var(--display);color:var(--heading);margin:2.5rem 0 .75rem;font-size:1.3rem;">escolha / caso → switch / case</h3>
+  <div class="compare reveal">
+    <div class="compare-header">
+      <div class="dots"><span></span><span></span><span></span></div>
+      <span class="compare-title">Menu de opções</span>
+    </div>
+    <div class="compare-col vis-col">
+      <div class="compare-lang vis-lang"><span class="lang-dot"></span>VisuAlg</div>
+      <pre><span class="vk">var</span>
+  <span class="vv">op</span> : <span class="vt">inteiro</span>
+<span class="vk">inicio</span>
+  <span class="vk">leia</span>(<span class="vv">op</span>)
+
+  <span class="vk">escolha</span> (<span class="vv">op</span>)
+    <span class="vk">caso</span> <span class="vn">1</span>:
+      <span class="vk">escreval</span>(<span class="vs">"Novo jogo"</span>)
+    <span class="vk">caso</span> <span class="vn">2</span>:
+      <span class="vk">escreval</span>(<span class="vs">"Carregar"</span>)
+    <span class="vk">outrocaso</span>:
+      <span class="vk">escreval</span>(<span class="vs">"Inválido"</span>)
+  <span class="vk">fimescolha</span>
+<span class="vk">fimalgoritmo</span></pre>
+    </div>
+    <div class="compare-col c-col">
+      <div class="compare-lang c-lang"><span class="lang-dot"></span>C</div>
+      <pre><span class="m">#include &lt;stdio.h&gt;</span>
+<span class="k">int</span> <span class="fn">main</span>() {
+  <span class="t">int</span> <span class="v">op</span><span class="p">;</span>
+  <span class="fn">scanf</span>(<span class="s">"%d"</span>, <span class="p">&amp;</span><span class="v">op</span>)<span class="p">;</span>
+
+  <span class="k">switch</span> (<span class="v">op</span>) {
+    <span class="k">case</span> <span class="n">1</span><span class="p">:</span>
+      <span class="fn">printf</span>(<span class="s">"Novo jogo\n"</span>)<span class="p">;</span>
+      <span class="k">break</span><span class="p">;</span>    <span class="c">// VisuAlg não precisa</span>
+    <span class="k">case</span> <span class="n">2</span><span class="p">:</span>
+      <span class="fn">printf</span>(<span class="s">"Carregar\n"</span>)<span class="p">;</span>
+      <span class="k">break</span><span class="p">;</span>
+    <span class="k">default</span><span class="p">:</span>
+      <span class="fn">printf</span>(<span class="s">"Inválido\n"</span>)<span class="p">;</span>
+  }
+
+  <span class="k">return</span> <span class="n">0</span><span class="p">;</span>
+}</pre>
+    </div>
+  </div>
+
+  <div class="note danger reveal">
+    <span class="note-icon">🔴</span>
+    <div><strong style="color:var(--heading)">break obrigatório no switch!</strong> — No VisuAlg o <code>escolha/caso</code> para automaticamente em cada caso. Em C, sem o <code>break</code>, o programa <em>continua</em> executando os casos seguintes (<em>fall-through</em>). Sempre adicione <code>break;</code> ao fim de cada <code>case</code>.</div>
+  </div>
+
+  <!-- Tabela resumo condicionais -->
+  <div class="reveal">
+    <table class="diff-table" style="margin-top:2rem">
+      <thead>
+        <tr>
+          <th class="vis-th">VisuAlg</th>
+          <th class="c-th">C</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td class="vis-val">se (cond) entao</td><td class="c-val">if (cond) {</td></tr>
+        <tr><td class="vis-val">senao</td><td class="c-val">} else {</td></tr>
+        <tr><td class="vis-val">senao se (cond) entao</td><td class="c-val">} else if (cond) {</td></tr>
+        <tr><td class="vis-val">fimse</td><td class="c-val">}</td></tr>
+        <tr><td class="vis-val">escolha (var)</td><td class="c-val">switch (var) {</td></tr>
+        <tr><td class="vis-val">caso valor:</td><td class="c-val">case valor: … break;</td></tr>
+        <tr><td class="vis-val">outrocaso:</td><td class="c-val">default:</td></tr>
+        <tr><td class="vis-val">fimescolha</td><td class="c-val">}</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════════
+     SEÇÃO 6 — LAÇOS
+══════════════════════════════════════════ -->
+<section id="loops">
+  <div class="section-label reveal">06 — Repetição</div>
+  <h2 class="section-title reveal">Estruturas de Laço</h2>
+  <p class="section-desc reveal">
+    Os três laços do VisuAlg têm equivalentes diretos em C.
+    A lógica não muda — apenas a sintaxe.
+  </p>
+
+  <!-- para vs for -->
+  <h3 class="reveal" style="font-family:var(--display);color:var(--heading);margin-bottom:.75rem;font-size:1.3rem;">para … faca → for</h3>
+
+  <div class="compare reveal">
+    <div class="compare-header">
+      <div class="dots"><span></span><span></span><span></span></div>
+      <span class="compare-title">Contar de 1 a 10 e somar</span>
+    </div>
+    <div class="compare-col vis-col">
+      <div class="compare-lang vis-lang"><span class="lang-dot"></span>VisuAlg</div>
+      <pre><span class="vk">var</span>
+  <span class="vv">i</span>, <span class="vv">soma</span> : <span class="vt">inteiro</span>
+<span class="vk">inicio</span>
+  <span class="vv">soma</span> <span class="vop">&lt;-</span> <span class="vn">0</span>
+
+  <span class="vk">para</span> <span class="vv">i</span> <span class="vop">de</span> <span class="vn">1</span> <span class="vk">ate</span> <span class="vn">10</span> <span class="vk">faca</span>
+    <span class="vk">escreval</span>(<span class="vv">i</span>)
+    <span class="vv">soma</span> <span class="vop">&lt;-</span> <span class="vv">soma</span> <span class="vop">+</span> <span class="vv">i</span>
+  <span class="vk">fimpara</span>
+
+  <span class="vk">escreval</span>(<span class="vs">"Soma: "</span>, <span class="vv">soma</span>)
+<span class="vk">fimalgoritmo</span></pre>
+    </div>
+    <div class="compare-col c-col">
+      <div class="compare-lang c-lang"><span class="lang-dot"></span>C</div>
+      <pre><span class="m">#include &lt;stdio.h&gt;</span>
+<span class="k">int</span> <span class="fn">main</span>() {
+  <span class="t">int</span> <span class="v">i</span><span class="p">,</span> <span class="v">soma</span> <span class="p">=</span> <span class="n">0</span><span class="p">;</span>
+
+  <span class="k">for</span> (<span class="v">i</span> <span class="p">=</span> <span class="n">1</span><span class="p">;</span> <span class="v">i</span> <span class="p">&lt;=</span> <span class="n">10</span><span class="p">;</span> <span class="v">i</span><span class="p">++</span>) {
+    <span class="fn">printf</span>(<span class="s">"%d\n"</span>, <span class="v">i</span>)<span class="p">;</span>
+    <span class="v">soma</span> <span class="p">+=</span> <span class="v">i</span><span class="p">;</span>
+  }
+
+  <span class="fn">printf</span>(<span class="s">"Soma: %d\n"</span>, <span class="v">soma</span>)<span class="p">;</span>
+  <span class="k">return</span> <span class="n">0</span><span class="p">;</span>
+}</pre>
+    </div>
+  </div>
+
+  <div class="note info reveal">
+    <span class="note-icon">💡</span>
+    <div>
+      <strong style="color:var(--heading)">Anatomia do for em C:</strong><br>
+      <code style="color:var(--accent)">for (i = 1 ; i &lt;= 10 ; i++)</code><br>
+      <span style="color:var(--muted)">↑ inicio &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ↑ condição &nbsp;&nbsp;&nbsp;&nbsp; ↑ passo</span><br>
+      É exatamente o <code>para i de 1 ate 10</code> do VisuAlg — só que tudo numa linha com ponto-e-vírgula separando as partes.
+    </div>
+  </div>
+
+  <div class="note warning reveal">
+    <span class="note-icon">⚠️</span>
+    <div><strong style="color:var(--heading)">Passo diferente de 1:</strong> no VisuAlg você usa <code>passo 2</code>. Em C, basta mudar o incremento: <code>i += 2</code> ou <code>i = i + 2</code> no terceiro campo do <code>for</code>.</div>
+  </div>
+
+  <!-- enquanto vs while -->
+  <h3 class="reveal" style="font-family:var(--display);color:var(--heading);margin:2.5rem 0 .75rem;font-size:1.3rem;">enquanto … faca → while</h3>
+  <div class="compare reveal">
+    <div class="compare-header">
+      <div class="dots"><span></span><span></span><span></span></div>
+      <span class="compare-title">Ler até digitar 0</span>
+    </div>
+    <div class="compare-col vis-col">
+      <div class="compare-lang vis-lang"><span class="lang-dot"></span>VisuAlg</div>
+      <pre><span class="vk">var</span>
+  <span class="vv">n</span> : <span class="vt">inteiro</span>
+<span class="vk">inicio</span>
+  <span class="vv">n</span> <span class="vop">&lt;-</span> <span class="vn">-1</span>
+
+  <span class="vk">enquanto</span> (<span class="vv">n</span> <span class="vop">&lt;&gt;</span> <span class="vn">0</span>) <span class="vk">faca</span>
+    <span class="vk">escreva</span>(<span class="vs">"Digite (0 p/ sair): "</span>)
+    <span class="vk">leia</span>(<span class="vv">n</span>)
+    <span class="vk">escreval</span>(<span class="vs">"Você digitou: "</span>, <span class="vv">n</span>)
+  <span class="vk">fimenquanto</span>
+
+  <span class="vk">escreval</span>(<span class="vs">"Fim!"</span>)
+<span class="vk">fimalgoritmo</span></pre>
+    </div>
+    <div class="compare-col c-col">
+      <div class="compare-lang c-lang"><span class="lang-dot"></span>C</div>
+      <pre><span class="m">#include &lt;stdio.h&gt;</span>
+<span class="k">int</span> <span class="fn">main</span>() {
+  <span class="t">int</span> <span class="v">n</span> <span class="p">=</span> <span class="n">-1</span><span class="p">;</span>
+
+  <span class="k">while</span> (<span class="v">n</span> <span class="p">!=</span> <span class="n">0</span>) {
+    <span class="fn">printf</span>(<span class="s">"Digite (0 p/ sair): "</span>)<span class="p">;</span>
+    <span class="fn">scanf</span>(<span class="s">"%d"</span>, <span class="p">&amp;</span><span class="v">n</span>)<span class="p">;</span>
+    <span class="fn">printf</span>(<span class="s">"Você digitou: %d\n"</span>, <span class="v">n</span>)<span class="p">;</span>
+  }
+
+  <span class="fn">printf</span>(<span class="s">"Fim!\n"</span>)<span class="p">;</span>
+  <span class="k">return</span> <span class="n">0</span><span class="p">;</span>
+}</pre>
+    </div>
+  </div>
+
+  <!-- repita vs do while -->
+  <h3 class="reveal" style="font-family:var(--display);color:var(--heading);margin:2.5rem 0 .75rem;font-size:1.3rem;">repita … ate → do … while</h3>
+  <div class="compare reveal">
+    <div class="compare-header">
+      <div class="dots"><span></span><span></span><span></span></div>
+      <span class="compare-title">Validar entrada — executa ao menos 1 vez</span>
+    </div>
+    <div class="compare-col vis-col">
+      <div class="compare-lang vis-lang"><span class="lang-dot"></span>VisuAlg</div>
+      <pre><span class="vk">var</span>
+  <span class="vv">senha</span> : <span class="vt">inteiro</span>
+<span class="vk">inicio</span>
+
+  <span class="vk">repita</span>
+    <span class="vk">escreva</span>(<span class="vs">"Senha: "</span>)
+    <span class="vk">leia</span>(<span class="vv">senha</span>)
+  <span class="vk">ate</span> (<span class="vv">senha</span> <span class="vop">=</span> <span class="vn">1234</span>)
+
+  <span class="vk">escreval</span>(<span class="vs">"Acesso liberado!"</span>)
+<span class="vk">fimalgoritmo</span></pre>
+    </div>
+    <div class="compare-col c-col">
+      <div class="compare-lang c-lang"><span class="lang-dot"></span>C</div>
+      <pre><span class="m">#include &lt;stdio.h&gt;</span>
+<span class="k">int</span> <span class="fn">main</span>() {
+  <span class="t">int</span> <span class="v">senha</span><span class="p">;</span>
+
+  <span class="k">do</span> {
+    <span class="fn">printf</span>(<span class="s">"Senha: "</span>)<span class="p">;</span>
+    <span class="fn">scanf</span>(<span class="s">"%d"</span>, <span class="p">&amp;</span><span class="v">senha</span>)<span class="p">;</span>
+  } <span class="k">while</span> (<span class="v">senha</span> <span class="p">!=</span> <span class="n">1234</span>)<span class="p">;</span>
+
+  <span class="fn">printf</span>(<span class="s">"Acesso liberado!\n"</span>)<span class="p">;</span>
+  <span class="k">return</span> <span class="n">0</span><span class="p">;</span>
+}</pre>
+    </div>
+  </div>
+
+  <div class="note warning reveal">
+    <span class="note-icon">⚠️</span>
+    <div>
+      <strong style="color:var(--heading)">Condição invertida!</strong> — No VisuAlg <code>repita … ate (cond)</code> para quando a condição for <em>verdadeira</em>.
+      Em C, <code>do … while (cond)</code> continua enquanto a condição for <em>verdadeira</em>.
+      Para traduzir, <strong>inverta a condição</strong>: <code>ate (senha = 1234)</code> → <code>while (senha != 1234)</code>.
+    </div>
+  </div>
+
+  <!-- Tabela resumo laços -->
+  <div class="reveal">
+    <table class="diff-table" style="margin-top:2rem">
+      <thead>
+        <tr>
+          <th class="vis-th">VisuAlg</th>
+          <th class="c-th">C</th>
+          <th class="note-th">Detalhe crítico</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="vis-val">para i de 1 ate N faca</td>
+          <td class="c-val">for (i = 1; i &lt;= N; i++)</td>
+          <td class="note-val">Passo padrão = 1. Mude o terceiro campo para outro passo.</td>
+        </tr>
+        <tr>
+          <td class="vis-val">para i de N ate 1 passo -1 faca</td>
+          <td class="c-val">for (i = N; i &gt;= 1; i--)</td>
+          <td class="note-val">Contagem regressiva: inverte condição e usa i--.</td>
+        </tr>
+        <tr>
+          <td class="vis-val">fimpara</td>
+          <td class="c-val">}</td>
+          <td class="note-val">Chave fecha o bloco do for.</td>
+        </tr>
+        <tr>
+          <td class="vis-val">enquanto (cond) faca</td>
+          <td class="c-val">while (cond) {</td>
+          <td class="note-val">Mesma condição, sem alteração.</td>
+        </tr>
+        <tr>
+          <td class="vis-val">fimenquanto</td>
+          <td class="c-val">}</td>
+          <td class="note-val">Chave fecha o bloco do while.</td>
+        </tr>
+        <tr>
+          <td class="vis-val">repita</td>
+          <td class="c-val">do {</td>
+          <td class="note-val">Bloco executado pelo menos 1 vez.</td>
+        </tr>
+        <tr>
+          <td class="vis-val">ate (cond)</td>
+          <td class="c-val">} while (!cond);</td>
+          <td class="note-val">ATENÇÃO: condição invertida! VisuAlg para quando cond é V; C continua quando cond é V.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════════
+     SEÇÃO 7 — EXERCÍCIOS
+══════════════════════════════════════════ -->
+<section id="exercicios">
+  <div class="section-label reveal">07 — Pratique a Migração</div>
+  <h2 class="section-title reveal">Exercícios</h2>
+  <p class="section-desc reveal">Em cada exercício você receberá um algoritmo em VisuAlg. Sua tarefa é reescrevê-lo em C produzindo o mesmo resultado.</p>
+
+  <div class="exercise reveal">
+    <div class="exercise-header">
+      <span class="exercise-num">EX 01</span>
+      <span class="exercise-title">Migrar: Calculadora de IMC</span>
+    </div>
+    <div style="margin-bottom:1rem">
+      <div class="pillar-grid">
+        <div class="pillar-card">
+          <div class="pillar-label vis-label">VisuAlg — traduzir este código</div>
+          <pre style="padding:1rem 1.2rem;font-size:.78rem;line-height:1.7;font-family:var(--mono);font-variant-ligatures:none"><span class="vk">var</span>
+  <span class="vv">peso</span>, <span class="vv">altura</span>, <span class="vv">imc</span> : <span class="vt">real</span>
+<span class="vk">inicio</span>
+  <span class="vk">escreva</span>(<span class="vs">"Peso (kg): "</span>)
+  <span class="vk">leia</span>(<span class="vv">peso</span>)
+  <span class="vk">escreva</span>(<span class="vs">"Altura (m): "</span>)
+  <span class="vk">leia</span>(<span class="vv">altura</span>)
+
+  <span class="vv">imc</span> <span class="vop">&lt;-</span> <span class="vv">peso</span> <span class="vop">/</span> (<span class="vv">altura</span> <span class="vop">*</span> <span class="vv">altura</span>)
+  <span class="vk">escreval</span>(<span class="vs">"IMC: "</span>, <span class="vv">imc</span>:<span class="vn">1</span>:<span class="vn">2</span>)
+
+  <span class="vk">se</span> (<span class="vv">imc</span> <span class="vop">&lt;</span> <span class="vn">18.5</span>) <span class="vk">entao</span>
+    <span class="vk">escreval</span>(<span class="vs">"Abaixo do peso"</span>)
+  <span class="vk">senao</span>
+    <span class="vk">se</span> (<span class="vv">imc</span> <span class="vop">&lt;</span> <span class="vn">25</span>) <span class="vk">entao</span>
+      <span class="vk">escreval</span>(<span class="vs">"Peso normal"</span>)
+    <span class="vk">senao</span>
+      <span class="vk">escreval</span>(<span class="vs">"Sobrepeso"</span>)
+    <span class="vk">fimse</span>
+  <span class="vk">fimse</span>
+<span class="vk">fimalgoritmo</span></pre>
+        </div>
+      </div>
+    </div>
+    <ul>
+      <li>Declare as variáveis como <code>float</code> ou <code>double</code>.</li>
+      <li>Use <code>scanf("%f", &amp;peso)</code> para ler os valores.</li>
+      <li>Lembre-se: <code>imc:1:2</code> em VisuAlg vira <code>%.2f</code> em C.</li>
+      <li>Traduza os <code>se/senao/fimse</code> para <code>if/else if/else</code> com chaves.</li>
+    </ul>
+    <div class="tip">💡 Dica: para calcular <code>altura * altura</code> você pode usar a expressão diretamente ou <code>pow(altura, 2)</code> com <code>#include &lt;math.h&gt;</code>.</div>
+  </div>
+
+  <div class="exercise reveal" style="border-color:rgba(34,211,164,.2)">
+    <div class="exercise-header">
+      <span class="exercise-num" style="background:var(--green);color:#000">EX 02</span>
+      <span class="exercise-title">Migrar: Tabuada com para/faca</span>
+    </div>
+    <div style="margin-bottom:1rem">
+      <div class="pillar-grid">
+        <div class="pillar-card">
+          <div class="pillar-label vis-label">VisuAlg — traduzir este código</div>
+          <pre style="padding:1rem 1.2rem;font-size:.78rem;line-height:1.7;font-family:var(--mono);font-variant-ligatures:none"><span class="vk">var</span>
+  <span class="vv">n</span>, <span class="vv">i</span> : <span class="vt">inteiro</span>
+<span class="vk">inicio</span>
+  <span class="vk">escreva</span>(<span class="vs">"Tabuada de: "</span>)
+  <span class="vk">leia</span>(<span class="vv">n</span>)
+  <span class="vk">para</span> <span class="vv">i</span> <span class="vop">de</span> <span class="vn">1</span> <span class="vk">ate</span> <span class="vn">10</span> <span class="vk">faca</span>
+    <span class="vk">escreval</span>(<span class="vv">n</span>, <span class="vs">" x "</span>, <span class="vv">i</span>, <span class="vs">" = "</span>, <span class="vv">n</span><span class="vop">*</span><span class="vv">i</span>)
+  <span class="vk">fimpara</span>
+<span class="vk">fimalgoritmo</span></pre>
+        </div>
+      </div>
+    </div>
+    <ul>
+      <li>Traduza o <code>para … ate … faca … fimpara</code> para <code>for (i=1; i&lt;=10; i++) { }</code>.</li>
+      <li>No printf, use um único <code>printf</code> com todos os valores: <code>printf("%d x %d = %d\n", n, i, n*i)</code>.</li>
+    </ul>
+    <div class="tip" style="border-color:var(--green);color:var(--green)">💡 Dica: no VisuAlg você separa valores no escreval com vírgulas. Em C tudo vai num único printf com múltiplos especificadores de formato.</div>
+  </div>
+
+  <div class="exercise reveal" style="border-color:rgba(245,158,11,.2)">
+    <div class="exercise-header">
+      <span class="exercise-num" style="background:var(--accent3);color:#000">EX 03</span>
+      <span class="exercise-title">Migrar: Adivinhe o número (enquanto)</span>
+    </div>
+    <ul>
+      <li>No VisuAlg: declare <code>secreto = 42</code>, leia palpites em um <code>enquanto (palpite &lt;&gt; secreto)</code>.</li>
+      <li>A cada tentativa, diga se o palpite é maior ou menor que o secreto.</li>
+      <li>Ao acertar, exiba o número de tentativas.</li>
+      <li>Traduza para C usando <code>while</code>, <code>scanf</code> e <code>if/else</code>.</li>
+    </ul>
+    <div class="tip" style="border-color:var(--accent3);color:var(--accent3)">💡 Dica: <code>&lt;&gt;</code> no VisuAlg vira <code>!=</code> em C. Declare um contador <code>int tentativas = 0</code> e incremente com <code>tentativas++</code> dentro do loop.</div>
+  </div>
+
+  <div class="exercise reveal" style="border-color:rgba(248,113,113,.2)">
+    <div class="exercise-header">
+      <span class="exercise-num" style="background:var(--red)">EX 04</span>
+      <span class="exercise-title">Migrar: Menu com repita/ate e escolha/caso</span>
+    </div>
+    <ul>
+      <li>Crie um menu com 3 opções + sair (0).</li>
+      <li>Primeiro escreva em VisuAlg usando <code>repita … ate (op = 0)</code> e <code>escolha/caso</code>.</li>
+      <li>Depois migre para C: converta <code>repita/ate</code> para <code>do/while</code> com condição invertida.</li>
+      <li>Converta <code>escolha/caso</code> para <code>switch/case</code> — não esqueça o <code>break</code>!</li>
+    </ul>
+    <div class="tip" style="border-color:var(--red);color:var(--red)">💡 Dica dupla: (1) <code>ate (op = 0)</code> → <code>while (op != 0)</code> — condição invertida! (2) Cada <code>caso</code> em C precisa de <code>break;</code> no final.</div>
+  </div>
+
+  <!-- Gabarito EX 01 -->
+  <h3 class="reveal" style="font-family:var(--display);color:var(--heading);margin:2.5rem 0 .75rem;font-size:1.2rem;">Gabarito — Exercício 01 (IMC em C)</h3>
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:8px;overflow:hidden;margin:1.5rem 0" class="reveal">
+    <div style="background:var(--surface2);border-bottom:1px solid var(--border);padding:.55rem 1rem;display:flex;align-items:center;gap:1rem">
+      <div style="display:flex;gap:6px"><span style="width:10px;height:10px;border-radius:50%;background:#ff5f57;display:block"></span><span style="width:10px;height:10px;border-radius:50%;background:#febc2e;display:block"></span><span style="width:10px;height:10px;border-radius:50%;background:#28c840;display:block"></span></div>
+      <span style="font-family:var(--mono);font-size:.68rem;color:var(--muted)">imc.c</span>
+    </div>
+    <pre><span class="m">#include &lt;stdio.h&gt;</span>
+
+<span class="k">int</span> <span class="fn">main</span>() {
+    <span class="t">float</span> <span class="v">peso</span><span class="p">,</span> <span class="v">altura</span><span class="p">,</span> <span class="v">imc</span><span class="p">;</span>
+
+    <span class="fn">printf</span>(<span class="s">"Peso (kg): "</span>)<span class="p">;</span>
+    <span class="fn">scanf</span>(<span class="s">"%f"</span>, <span class="p">&amp;</span><span class="v">peso</span>)<span class="p">;</span>
+    <span class="fn">printf</span>(<span class="s">"Altura (m): "</span>)<span class="p">;</span>
+    <span class="fn">scanf</span>(<span class="s">"%f"</span>, <span class="p">&amp;</span><span class="v">altura</span>)<span class="p">;</span>
+
+    <span class="v">imc</span> <span class="p">=</span> <span class="v">peso</span> <span class="p">/</span> (<span class="v">altura</span> <span class="p">*</span> <span class="v">altura</span>)<span class="p">;</span>
+    <span class="fn">printf</span>(<span class="s">"IMC: %.2f\n"</span>, <span class="v">imc</span>)<span class="p">;</span>
+
+    <span class="k">if</span> (<span class="v">imc</span> <span class="p">&lt;</span> <span class="n">18.5f</span>) {
+        <span class="fn">printf</span>(<span class="s">"Abaixo do peso\n"</span>)<span class="p">;</span>
+    } <span class="k">else if</span> (<span class="v">imc</span> <span class="p">&lt;</span> <span class="n">25.0f</span>) {
+        <span class="fn">printf</span>(<span class="s">"Peso normal\n"</span>)<span class="p">;</span>
+    } <span class="k">else</span> {
+        <span class="fn">printf</span>(<span class="s">"Sobrepeso\n"</span>)<span class="p">;</span>
+    }
+
+    <span class="k">return</span> <span class="n">0</span><span class="p">;</span>
+}</pre>
+  </div>
+</section>
+
+
+<!-- FOOTER -->
+<footer>
+  <div>De <span>VisuAlg</span> para <span style="color:var(--accent)">C</span></div>
+  <div style="margin-top:.5rem;color:#2e3450">Guia Visual de Migração • 2025</div>
+</footer>
+
+<script>
+  const reveals = document.querySelectorAll('.reveal');
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) { e.target.classList.add('visible'); observer.unobserve(e.target); }
+    });
+  }, { threshold: 0.07, rootMargin: '0px 0px -40px 0px' });
+  reveals.forEach(el => observer.observe(el));
+
+  const sections = document.querySelectorAll('section[id]');
+  const navLinks = document.querySelectorAll('nav a');
+  window.addEventListener('scroll', () => {
+    let current = '';
+    sections.forEach(s => { if (window.scrollY >= s.offsetTop - 80) current = s.getAttribute('id'); });
+    navLinks.forEach(a => {
+      a.style.color       = a.getAttribute('href') === '#' + current ? 'var(--heading)' : '';
+      a.style.borderColor = a.getAttribute('href') === '#' + current ? 'var(--vis)'     : 'transparent';
+    });
+  });
+</script>
+</body>
+</html>
