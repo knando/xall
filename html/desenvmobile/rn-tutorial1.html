@@ -1,0 +1,1637 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>React Native — Guia Visual com Expo Snack</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;600;700&family=Syne:wght@400;700;800&family=DM+Sans:ital,wght@0,300;0,400;1,300&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:        #0b0d12;
+    --surface:   #111420;
+    --surface2:  #171b28;
+    --border:    #1e2436;
+    --accent:    #00e5ff;
+    --accent2:   #7c3aed;
+    --accent3:   #f59e0b;
+    --green:     #22d3a4;
+    --red:       #f87171;
+    --text:      #c9d1e0;
+    --muted:     #5a6280;
+    --heading:   #eef2ff;
+    --mono:      'JetBrains Mono', monospace;
+    --sans:      'DM Sans', sans-serif;
+    --display:   'Times', serif;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--sans);
+    font-size: 15px;
+    line-height: 1.7;
+    min-height: 100vh;
+    font-variant-ligatures: none;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 0;
+    opacity: .45;
+  }
+
+  /* ── NAV ── */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    background: rgba(11,13,18,.88);
+    backdrop-filter: blur(14px);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 0;
+    padding: 0 2rem;
+    height: 56px;
+    overflow-x: none;
+  }
+
+  nav .logo {
+    font-family: var(--display);
+    font-weight: 600;
+    font-size: 1.1rem;
+    color: var(--accent);
+    white-space: nowrap;
+    margin-right: 2rem;
+    letter-spacing: -0.03em;
+  }
+
+  nav a {
+    color: var(--muted);
+    text-decoration: none;
+    font-family: var(--mono);
+    font-size: .72rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: .08em;
+    padding: 0 .9rem;
+    height: 56px;
+    display: flex;
+    align-items: center;
+    white-space: nowrap;
+    border-bottom: 2px solid transparent;
+    transition: color .2s, border-color .2s;
+  }
+  nav a:hover { color: var(--heading); border-color: var(--accent); }
+
+  /* ── HERO ── */
+  #hero {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 6rem 2rem 4rem;
+    position: relative;
+    overflow: hidden;
+  }
+
+  #hero::before {
+    content: '';
+    position: absolute;
+    width: 700px; height: 700px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(0,229,255,.07) 0%, transparent 70%);
+    top: 50%; left: 50%;
+    transform: translate(-50%,-50%);
+    animation: pulse 6s ease-in-out infinite;
+  }
+
+  @keyframes pulse {
+    0%,100% { transform: translate(-50%,-50%) scale(1); opacity: .6; }
+    50%      { transform: translate(-50%,-50%) scale(1.15); opacity: 1; }
+  }
+
+  .hero-tag {
+    font-family: var(--mono);
+    font-size: .72rem;
+    color: var(--accent);
+    letter-spacing: .18em;
+    text-transform: uppercase;
+    margin-bottom: 1.5rem;
+    opacity: 0;
+    animation: fadeUp .6s .2s forwards;
+  }
+
+  #hero h1 {
+    font-family: var(--display);
+    font-size: clamp(3.5rem, 10vw, 7rem);
+    font-weight: 600;
+    line-height: .95;
+    letter-spacing: -.04em;
+    color: var(--heading);
+    opacity: 0;
+    animation: fadeUp .7s .4s forwards;
+  }
+
+  #hero h1 span { color: var(--accent); }
+
+  .hero-sub {
+    max-width: 540px;
+    margin: 1.5rem auto 0;
+    color: var(--muted);
+    font-size: 1rem;
+    font-weight: 300;
+    opacity: 0;
+    animation: fadeUp .7s .6s forwards;
+  }
+
+  .hero-badges {
+    display: flex;
+    gap: .75rem;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin-top: 2.5rem;
+    opacity: 0;
+    animation: fadeUp .7s .8s forwards;
+  }
+
+  .badge {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: .35rem .9rem;
+    font-family: var(--mono);
+    font-size: .72rem;
+    color: var(--muted);
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .scroll-hint {
+    position: absolute;
+    bottom: 2.5rem;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: .4rem;
+    color: var(--muted);
+    font-family: var(--mono);
+    font-size: .65rem;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    opacity: 0;
+    animation: fadeUp .7s 1.2s forwards;
+  }
+
+  .scroll-hint::after {
+    content: '';
+    width: 1px; height: 40px;
+    background: linear-gradient(to bottom, var(--accent), transparent);
+    animation: scrollLine 2s ease-in-out infinite;
+  }
+
+  @keyframes scrollLine {
+    0%,100% { opacity: 1; }
+    50%      { opacity: .2; }
+  }
+
+  /* ── SECTIONS ── */
+  section { padding: 5rem 2rem; max-width: 980px; margin: 0 auto; }
+  section + section { border-top: 1px solid var(--border); }
+
+  .section-label {
+    font-family: var(--mono);
+    font-size: .65rem;
+    letter-spacing: .2em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: .75rem;
+  }
+
+  .section-title {
+    font-family: var(--display);
+    font-size: clamp(2rem, 5vw, 3rem);
+    font-weight: 600;
+    color: var(--heading);
+    letter-spacing: -.03em;
+    line-height: 1.1;
+    margin-bottom: 1.5rem;
+  }
+
+  .section-desc {
+    color: var(--muted);
+    max-width: 660px;
+    margin-bottom: 3rem;
+    font-weight: 300;
+  }
+
+  /* ── DEFINITION CARDS ── */
+  .def-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 1rem;
+    margin-bottom: 2.5rem;
+  }
+
+  .def-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1.25rem 1.4rem;
+    position: relative;
+    overflow: hidden;
+    transition: border-color .25s, transform .2s;
+  }
+
+  .def-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0;
+    width: 3px; height: 100%;
+    background: var(--accent);
+    border-radius: 0 2px 2px 0;
+  }
+
+  .def-card:hover {
+    border-color: rgba(0,229,255,.3);
+    transform: translateY(-2px);
+  }
+
+  .def-card.green::before  { background: var(--green); }
+  .def-card.amber::before  { background: var(--accent3); }
+  .def-card.purple::before { background: var(--accent2); }
+  .def-card.red::before    { background: var(--red); }
+
+  .def-term {
+    font-family: var(--mono);
+    font-size: .78rem;
+    font-weight: 700;
+    color: var(--accent);
+    text-transform: uppercase;
+    letter-spacing: .1em;
+    margin-bottom: .3rem;
+  }
+
+  .def-card.green  .def-term { color: var(--green); }
+  .def-card.amber  .def-term { color: var(--accent3); }
+  .def-card.purple .def-term { color: var(--accent2); }
+  .def-card.red    .def-term { color: var(--red); }
+
+  .def-desc {
+    font-size: .88rem;
+    color: var(--text);
+    line-height: 1.55;
+  }
+
+  /* ── CODE BLOCK ── */
+  .code-wrap {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+    margin: 1.5rem 0;
+    position: relative;
+  }
+
+  .code-header {
+    background: var(--surface2);
+    border-bottom: 1px solid var(--border);
+    padding: .55rem 1rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .code-dots { display: flex; gap: 6px; }
+  .code-dots span {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+  }
+  .code-dots span:nth-child(1) { background: #ff5f57; }
+  .code-dots span:nth-child(2) { background: #febc2e; }
+  .code-dots span:nth-child(3) { background: #28c840; }
+
+  .code-filename {
+    font-family: var(--mono);
+    font-size: .68rem;
+    color: var(--muted);
+    letter-spacing: .04em;
+  }
+
+  pre {
+    padding: 1.4rem 1.5rem;
+    overflow-x: auto;
+    font-family: var(--mono);
+    font-size: .82rem;
+    line-height: 1.75;
+    tab-size: 2;
+  }
+
+  /* Syntax colors */
+  .k  { color: #c792ea; font-weight: 600; }  /* keyword / import */
+  .t  { color: #80cbc4; }                     /* type / component name */
+  .fn { color: #82aaff; }                     /* function name */
+  .s  { color: #c3e88d; }                     /* string */
+  .n  { color: #f78c6c; }                     /* number */
+  .c  { color: #546e7a; font-style: italic; } /* comment */
+  .p  { color: var(--accent); }               /* punctuation/op */
+  .v  { color: #eeffff; }                     /* variable */
+  .m  { color: var(--accent3); }              /* tag / JSX element */
+  .prop { color: #ffcb6b; }                   /* JSX prop */
+  .hook { color: #82aaff; }                   /* hook name */
+
+  /* ── TYPE TABLE ── */
+  .type-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: var(--mono);
+    font-size: .8rem;
+    margin: 1.5rem 0;
+  }
+
+  .type-table th {
+    text-align: left;
+    padding: .6rem 1rem;
+    border-bottom: 2px solid var(--accent);
+    color: var(--accent);
+    font-size: .68rem;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+  }
+
+  .type-table td {
+    padding: .65rem 1rem;
+    border-bottom: 1px solid var(--border);
+    color: var(--text);
+  }
+
+  .type-table tr:hover td { background: var(--surface2); }
+  .type-table .keyword { color: #c792ea; }
+  .type-table .bytes   { color: var(--accent3); text-align: center; }
+  .type-table .example { color: var(--green); }
+  .type-table .comp    { color: var(--accent); font-weight: 600; }
+
+  /* ── OP / COMPONENT GRID ── */
+  .op-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+    gap: .75rem;
+    margin: 1.5rem 0;
+  }
+
+  .op-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: .9rem 1.1rem;
+    display: flex;
+    align-items: flex-start;
+    gap: .75rem;
+    transition: border-color .2s;
+  }
+
+  .op-card:hover { border-color: rgba(0,229,255,.25); }
+
+  .op-sym {
+    font-family: var(--mono);
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--accent);
+    min-width: 2.4rem;
+    text-align: center;
+    line-height: 1.2;
+    padding-top: 2px;
+  }
+
+  .op-card.green  .op-sym { color: var(--green); }
+  .op-card.amber  .op-sym { color: var(--accent3); }
+  .op-card.purple .op-sym { color: #c792ea; }
+  .op-card.red    .op-sym { color: var(--red); }
+
+  .op-info { flex: 1; }
+  .op-name { font-size: .8rem; color: var(--heading); font-weight: 600; line-height: 1.3; }
+  .op-eg   { font-family: var(--mono); font-size: .72rem; color: var(--muted); margin-top: .2rem; }
+
+  /* ── EXERCISE CARD ── */
+  .exercise {
+    background: linear-gradient(135deg, rgba(0,229,255,.04) 0%, rgba(124,58,237,.06) 100%);
+    border: 1px solid rgba(0,229,255,.2);
+    border-radius: 8px;
+    padding: 1.5rem 1.75rem;
+    margin: 2rem 0;
+  }
+
+  .exercise-header {
+    display: flex;
+    align-items: center;
+    gap: .75rem;
+    margin-bottom: 1rem;
+  }
+
+  .exercise-num {
+    background: var(--accent);
+    color: #000;
+    font-family: var(--mono);
+    font-size: .72rem;
+    font-weight: 700;
+    padding: .2rem .6rem;
+    border-radius: 3px;
+  }
+
+  .exercise-title {
+    font-family: var(--display);
+    font-weight: 700;
+    color: var(--heading);
+    font-size: 1rem;
+  }
+
+  .exercise ul {
+    padding-left: 1.2rem;
+    color: var(--text);
+    font-size: .9rem;
+  }
+
+  .exercise li { margin-bottom: .3rem; }
+
+  .exercise .tip {
+    margin-top: 1rem;
+    padding: .75rem 1rem;
+    background: rgba(245,158,11,.07);
+    border-left: 3px solid var(--accent3);
+    border-radius: 0 4px 4px 0;
+    font-size: .85rem;
+    color: var(--accent3);
+  }
+
+  /* ── HIGHLIGHT NOTE ── */
+  .note {
+    display: flex;
+    gap: .75rem;
+    align-items: flex-start;
+    padding: .9rem 1.1rem;
+    border-radius: 6px;
+    margin: 1rem 0;
+    font-size: .88rem;
+  }
+
+  .note.info    { background: rgba(0,229,255,.07); border: 1px solid rgba(0,229,255,.2); }
+  .note.warning { background: rgba(245,158,11,.07); border: 1px solid rgba(245,158,11,.2); }
+  .note.danger  { background: rgba(248,113,113,.07); border: 1px solid rgba(248,113,113,.2); }
+  .note.success { background: rgba(34,211,164,.07); border: 1px solid rgba(34,211,164,.2); }
+
+  .note-icon { font-size: 1rem; flex-shrink: 0; padding-top: .1rem; }
+  .note.info    .note-icon { color: var(--accent); }
+  .note.warning .note-icon { color: var(--accent3); }
+  .note.danger  .note-icon { color: var(--red); }
+  .note.success .note-icon { color: var(--green); }
+
+  /* ── SCREEN FLOW DIAGRAM ── */
+  .flow-wrap {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 2rem;
+    margin: 1.5rem 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+    font-family: var(--mono);
+    font-size: .78rem;
+  }
+
+  .flow-screen {
+    background: var(--surface2);
+    border: 2px solid var(--border);
+    border-radius: 12px;
+    padding: 1.2rem 1.6rem;
+    text-align: center;
+    min-width: 140px;
+    color: var(--heading);
+    position: relative;
+  }
+
+  .flow-screen.active { border-color: var(--accent); }
+  .flow-screen.purple { border-color: var(--accent2); }
+  .flow-screen .screen-label {
+    font-size: .62rem;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: .12em;
+    margin-bottom: .3rem;
+  }
+  .flow-screen .screen-name { color: var(--accent); font-weight: 700; }
+  .flow-screen.purple .screen-name { color: #c792ea; }
+
+  .flow-arrow-h {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: .2rem;
+  }
+  .flow-arrow-h .arr-line {
+    width: 50px; height: 2px;
+    background: var(--muted);
+    position: relative;
+  }
+  .flow-arrow-h .arr-line::after {
+    content: '▶';
+    position: absolute;
+    right: -8px; top: -8px;
+    color: var(--muted);
+    font-size: .7rem;
+  }
+  .flow-arrow-h .arr-label {
+    font-size: .6rem;
+    color: var(--muted);
+    text-align: center;
+  }
+
+  /* ── FOOTER ── */
+  footer {
+    text-align: center;
+    padding: 4rem 2rem;
+    color: var(--muted);
+    font-family: var(--mono);
+    font-size: .72rem;
+    letter-spacing: .06em;
+    border-top: 1px solid var(--border);
+  }
+
+  footer span { color: var(--accent); }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 640px) {
+    nav a { padding: 0 .6rem; font-size: .65rem; }
+    nav .logo { margin-right: 1rem; }
+    .op-grid { grid-template-columns: 1fr 1fr; }
+    .def-grid { grid-template-columns: 1fr; }
+    .flow-wrap { flex-direction: column; }
+  }
+
+  /* ── SCROLL ANIMATIONS ── */
+  .reveal {
+    opacity: 0;
+    transform: translateY(24px);
+    transition: opacity .55s ease, transform .55s ease;
+  }
+  .reveal.visible {
+    opacity: 1;
+    transform: none;
+  }
+
+  /* ── SNACK BUTTON ── */
+  .snack-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: .5rem;
+    background: linear-gradient(135deg, var(--accent2), #5b21b6);
+    color: #fff;
+    font-family: var(--mono);
+    font-size: .75rem;
+    font-weight: 600;
+    padding: .55rem 1.2rem;
+    border-radius: 6px;
+    text-decoration: none;
+    letter-spacing: .04em;
+    transition: opacity .2s, transform .2s;
+    margin-top: 1rem;
+    border: none;
+    cursor: pointer;
+  }
+  .snack-btn:hover { opacity: .85; transform: translateY(-1px); }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="logo">RN&lt;expo&gt;</div>
+  <a href="#fundamentos">Fundamentos</a>
+  <a href="#componentes">Componentes</a>
+  <a href="#estado">Estado</a>
+  <a href="#navegacao">Navegação</a>
+  <a href="#crud">CRUD</a>
+  <a href="#exercicios">Exercícios</a>
+</nav>
+
+<!-- HERO -->
+<section id="hero">
+  <div class="hero-tag">React Native • Expo Snack</div>
+  <h1>Aprenda<br><span>React Native</span></h1>
+  <p class="hero-sub">Componentes, estado, navegação e CRUD — tudo direto no navegador com Expo Snack, sem instalar nada.</p>
+  <div class="hero-badges">
+    <span class="badge">import React from 'react'</span>
+    <span class="badge">useState</span>
+    <span class="badge">expo snack</span>
+    <span class="badge">CRUD completo</span>
+  </div>
+  <div class="scroll-hint">role para baixo</div>
+</section>
+
+
+<!-- ════════════════════════════════════════════
+     SEÇÃO 1 — FUNDAMENTOS
+════════════════════════════════════════════ -->
+<section id="fundamentos">
+  <div class="section-label reveal">01 — Ponto de Partida</div>
+  <h2 class="section-title reveal">O que é React Native &amp; Expo Snack?</h2>
+  <p class="section-desc reveal">React Native é um framework criado pelo Meta que permite construir aplicativos reais para Android e iOS usando <strong style="color:var(--heading)">JavaScript e React</strong>. Com o Expo Snack, você escreve e testa no navegador sem instalar nada.</p>
+
+  <!-- Glossário rápido -->
+  <div class="def-grid reveal">
+    <div class="def-card">
+      <div class="def-term">React Native</div>
+      <div class="def-desc">Framework que transforma componentes JavaScript em elementos nativos reais de iOS e Android.</div>
+    </div>
+    <div class="def-card green">
+      <div class="def-term">Expo</div>
+      <div class="def-desc">Plataforma que simplifica o desenvolvimento RN: ferramentas, bibliotecas e ambiente de build prontos.</div>
+    </div>
+    <div class="def-card amber">
+      <div class="def-term">Expo Snack</div>
+      <div class="def-desc">Editor online em <strong style="color:var(--accent3)">snack.expo.dev</strong> — escreva e visualize seu app no navegador ou pelo aplicativo Expo Go no celular.</div>
+    </div>
+    <div class="def-card purple">
+      <div class="def-term">Componente</div>
+      <div class="def-desc">Bloco reutilizável de UI. Pode ser simples (um botão) ou complexo (uma tela inteira). Sempre retorna JSX.</div>
+    </div>
+    <div class="def-card red">
+      <div class="def-term">JSX</div>
+      <div class="def-desc">Sintaxe parecida com HTML usada dentro do JavaScript para descrever a interface visual.</div>
+    </div>
+    <div class="def-card">
+      <div class="def-term">Props</div>
+      <div class="def-desc">Parâmetros passados de um componente pai para um filho. São somente leitura dentro do filho.</div>
+    </div>
+  </div>
+
+  <div class="note info reveal">
+    <span class="note-icon">🚀</span>
+    <div><strong style="color:var(--heading)">Como começar:</strong> Acesse <code style="color:var(--accent)">snack.expo.dev</code>, clique em <em>New Snack</em> e você já tem um app funcional. Edite o <code>App.js</code> e veja as mudanças em tempo real no emulador ao lado.</div>
+  </div>
+
+  <!-- Estrutura de um componente -->
+  <h3 class="reveal" style="font-family:var(--display);color:var(--heading);margin:2.5rem 0 .75rem;font-size:1.3rem;">Estrutura mínima de um componente</h3>
+  <div class="code-wrap reveal">
+    <div class="code-header">
+      <div class="code-dots"><span></span><span></span><span></span></div>
+      <span class="code-filename">App.js</span>
+    </div>
+    <pre><span class="c">// 1️⃣  Importações — sempre no topo</span>
+<span class="k">import</span> <span class="t">React</span> <span class="k">from</span> <span class="s">'react'</span><span class="p">;</span>
+<span class="k">import</span> <span class="p">{</span> <span class="t">View</span><span class="p">,</span> <span class="t">Text</span><span class="p">,</span> <span class="t">StyleSheet</span> <span class="p">}</span> <span class="k">from</span> <span class="s">'react-native'</span><span class="p">;</span>
+
+<span class="c">// 2️⃣  Definição do componente — função que retorna JSX</span>
+<span class="k">export default function</span> <span class="fn">App</span>() {
+  <span class="k">return</span> (
+    <span class="m">&lt;View</span> <span class="prop">style</span><span class="p">={</span><span class="v">styles.container</span><span class="p">}&gt;</span>
+      <span class="m">&lt;Text</span> <span class="prop">style</span><span class="p">={</span><span class="v">styles.titulo</span><span class="p">}&gt;</span>Olá, mundo!<span class="m">&lt;/Text&gt;</span>
+      <span class="m">&lt;Text&gt;</span>Meu primeiro app React Native 🚀<span class="m">&lt;/Text&gt;</span>
+    <span class="m">&lt;/View&gt;</span>
+  )<span class="p">;</span>
+}
+
+<span class="c">// 3️⃣  Estilos — equivalente ao CSS, mas em JavaScript</span>
+<span class="k">const</span> <span class="v">styles</span> <span class="p">=</span> <span class="t">StyleSheet</span><span class="p">.</span><span class="fn">create</span>(<span class="p">{</span>
+  <span class="v">container</span><span class="p">:</span> <span class="p">{</span>
+    <span class="v">flex</span><span class="p">:</span> <span class="n">1</span><span class="p">,</span>
+    <span class="v">alignItems</span><span class="p">:</span> <span class="s">'center'</span><span class="p">,</span>
+    <span class="v">justifyContent</span><span class="p">:</span> <span class="s">'center'</span><span class="p">,</span>
+    <span class="v">backgroundColor</span><span class="p">:</span> <span class="s">'#f0f4ff'</span><span class="p">,</span>
+  <span class="p">},</span>
+  <span class="v">titulo</span><span class="p">:</span> <span class="p">{</span>
+    <span class="v">fontSize</span><span class="p">:</span> <span class="n">24</span><span class="p">,</span>
+    <span class="v">fontWeight</span><span class="p">:</span> <span class="s">'bold'</span><span class="p">,</span>
+    <span class="v">marginBottom</span><span class="p">:</span> <span class="n">8</span><span class="p">,</span>
+  <span class="p">},</span>
+<span class="p">})</span><span class="p">;</span></pre>
+  </div>
+
+  <div class="note warning reveal">
+    <span class="note-icon">⚠️</span>
+    <div><strong style="color:var(--heading)">Diferença do HTML:</strong> Em React Native não existe <code>&lt;div&gt;</code>, <code>&lt;p&gt;</code> ou <code>&lt;button&gt;</code>. No lugar, usamos <code>&lt;View&gt;</code>, <code>&lt;Text&gt;</code> e <code>&lt;TouchableOpacity&gt;</code>. Todo texto <strong>obrigatoriamente</strong> deve estar dentro de um <code>&lt;Text&gt;</code>.</div>
+  </div>
+</section>
+
+
+<!-- ════════════════════════════════════════════
+     SEÇÃO 2 — COMPONENTES PRINCIPAIS
+════════════════════════════════════════════ -->
+<section id="componentes">
+  <div class="section-label reveal">02 — Blocos de Construção</div>
+  <h2 class="section-title reveal">Componentes Principais</h2>
+  <p class="section-desc reveal">React Native oferece um conjunto de <strong style="color:var(--heading)">componentes nativos</strong> prontos para uso. Conhecê-los é fundamental para construir qualquer tela.</p>
+
+  <!-- Tabela de componentes -->
+  <div class="reveal">
+    <table class="type-table">
+      <thead>
+        <tr>
+          <th>Componente</th>
+          <th>Equivalente Web</th>
+          <th>Uso principal</th>
+          <th>Prop chave</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="comp">&lt;View&gt;</td>
+          <td>&lt;div&gt;</td>
+          <td>Container / layout</td>
+          <td class="example">style, flexDirection</td>
+        </tr>
+        <tr>
+          <td class="comp">&lt;Text&gt;</td>
+          <td>&lt;p&gt; / &lt;span&gt;</td>
+          <td>Exibir qualquer texto</td>
+          <td class="example">style, numberOfLines</td>
+        </tr>
+        <tr>
+          <td class="comp">&lt;TextInput&gt;</td>
+          <td>&lt;input&gt;</td>
+          <td>Campo de entrada de texto</td>
+          <td class="example">value, onChangeText</td>
+        </tr>
+        <tr>
+          <td class="comp">&lt;TouchableOpacity&gt;</td>
+          <td>&lt;button&gt;</td>
+          <td>Botão com feedback visual</td>
+          <td class="example">onPress, activeOpacity</td>
+        </tr>
+        <tr>
+          <td class="comp">&lt;FlatList&gt;</td>
+          <td>&lt;ul&gt; performático</td>
+          <td>Lista longa e rolável</td>
+          <td class="example">data, renderItem, keyExtractor</td>
+        </tr>
+        <tr>
+          <td class="comp">&lt;ScrollView&gt;</td>
+          <td>div com overflow</td>
+          <td>Área com scroll livre</td>
+          <td class="example">horizontal, contentContainerStyle</td>
+        </tr>
+        <tr>
+          <td class="comp">&lt;Image&gt;</td>
+          <td>&lt;img&gt;</td>
+          <td>Exibir imagens</td>
+          <td class="example">source, resizeMode</td>
+        </tr>
+        <tr>
+          <td class="comp">&lt;Switch&gt;</td>
+          <td>&lt;input type="checkbox"&gt;</td>
+          <td>Toggle on/off</td>
+          <td class="example">value, onValueChange</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Cards de componentes mais usados -->
+  <h3 class="reveal" style="font-family:var(--display);color:var(--heading);margin:2.5rem 0 .75rem;font-size:1.3rem;">Os mais usados no dia a dia</h3>
+  <div class="op-grid reveal">
+    <div class="op-card">
+      <div class="op-sym">&lt;V&gt;</div>
+      <div class="op-info">
+        <div class="op-name">View</div>
+        <div class="op-eg">O container base. Usa Flexbox por padrão.</div>
+      </div>
+    </div>
+    <div class="op-card">
+      <div class="op-sym">&lt;T&gt;</div>
+      <div class="op-info">
+        <div class="op-name">Text</div>
+        <div class="op-eg">Único jeito de mostrar texto na tela.</div>
+      </div>
+    </div>
+    <div class="op-card green">
+      <div class="op-sym">&lt;TI&gt;</div>
+      <div class="op-info">
+        <div class="op-name">TextInput</div>
+        <div class="op-eg">Captura o que o usuário digita.</div>
+      </div>
+    </div>
+    <div class="op-card green">
+      <div class="op-sym">&lt;TO&gt;</div>
+      <div class="op-info">
+        <div class="op-name">TouchableOpacity</div>
+        <div class="op-eg">Botão que esmaece ao tocar.</div>
+      </div>
+    </div>
+    <div class="op-card amber">
+      <div class="op-sym">&lt;FL&gt;</div>
+      <div class="op-info">
+        <div class="op-name">FlatList</div>
+        <div class="op-eg">Lista performática com virtualização.</div>
+      </div>
+    </div>
+    <div class="op-card amber">
+      <div class="op-sym">&lt;SV&gt;</div>
+      <div class="op-info">
+        <div class="op-name">ScrollView</div>
+        <div class="op-eg">Scroll para conteúdo que não cabe na tela.</div>
+      </div>
+    </div>
+    <div class="op-card purple">
+      <div class="op-sym">&lt;I&gt;</div>
+      <div class="op-info">
+        <div class="op-name">Image</div>
+        <div class="op-eg">Exibe imagens locais ou da internet.</div>
+      </div>
+    </div>
+    <div class="op-card purple">
+      <div class="op-sym">&lt;AI&gt;</div>
+      <div class="op-info">
+        <div class="op-name">ActivityIndicator</div>
+        <div class="op-eg">Spinner de carregamento nativo.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Exemplo de componentes -->
+  <h3 class="reveal" style="font-family:var(--display);color:var(--heading);margin:2.5rem 0 .75rem;font-size:1.3rem;">Exemplo — Layout com Flexbox e componentes</h3>
+  <div class="code-wrap reveal">
+    <div class="code-header">
+      <div class="code-dots"><span></span><span></span><span></span></div>
+      <span class="code-filename">Componentes.js</span>
+    </div>
+    <pre><span class="k">import</span> <span class="t">React</span> <span class="k">from</span> <span class="s">'react'</span><span class="p">;</span>
+<span class="k">import</span> <span class="p">{</span>
+  <span class="t">View</span><span class="p">,</span> <span class="t">Text</span><span class="p">,</span> <span class="t">TextInput</span><span class="p">,</span>
+  <span class="t">TouchableOpacity</span><span class="p">,</span> <span class="t">Image</span><span class="p">,</span> <span class="t">StyleSheet</span>
+<span class="p">}</span> <span class="k">from</span> <span class="s">'react-native'</span><span class="p">;</span>
+
+<span class="k">export default function</span> <span class="fn">DemoComponentes</span>() {
+  <span class="k">return</span> (
+    <span class="m">&lt;View</span> <span class="prop">style</span><span class="p">={</span><span class="v">s.container</span><span class="p">}&gt;</span>
+
+      <span class="c">{/* Imagem com URL remota */}</span>
+      <span class="m">&lt;Image</span>
+        <span class="prop">source</span><span class="p">={{</span> <span class="v">uri</span><span class="p">:</span> <span class="s">'https://reactnative.dev/img/logo-og.png'</span> <span class="p">}}</span>
+        <span class="prop">style</span><span class="p">={</span><span class="v">s.logo</span><span class="p">}</span>
+      <span class="p">/&gt;</span>
+
+      <span class="c">{/* Texto estilizado */}</span>
+      <span class="m">&lt;Text</span> <span class="prop">style</span><span class="p">={</span><span class="v">s.titulo</span><span class="p">}&gt;</span>Cadastro<span class="m">&lt;/Text&gt;</span>
+
+      <span class="c">{/* Campo de texto */}</span>
+      <span class="m">&lt;TextInput</span>
+        <span class="prop">style</span><span class="p">={</span><span class="v">s.input</span><span class="p">}</span>
+        <span class="prop">placeholder</span><span class="p">=</span><span class="s">"Digite seu nome"</span>
+        <span class="prop">placeholderTextColor</span><span class="p">=</span><span class="s">"#999"</span>
+      <span class="p">/&gt;</span>
+
+      <span class="c">{/* Botão com feedback */}</span>
+      <span class="m">&lt;TouchableOpacity</span>
+        <span class="prop">style</span><span class="p">={</span><span class="v">s.botao</span><span class="p">}</span>
+        <span class="prop">activeOpacity</span><span class="p">={</span><span class="n">0.7</span><span class="p">}</span>
+        <span class="prop">onPress</span><span class="p">={</span>() <span class="p">=&gt;</span> <span class="fn">alert</span>(<span class="s">'Clicou!'</span>)<span class="p">}</span>
+      <span class="p">&gt;</span>
+        <span class="m">&lt;Text</span> <span class="prop">style</span><span class="p">={</span><span class="v">s.botaoTxt</span><span class="p">}&gt;</span>Enviar<span class="m">&lt;/Text&gt;</span>
+      <span class="m">&lt;/TouchableOpacity&gt;</span>
+
+    <span class="m">&lt;/View&gt;</span>
+  )<span class="p">;</span>
+}
+
+<span class="k">const</span> <span class="v">s</span> <span class="p">=</span> <span class="t">StyleSheet</span><span class="p">.</span><span class="fn">create</span>(<span class="p">{</span>
+  <span class="v">container</span><span class="p">:</span>  <span class="p">{</span> <span class="v">flex</span><span class="p">:</span> <span class="n">1</span><span class="p">,</span> <span class="v">padding</span><span class="p">:</span> <span class="n">24</span><span class="p">,</span> <span class="v">backgroundColor</span><span class="p">:</span> <span class="s">'#fff'</span> <span class="p">},</span>
+  <span class="v">logo</span><span class="p">:</span>       <span class="p">{</span> <span class="v">width</span><span class="p">:</span> <span class="n">80</span><span class="p">,</span> <span class="v">height</span><span class="p">:</span> <span class="n">80</span><span class="p">,</span> <span class="v">alignSelf</span><span class="p">:</span> <span class="s">'center'</span><span class="p">,</span> <span class="v">marginBottom</span><span class="p">:</span> <span class="n">16</span> <span class="p">},</span>
+  <span class="v">titulo</span><span class="p">:</span>     <span class="p">{</span> <span class="v">fontSize</span><span class="p">:</span> <span class="n">22</span><span class="p">,</span> <span class="v">fontWeight</span><span class="p">:</span> <span class="s">'bold'</span><span class="p">,</span> <span class="v">marginBottom</span><span class="p">:</span> <span class="n">20</span> <span class="p">},</span>
+  <span class="v">input</span><span class="p">:</span>      <span class="p">{</span> <span class="v">borderWidth</span><span class="p">:</span> <span class="n">1</span><span class="p">,</span> <span class="v">borderColor</span><span class="p">:</span> <span class="s">'#ccc'</span><span class="p">,</span> <span class="v">borderRadius</span><span class="p">:</span> <span class="n">8</span><span class="p">,</span>
+               <span class="v">padding</span><span class="p">:</span> <span class="n">12</span><span class="p">,</span> <span class="v">marginBottom</span><span class="p">:</span> <span class="n">16</span><span class="p">,</span> <span class="v">fontSize</span><span class="p">:</span> <span class="n">16</span> <span class="p">},</span>
+  <span class="v">botao</span><span class="p">:</span>      <span class="p">{</span> <span class="v">backgroundColor</span><span class="p">:</span> <span class="s">'#6366f1'</span><span class="p">,</span> <span class="v">padding</span><span class="p">:</span> <span class="n">14</span><span class="p">,</span> <span class="v">borderRadius</span><span class="p">:</span> <span class="n">8</span><span class="p">,</span>
+               <span class="v">alignItems</span><span class="p">:</span> <span class="s">'center'</span> <span class="p">},</span>
+  <span class="v">botaoTxt</span><span class="p">:</span>   <span class="p">{</span> <span class="v">color</span><span class="p">:</span> <span class="s">'#fff'</span><span class="p">,</span> <span class="v">fontWeight</span><span class="p">:</span> <span class="s">'bold'</span><span class="p">,</span> <span class="v">fontSize</span><span class="p">:</span> <span class="n">16</span> <span class="p">},</span>
+<span class="p">})</span><span class="p">;</span></pre>
+  </div>
+</section>
+
+
+<!-- ════════════════════════════════════════════
+     SEÇÃO 3 — ESTADO E HOOKS
+════════════════════════════════════════════ -->
+<section id="estado">
+  <div class="section-label reveal">03 — Dados que Mudam</div>
+  <h2 class="section-title reveal">Estado &amp; Hooks</h2>
+  <p class="section-desc reveal"><strong style="color:var(--heading)">Estado (state)</strong> é qualquer dado que pode mudar durante a vida do componente e que, quando muda, faz a tela se atualizar automaticamente. Os Hooks são funções especiais do React que gerenciam esse estado.</p>
+
+  <!-- Cards de hooks -->
+  <div class="def-grid reveal">
+    <div class="def-card">
+      <div class="def-term">useState</div>
+      <div class="def-desc">Cria uma variável de estado. Retorna <code>[valor, setValor]</code>. Quando <code>setValor</code> é chamado, o componente re-renderiza.</div>
+    </div>
+    <div class="def-card green">
+      <div class="def-term">useEffect</div>
+      <div class="def-desc">Executa um efeito colateral (buscar dados, timer) após a renderização. Controla quando rodar pelo array de dependências.</div>
+    </div>
+    <div class="def-card amber">
+      <div class="def-term">useCallback</div>
+      <div class="def-desc">Memoriza uma função para não recriar a cada render, evitando re-renders desnecessários em componentes filhos.</div>
+    </div>
+    <div class="def-card purple">
+      <div class="def-term">useContext</div>
+      <div class="def-desc">Lê um contexto global — útil para passar dados (ex: usuário logado) sem "prop drilling" por vários níveis.</div>
+    </div>
+  </div>
+
+  <!-- useState detalhado -->
+  <h3 class="reveal" style="font-family:var(--display);color:var(--heading);margin:2.5rem 0 .75rem;font-size:1.3rem;">useState — o hook mais importante</h3>
+  <div class="code-wrap reveal">
+    <div class="code-header">
+      <div class="code-dots"><span></span><span></span><span></span></div>
+      <span class="code-filename">Contador.js</span>
+    </div>
+    <pre><span class="k">import</span> <span class="t">React</span><span class="p">,</span> <span class="p">{</span> <span class="hook">useState</span> <span class="p">}</span> <span class="k">from</span> <span class="s">'react'</span><span class="p">;</span>
+<span class="k">import</span> <span class="p">{</span> <span class="t">View</span><span class="p">,</span> <span class="t">Text</span><span class="p">,</span> <span class="t">TouchableOpacity</span><span class="p">,</span> <span class="t">StyleSheet</span> <span class="p">}</span> <span class="k">from</span> <span class="s">'react-native'</span><span class="p">;</span>
+
+<span class="k">export default function</span> <span class="fn">Contador</span>() {
+  <span class="c">// useState retorna [valorAtual, funcaoQueAtualiza]</span>
+  <span class="k">const</span> <span class="p">[</span><span class="v">contagem</span><span class="p">,</span> <span class="fn">setContagem</span><span class="p">]</span> <span class="p">=</span> <span class="hook">useState</span>(<span class="n">0</span>)<span class="p">;</span>   <span class="c">// valor inicial: 0</span>
+  <span class="k">const</span> <span class="p">[</span><span class="v">nome</span><span class="p">,</span> <span class="fn">setNome</span><span class="p">]</span> <span class="p">=</span> <span class="hook">useState</span>(<span class="s">''</span>)<span class="p">;</span>          <span class="c">// valor inicial: string vazia</span>
+
+  <span class="k">return</span> (
+    <span class="m">&lt;View</span> <span class="prop">style</span><span class="p">={</span><span class="v">s.container</span><span class="p">}&gt;</span>
+
+      <span class="c">{/* Exibe o estado atual */}</span>
+      <span class="m">&lt;Text</span> <span class="prop">style</span><span class="p">={</span><span class="v">s.numero</span><span class="p">}&gt;{</span><span class="v">contagem</span><span class="p">}&lt;/Text&gt;</span>
+
+      <span class="c">{/* Botões que ATUALIZAM o estado */}</span>
+      <span class="m">&lt;View</span> <span class="prop">style</span><span class="p">={</span><span class="v">s.row</span><span class="p">}&gt;</span>
+        <span class="m">&lt;TouchableOpacity</span> <span class="prop">style</span><span class="p">={</span><span class="v">s.btn</span><span class="p">}</span>
+          <span class="prop">onPress</span><span class="p">={</span>() <span class="p">=&gt;</span> <span class="fn">setContagem</span>(<span class="v">c</span> <span class="p">=&gt;</span> <span class="v">c</span> <span class="p">-</span> <span class="n">1</span>)<span class="p">}&gt;</span>
+          <span class="m">&lt;Text</span> <span class="prop">style</span><span class="p">={</span><span class="v">s.btnTxt</span><span class="p">}&gt;</span>−<span class="m">&lt;/Text&gt;</span>
+        <span class="m">&lt;/TouchableOpacity&gt;</span>
+        <span class="m">&lt;TouchableOpacity</span> <span class="prop">style</span><span class="p">={[</span><span class="v">s.btn</span><span class="p">,</span> <span class="v">s.btnGreen</span><span class="p">]}</span>
+          <span class="prop">onPress</span><span class="p">={</span>() <span class="p">=&gt;</span> <span class="fn">setContagem</span>(<span class="v">c</span> <span class="p">=&gt;</span> <span class="v">c</span> <span class="p">+</span> <span class="n">1</span>)<span class="p">}&gt;</span>
+          <span class="m">&lt;Text</span> <span class="prop">style</span><span class="p">={</span><span class="v">s.btnTxt</span><span class="p">}&gt;</span>+<span class="m">&lt;/Text&gt;</span>
+        <span class="m">&lt;/TouchableOpacity&gt;</span>
+      <span class="m">&lt;/View&gt;</span>
+
+    <span class="m">&lt;/View&gt;</span>
+  )<span class="p">;</span>
+}
+
+<span class="k">const</span> <span class="v">s</span> <span class="p">=</span> <span class="t">StyleSheet</span><span class="p">.</span><span class="fn">create</span>(<span class="p">{</span>
+  <span class="v">container</span><span class="p">:</span> <span class="p">{</span> <span class="v">flex</span><span class="p">:</span> <span class="n">1</span><span class="p">,</span> <span class="v">alignItems</span><span class="p">:</span> <span class="s">'center'</span><span class="p">,</span> <span class="v">justifyContent</span><span class="p">:</span> <span class="s">'center'</span> <span class="p">},</span>
+  <span class="v">numero</span><span class="p">:</span>    <span class="p">{</span> <span class="v">fontSize</span><span class="p">:</span> <span class="n">72</span><span class="p">,</span> <span class="v">fontWeight</span><span class="p">:</span> <span class="s">'bold'</span><span class="p">,</span> <span class="v">color</span><span class="p">:</span> <span class="s">'#6366f1'</span><span class="p">,</span> <span class="v">marginBottom</span><span class="p">:</span> <span class="n">32</span> <span class="p">},</span>
+  <span class="v">row</span><span class="p">:</span>       <span class="p">{</span> <span class="v">flexDirection</span><span class="p">:</span> <span class="s">'row'</span><span class="p">,</span> <span class="v">gap</span><span class="p">:</span> <span class="n">16</span> <span class="p">},</span>
+  <span class="v">btn</span><span class="p">:</span>       <span class="p">{</span> <span class="v">backgroundColor</span><span class="p">:</span> <span class="s">'#ef4444'</span><span class="p">,</span> <span class="v">width</span><span class="p">:</span> <span class="n">60</span><span class="p">,</span> <span class="v">height</span><span class="p">:</span> <span class="n">60</span><span class="p">,</span>
+               <span class="v">borderRadius</span><span class="p">:</span> <span class="n">30</span><span class="p">,</span> <span class="v">alignItems</span><span class="p">:</span> <span class="s">'center'</span><span class="p">,</span> <span class="v">justifyContent</span><span class="p">:</span> <span class="s">'center'</span> <span class="p">},</span>
+  <span class="v">btnGreen</span><span class="p">:</span>  <span class="p">{</span> <span class="v">backgroundColor</span><span class="p">:</span> <span class="s">'#22c55e'</span> <span class="p">},</span>
+  <span class="v">btnTxt</span><span class="p">:</span>    <span class="p">{</span> <span class="v">color</span><span class="p">:</span> <span class="s">'#fff'</span><span class="p">,</span> <span class="v">fontSize</span><span class="p">:</span> <span class="n">28</span><span class="p">,</span> <span class="v">fontWeight</span><span class="p">:</span> <span class="s">'bold'</span> <span class="p">},</span>
+<span class="p">})</span><span class="p">;</span></pre>
+  </div>
+
+  <div class="note info reveal">
+    <span class="note-icon">💡</span>
+    <div><strong style="color:var(--heading)">Regra de ouro:</strong> Nunca modifique o estado diretamente (<code>contagem = contagem + 1</code>). Sempre use a função setter (<code>setContagem(c =&gt; c + 1)</code>), caso contrário a tela não atualiza.</div>
+  </div>
+</section>
+
+
+<!-- ════════════════════════════════════════════
+     SEÇÃO 4 — NAVEGAÇÃO ENTRE TELAS
+════════════════════════════════════════════ -->
+<section id="navegacao">
+  <div class="section-label reveal">04 — Múltiplas Telas</div>
+  <h2 class="section-title reveal">Navegação entre Telas</h2>
+  <p class="section-desc reveal">Um app real tem várias telas. O <strong style="color:var(--heading)">React Navigation</strong> é a biblioteca padrão da comunidade para gerenciar telas e passar dados entre elas.</p>
+
+  <!-- Diagrama de fluxo -->
+  <div class="flow-wrap reveal">
+    <div class="flow-screen active">
+      <div class="screen-label">Tela Inicial</div>
+      <div class="screen-name">HomeScreen</div>
+      <div style="font-size:.65rem;color:var(--muted);margin-top:.4rem;">Lista de itens</div>
+    </div>
+    <div class="flow-arrow-h">
+      <div class="arr-line"></div>
+      <div class="arr-label">navigate('Detalhes',<br>{ item })</div>
+    </div>
+    <div class="flow-screen purple">
+      <div class="screen-label">Tela de Detalhe</div>
+      <div class="screen-name">DetalhesScreen</div>
+      <div style="font-size:.65rem;color:var(--muted);margin-top:.4rem;">Editar / Deletar</div>
+    </div>
+    <div class="flow-arrow-h">
+      <div class="arr-line"></div>
+      <div class="arr-label">navigation.goBack()<br>+ atualiza lista</div>
+    </div>
+    <div class="flow-screen active">
+      <div class="screen-label">Volta para</div>
+      <div class="screen-name">HomeScreen</div>
+      <div style="font-size:.65rem;color:var(--muted);margin-top:.4rem;">Lista atualizada</div>
+    </div>
+  </div>
+
+  <!-- Instalação -->
+  <div class="note success reveal">
+    <span class="note-icon">📦</span>
+    <div><strong style="color:var(--heading)">No Expo Snack:</strong> basta importar diretamente. Não é preciso rodar <code>npm install</code> — o Snack resolve as dependências automaticamente ao salvar.</div>
+  </div>
+
+  <!-- Configuração do navegador -->
+  <h3 class="reveal" style="font-family:var(--display);color:var(--heading);margin:2.5rem 0 .75rem;font-size:1.3rem;">Configurando o Stack Navigator</h3>
+  <div class="code-wrap reveal">
+    <div class="code-header">
+      <div class="code-dots"><span></span><span></span><span></span></div>
+      <span class="code-filename">App.js — configuração de navegação</span>
+    </div>
+    <pre><span class="k">import</span> <span class="t">React</span> <span class="k">from</span> <span class="s">'react'</span><span class="p">;</span>
+<span class="k">import</span> <span class="p">{</span> <span class="t">NavigationContainer</span> <span class="p">}</span> <span class="k">from</span> <span class="s">'@react-navigation/native'</span><span class="p">;</span>
+<span class="k">import</span> <span class="p">{</span> <span class="fn">createNativeStackNavigator</span> <span class="p">}</span> <span class="k">from</span> <span class="s">'@react-navigation/native-stack'</span><span class="p">;</span>
+
+<span class="k">import</span> <span class="t">HomeScreen</span>     <span class="k">from</span> <span class="s">'./screens/HomeScreen'</span><span class="p">;</span>
+<span class="k">import</span> <span class="t">DetalhesScreen</span> <span class="k">from</span> <span class="s">'./screens/DetalhesScreen'</span><span class="p">;</span>
+
+<span class="c">// Cria o objeto Stack com as telas disponíveis</span>
+<span class="k">const</span> <span class="v">Stack</span> <span class="p">=</span> <span class="fn">createNativeStackNavigator</span>()<span class="p">;</span>
+
+<span class="k">export default function</span> <span class="fn">App</span>() {
+  <span class="k">return</span> (
+    <span class="c">{/* NavigationContainer SEMPRE envolve tudo */}</span>
+    <span class="m">&lt;NavigationContainer&gt;</span>
+      <span class="m">&lt;Stack.Navigator</span> <span class="prop">initialRouteName</span><span class="p">=</span><span class="s">"Home"</span><span class="p">&gt;</span>
+
+        <span class="c">{/* Cada Screen = uma tela acessível */}</span>
+        <span class="m">&lt;Stack.Screen</span>
+          <span class="prop">name</span><span class="p">=</span><span class="s">"Home"</span>
+          <span class="prop">component</span><span class="p">={</span><span class="t">HomeScreen</span><span class="p">}</span>
+          <span class="prop">options</span><span class="p">={{</span> <span class="v">title</span><span class="p">:</span> <span class="s">'Minhas Tarefas'</span> <span class="p">}}</span>
+        <span class="p">/&gt;</span>
+
+        <span class="m">&lt;Stack.Screen</span>
+          <span class="prop">name</span><span class="p">=</span><span class="s">"Detalhes"</span>
+          <span class="prop">component</span><span class="p">={</span><span class="t">DetalhesScreen</span><span class="p">}</span>
+          <span class="prop">options</span><span class="p">={{</span> <span class="v">title</span><span class="p">:</span> <span class="s">'Editar Tarefa'</span> <span class="p">}}</span>
+        <span class="p">/&gt;</span>
+
+      <span class="m">&lt;/Stack.Navigator&gt;</span>
+    <span class="m">&lt;/NavigationContainer&gt;</span>
+  )<span class="p">;</span>
+}
+</pre>
+  </div>
+
+  <!-- Passando dados -->
+  <h3 class="reveal" style="font-family:var(--display);color:var(--heading);margin:2.5rem 0 .75rem;font-size:1.3rem;">Passando e recebendo dados entre telas</h3>
+  <div class="code-wrap reveal">
+    <div class="code-header">
+      <div class="code-dots"><span></span><span></span><span></span></div>
+      <span class="code-filename">screens/HomeScreen.js — enviando dados</span>
+    </div>
+    <pre><span class="c">// Para NAVEGAR e ENVIAR dados → segundo argumento de navigate()</span>
+<span class="v">navigation</span><span class="p">.</span><span class="fn">navigate</span>(<span class="s">'Detalhes'</span><span class="p">,</span> <span class="p">{</span>
+  <span class="v">tarefaId</span><span class="p">:</span> <span class="v">item</span><span class="p">.</span><span class="v">id</span><span class="p">,</span>
+  <span class="v">titulo</span><span class="p">:</span>   <span class="v">item</span><span class="p">.</span><span class="v">titulo</span><span class="p">,</span>
+<span class="p">})</span><span class="p">;</span>
+
+<span class="c">// Para VOLTAR para a tela anterior</span>
+<span class="v">navigation</span><span class="p">.</span><span class="fn">goBack</span>()<span class="p">;</span>
+</pre>
+  </div>
+  <div class="code-wrap reveal">
+    <div class="code-header">
+      <div class="code-dots"><span></span><span></span><span></span></div>
+      <span class="code-filename">screens/DetalhesScreen.js — recebendo dados</span>
+    </div>
+    <pre><span class="k">export default function</span> <span class="fn">DetalhesScreen</span>(<span class="p">{</span> <span class="v">route</span><span class="p">,</span> <span class="v">navigation</span> <span class="p">}</span>) {
+  <span class="c">// route.params contém os dados enviados pela tela anterior</span>
+  <span class="k">const</span> <span class="p">{</span> <span class="v">tarefaId</span><span class="p">,</span> <span class="v">titulo</span> <span class="p">}</span> <span class="p">=</span> <span class="v">route</span><span class="p">.</span><span class="v">params</span><span class="p">;</span>
+
+  <span class="k">return</span> (
+    <span class="m">&lt;View&gt;</span>
+      <span class="m">&lt;Text&gt;</span>Editando tarefa #{<span class="v">tarefaId</span>}<span class="m">&lt;/Text&gt;</span>
+      <span class="m">&lt;Text&gt;</span>Título atual: {<span class="v">titulo</span>}<span class="m">&lt;/Text&gt;</span>
+    <span class="m">&lt;/View&gt;</span>
+  )<span class="p">;</span>
+}</pre>
+  </div>
+
+  <div class="reveal" style="margin-top:2rem">
+    <table class="type-table">
+      <thead>
+        <tr>
+          <th>Método</th>
+          <th>O que faz</th>
+          <th>Exemplo</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="comp">navigate(name, params)</td>
+          <td>Vai para uma tela, passando dados opcionais</td>
+          <td class="example">navigate('Detalhes', { id: 1 })</td>
+        </tr>
+        <tr>
+          <td class="comp">goBack()</td>
+          <td>Volta para a tela anterior da pilha</td>
+          <td class="example">navigation.goBack()</td>
+        </tr>
+        <tr>
+          <td class="comp">replace(name)</td>
+          <td>Substitui a tela atual (sem acumular histórico)</td>
+          <td class="example">navigation.replace('Login')</td>
+        </tr>
+        <tr>
+          <td class="comp">reset(state)</td>
+          <td>Reseta toda a pilha de navegação</td>
+          <td class="example">navigation.reset({ index: 0, routes: [{ name: 'Home' }] })</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+
+<!-- ════════════════════════════════════════════
+     SEÇÃO 5 — CRUD COMPLETO
+════════════════════════════════════════════ -->
+<section id="crud">
+  <div class="section-label reveal">05 — Projeto Completo</div>
+  <h2 class="section-title reveal">App CRUD com Duas Telas</h2>
+  <p class="section-desc reveal">Vamos construir um <strong style="color:var(--heading)">gerenciador de tarefas</strong> completo: criar, listar, editar e deletar itens — com dados fluindo entre a tela Home e a tela de Detalhes.</p>
+
+  <div class="note info reveal">
+    <span class="note-icon">🗂️</span>
+    <div><strong style="color:var(--heading)">Estrutura de arquivos no Snack:</strong><br>
+    <code style="color:var(--accent)">App.js</code> — configura a navegação<br>
+    <code style="color:var(--accent)">screens/HomeScreen.js</code> — lista + criação (C e R)<br>
+    <code style="color:var(--accent)">screens/DetalhesScreen.js</code> — edição + deleção (U e D)</div>
+  </div>
+
+  <!-- App.js -->
+  <h3 class="reveal" style="font-family:var(--display);color:var(--heading);margin:2.5rem 0 .75rem;font-size:1.3rem;">App.js — Raiz da navegação + estado global de tarefas</h3>
+  <div class="code-wrap reveal">
+    <div class="code-header">
+      <div class="code-dots"><span></span><span></span><span></span></div>
+      <span class="code-filename">App.js</span>
+    </div>
+    <pre><span class="k">import</span> <span class="t">React</span><span class="p">,</span> <span class="p">{</span> <span class="hook">useState</span> <span class="p">}</span> <span class="k">from</span> <span class="s">'react'</span><span class="p">;</span>
+<span class="k">import</span> <span class="p">{</span> <span class="t">NavigationContainer</span> <span class="p">}</span> <span class="k">from</span> <span class="s">'@react-navigation/native'</span><span class="p">;</span>
+<span class="k">import</span> <span class="p">{</span> <span class="fn">createNativeStackNavigator</span> <span class="p">}</span> <span class="k">from</span> <span class="s">'@react-navigation/native-stack'</span><span class="p">;</span>
+<span class="k">import</span> <span class="t">HomeScreen</span>     <span class="k">from</span> <span class="s">'./screens/HomeScreen'</span><span class="p">;</span>
+<span class="k">import</span> <span class="t">DetalhesScreen</span> <span class="k">from</span> <span class="s">'./screens/DetalhesScreen'</span><span class="p">;</span>
+
+<span class="k">const</span> <span class="v">Stack</span> <span class="p">=</span> <span class="fn">createNativeStackNavigator</span>()<span class="p">;</span>
+
+<span class="c">// Lista inicial de tarefas — serve de banco de dados em memória</span>
+<span class="k">const</span> <span class="v">INICIAIS</span> <span class="p">=</span> <span class="p">[</span>
+  <span class="p">{</span> <span class="v">id</span><span class="p">:</span> <span class="s">'1'</span><span class="p">,</span> <span class="v">titulo</span><span class="p">:</span> <span class="s">'Estudar React Native'</span><span class="p">,</span> <span class="v">feito</span><span class="p">:</span> <span class="k">false</span> <span class="p">},</span>
+  <span class="p">{</span> <span class="v">id</span><span class="p">:</span> <span class="s">'2'</span><span class="p">,</span> <span class="v">titulo</span><span class="p">:</span> <span class="s">'Publicar app na Play Store'</span><span class="p">,</span> <span class="v">feito</span><span class="p">:</span> <span class="k">false</span> <span class="p">},</span>
+<span class="p">];</span>
+
+<span class="k">export default function</span> <span class="fn">App</span>() {
+  <span class="c">// Estado centralizado no App — compartilhado pelas duas telas via props</span>
+  <span class="k">const</span> <span class="p">[</span><span class="v">tarefas</span><span class="p">,</span> <span class="fn">setTarefas</span><span class="p">]</span> <span class="p">=</span> <span class="hook">useState</span>(<span class="v">INICIAIS</span>)<span class="p">;</span>
+
+  <span class="c">// CREATE — adiciona uma nova tarefa</span>
+  <span class="k">const</span> <span class="fn">adicionarTarefa</span> <span class="p">=</span> (<span class="v">titulo</span>) <span class="p">=&gt;</span> <span class="p">{</span>
+    <span class="k">const</span> <span class="v">nova</span> <span class="p">=</span> <span class="p">{</span> <span class="v">id</span><span class="p">:</span> <span class="t">Date</span><span class="p">.</span><span class="fn">now</span>()<span class="p">.</span><span class="fn">toString</span>()<span class="p">,</span> <span class="v">titulo</span><span class="p">,</span> <span class="v">feito</span><span class="p">:</span> <span class="k">false</span> <span class="p">};</span>
+    <span class="fn">setTarefas</span>(<span class="v">prev</span> <span class="p">=&gt;</span> <span class="p">[...</span><span class="v">prev</span><span class="p">,</span> <span class="v">nova</span><span class="p">])</span><span class="p">;</span>
+  <span class="p">};</span>
+
+  <span class="c">// UPDATE — atualiza o título de uma tarefa existente</span>
+  <span class="k">const</span> <span class="fn">atualizarTarefa</span> <span class="p">=</span> (<span class="v">id</span><span class="p">,</span> <span class="v">novoTitulo</span>) <span class="p">=&gt;</span> <span class="p">{</span>
+    <span class="fn">setTarefas</span>(<span class="v">prev</span> <span class="p">=&gt;</span>
+      <span class="v">prev</span><span class="p">.</span><span class="fn">map</span>(<span class="v">t</span> <span class="p">=&gt;</span> <span class="v">t</span><span class="p">.</span><span class="v">id</span> <span class="p">===</span> <span class="v">id</span> <span class="p">?</span> <span class="p">{...</span><span class="v">t</span><span class="p">,</span> <span class="v">titulo</span><span class="p">:</span> <span class="v">novoTitulo</span><span class="p">}</span> <span class="p">:</span> <span class="v">t</span>)
+    )<span class="p">;</span>
+  <span class="p">};</span>
+
+  <span class="c">// DELETE — remove uma tarefa pelo id</span>
+  <span class="k">const</span> <span class="fn">deletarTarefa</span> <span class="p">=</span> (<span class="v">id</span>) <span class="p">=&gt;</span> <span class="p">{</span>
+    <span class="fn">setTarefas</span>(<span class="v">prev</span> <span class="p">=&gt;</span> <span class="v">prev</span><span class="p">.</span><span class="fn">filter</span>(<span class="v">t</span> <span class="p">=&gt;</span> <span class="v">t</span><span class="p">.</span><span class="v">id</span> <span class="p">!==</span> <span class="v">id</span>))<span class="p">;</span>
+  <span class="p">};</span>
+
+  <span class="k">return</span> (
+    <span class="m">&lt;NavigationContainer&gt;</span>
+      <span class="m">&lt;Stack.Navigator</span> <span class="prop">initialRouteName</span><span class="p">=</span><span class="s">"Home"</span>
+        <span class="prop">screenOptions</span><span class="p">={{</span>
+          <span class="v">headerStyle</span><span class="p">:</span> <span class="p">{</span> <span class="v">backgroundColor</span><span class="p">:</span> <span class="s">'#6366f1'</span> <span class="p">},</span>
+          <span class="v">headerTintColor</span><span class="p">:</span> <span class="s">'#fff'</span><span class="p">,</span>
+          <span class="v">headerTitleStyle</span><span class="p">:</span> <span class="p">{</span> <span class="v">fontWeight</span><span class="p">:</span> <span class="s">'bold'</span> <span class="p">},</span>
+        <span class="p">}}</span>
+      <span class="p">&gt;</span>
+        <span class="m">&lt;Stack.Screen</span> <span class="prop">name</span><span class="p">=</span><span class="s">"Home"</span> <span class="prop">options</span><span class="p">={{</span> <span class="v">title</span><span class="p">:</span> <span class="s">'📋 Minhas Tarefas'</span> <span class="p">}}</span><span class="p">&gt;</span>
+          <span class="c">{/* Passamos as funções como props via children render */}</span>
+          {(<span class="v">props</span>) <span class="p">=&gt;</span>
+            <span class="m">&lt;HomeScreen</span>
+              <span class="p">{...</span><span class="v">props</span><span class="p">}</span>
+              <span class="prop">tarefas</span><span class="p">={</span><span class="v">tarefas</span><span class="p">}</span>
+              <span class="prop">onAdicionar</span><span class="p">={</span><span class="v">adicionarTarefa</span><span class="p">}</span>
+            <span class="p">/&gt;</span>
+          }
+        <span class="m">&lt;/Stack.Screen&gt;</span>
+
+        <span class="m">&lt;Stack.Screen</span> <span class="prop">name</span><span class="p">=</span><span class="s">"Detalhes"</span> <span class="prop">options</span><span class="p">={{</span> <span class="v">title</span><span class="p">:</span> <span class="s">'✏️ Editar Tarefa'</span> <span class="p">}}&gt;</span>
+          {(<span class="v">props</span>) <span class="p">=&gt;</span>
+            <span class="m">&lt;DetalhesScreen</span>
+              <span class="p">{...</span><span class="v">props</span><span class="p">}</span>
+              <span class="prop">onAtualizar</span><span class="p">={</span><span class="v">atualizarTarefa</span><span class="p">}</span>
+              <span class="prop">onDeletar</span><span class="p">={</span><span class="v">deletarTarefa</span><span class="p">}</span>
+            <span class="p">/&gt;</span>
+          }
+        <span class="m">&lt;/Stack.Screen&gt;</span>
+      <span class="m">&lt;/Stack.Navigator&gt;</span>
+    <span class="m">&lt;/NavigationContainer&gt;</span>
+  )<span class="p">;</span>
+}</pre>
+  </div>
+
+  <!-- HomeScreen -->
+  <h3 class="reveal" style="font-family:var(--display);color:var(--heading);margin:2.5rem 0 .75rem;font-size:1.3rem;">screens/HomeScreen.js — Listar (READ) e Criar (CREATE)</h3>
+  <div class="code-wrap reveal">
+    <div class="code-header">
+      <div class="code-dots"><span></span><span></span><span></span></div>
+      <span class="code-filename">screens/HomeScreen.js</span>
+    </div>
+    <pre><span class="k">import</span> <span class="t">React</span><span class="p">,</span> <span class="p">{</span> <span class="hook">useState</span> <span class="p">}</span> <span class="k">from</span> <span class="s">'react'</span><span class="p">;</span>
+<span class="k">import</span> <span class="p">{</span>
+  <span class="t">View</span><span class="p">,</span> <span class="t">Text</span><span class="p">,</span> <span class="t">TextInput</span><span class="p">,</span> <span class="t">TouchableOpacity</span><span class="p">,</span>
+  <span class="t">FlatList</span><span class="p">,</span> <span class="t">StyleSheet</span><span class="p">,</span> <span class="t">Alert</span>
+<span class="p">}</span> <span class="k">from</span> <span class="s">'react-native'</span><span class="p">;</span>
+
+<span class="k">export default function</span> <span class="fn">HomeScreen</span>(<span class="p">{</span> <span class="v">navigation</span><span class="p">,</span> <span class="v">tarefas</span><span class="p">,</span> <span class="v">onAdicionar</span> <span class="p">}</span>) {
+  <span class="k">const</span> <span class="p">[</span><span class="v">texto</span><span class="p">,</span> <span class="fn">setTexto</span><span class="p">]</span> <span class="p">=</span> <span class="hook">useState</span>(<span class="s">''</span>)<span class="p">;</span>
+
+  <span class="c">// CREATE — chama a função do App.js</span>
+  <span class="k">const</span> <span class="fn">handleAdicionar</span> <span class="p">=</span> () <span class="p">=&gt;</span> <span class="p">{</span>
+    <span class="k">if</span> (<span class="v">texto</span><span class="p">.</span><span class="fn">trim</span>() <span class="p">===</span> <span class="s">''</span>) <span class="p">{</span>
+      <span class="t">Alert</span><span class="p">.</span><span class="fn">alert</span>(<span class="s">'Atenção'</span><span class="p">,</span> <span class="s">'Digite um título para a tarefa.'</span>)<span class="p">;</span>
+      <span class="k">return</span><span class="p">;</span>
+    <span class="p">}</span>
+    <span class="fn">onAdicionar</span>(<span class="v">texto</span><span class="p">.</span><span class="fn">trim</span>())<span class="p">;</span>
+    <span class="fn">setTexto</span>(<span class="s">''</span>)<span class="p">;</span>   <span class="c">// limpa o campo após adicionar</span>
+  <span class="p">};</span>
+
+  <span class="c">// Renderiza cada item da lista — navega ao clicar</span>
+  <span class="k">const</span> <span class="fn">renderItem</span> <span class="p">=</span> (<span class="p">{</span> <span class="v">item</span> <span class="p">}</span>) <span class="p">=&gt;</span> (
+    <span class="m">&lt;TouchableOpacity</span>
+      <span class="prop">style</span><span class="p">={</span><span class="v">s.item</span><span class="p">}</span>
+      <span class="prop">onPress</span><span class="p">={</span>() <span class="p">=&gt;</span> <span class="v">navigation</span><span class="p">.</span><span class="fn">navigate</span>(<span class="s">'Detalhes'</span><span class="p">,</span> <span class="p">{</span>
+        <span class="v">tarefaId</span><span class="p">:</span> <span class="v">item</span><span class="p">.</span><span class="v">id</span><span class="p">,</span>
+        <span class="v">titulo</span><span class="p">:</span>   <span class="v">item</span><span class="p">.</span><span class="v">titulo</span><span class="p">,</span>
+      <span class="p">})}</span>
+    <span class="p">&gt;</span>
+      <span class="m">&lt;Text</span> <span class="prop">style</span><span class="p">={</span><span class="v">s.itemTxt</span><span class="p">}&gt;</span>{<span class="v">item</span><span class="p">.</span><span class="v">titulo</span>}<span class="m">&lt;/Text&gt;</span>
+      <span class="m">&lt;Text</span> <span class="prop">style</span><span class="p">={</span><span class="v">s.seta</span><span class="p">}&gt;</span>›<span class="m">&lt;/Text&gt;</span>
+    <span class="m">&lt;/TouchableOpacity&gt;</span>
+  )<span class="p">;</span>
+
+  <span class="k">return</span> (
+    <span class="m">&lt;View</span> <span class="prop">style</span><span class="p">={</span><span class="v">s.container</span><span class="p">}&gt;</span>
+
+      <span class="c">{/* Campo para nova tarefa */}</span>
+      <span class="m">&lt;View</span> <span class="prop">style</span><span class="p">={</span><span class="v">s.row</span><span class="p">}&gt;</span>
+        <span class="m">&lt;TextInput</span>
+          <span class="prop">style</span><span class="p">={</span><span class="v">s.input</span><span class="p">}</span>
+          <span class="prop">value</span><span class="p">={</span><span class="v">texto</span><span class="p">}</span>
+          <span class="prop">onChangeText</span><span class="p">={</span><span class="v">setTexto</span><span class="p">}</span>
+          <span class="prop">placeholder</span><span class="p">=</span><span class="s">"Nova tarefa..."</span>
+          <span class="prop">returnKeyType</span><span class="p">=</span><span class="s">"done"</span>
+          <span class="prop">onSubmitEditing</span><span class="p">={</span><span class="v">handleAdicionar</span><span class="p">}</span>
+        <span class="p">/&gt;</span>
+        <span class="m">&lt;TouchableOpacity</span> <span class="prop">style</span><span class="p">={</span><span class="v">s.btnAdd</span><span class="p">}</span> <span class="prop">onPress</span><span class="p">={</span><span class="v">handleAdicionar</span><span class="p">}&gt;</span>
+          <span class="m">&lt;Text</span> <span class="prop">style</span><span class="p">={</span><span class="v">s.btnAddTxt</span><span class="p">}&gt;</span>+<span class="m">&lt;/Text&gt;</span>
+        <span class="m">&lt;/TouchableOpacity&gt;</span>
+      <span class="m">&lt;/View&gt;</span>
+
+      <span class="c">{/* READ — lista todas as tarefas */}</span>
+      <span class="m">&lt;FlatList</span>
+        <span class="prop">data</span><span class="p">={</span><span class="v">tarefas</span><span class="p">}</span>
+        <span class="prop">keyExtractor</span><span class="p">={</span>(<span class="v">item</span>) <span class="p">=&gt;</span> <span class="v">item</span><span class="p">.</span><span class="v">id</span><span class="p">}</span>
+        <span class="prop">renderItem</span><span class="p">={</span><span class="v">renderItem</span><span class="p">}</span>
+        <span class="prop">ListEmptyComponent</span><span class="p">={</span>
+          <span class="m">&lt;Text</span> <span class="prop">style</span><span class="p">={</span><span class="v">s.vazio</span><span class="p">}&gt;</span>Nenhuma tarefa ainda. Adicione uma! 🎯<span class="m">&lt;/Text&gt;</span>
+        <span class="p">}</span>
+      <span class="p">/&gt;</span>
+
+    <span class="m">&lt;/View&gt;</span>
+  )<span class="p">;</span>
+}
+
+<span class="k">const</span> <span class="v">s</span> <span class="p">=</span> <span class="t">StyleSheet</span><span class="p">.</span><span class="fn">create</span>(<span class="p">{</span>
+  <span class="v">container</span><span class="p">:</span>  <span class="p">{</span> <span class="v">flex</span><span class="p">:</span> <span class="n">1</span><span class="p">,</span> <span class="v">backgroundColor</span><span class="p">:</span> <span class="s">'#f8f9fe'</span><span class="p">,</span> <span class="v">padding</span><span class="p">:</span> <span class="n">16</span> <span class="p">},</span>
+  <span class="v">row</span><span class="p">:</span>        <span class="p">{</span> <span class="v">flexDirection</span><span class="p">:</span> <span class="s">'row'</span><span class="p">,</span> <span class="v">gap</span><span class="p">:</span> <span class="n">8</span><span class="p">,</span> <span class="v">marginBottom</span><span class="p">:</span> <span class="n">16</span> <span class="p">},</span>
+  <span class="v">input</span><span class="p">:</span>      <span class="p">{</span> <span class="v">flex</span><span class="p">:</span> <span class="n">1</span><span class="p">,</span> <span class="v">borderWidth</span><span class="p">:</span> <span class="n">1</span><span class="p">,</span> <span class="v">borderColor</span><span class="p">:</span> <span class="s">'#d1d5db'</span><span class="p">,</span>
+               <span class="v">borderRadius</span><span class="p">:</span> <span class="n">10</span><span class="p">,</span> <span class="v">paddingHorizontal</span><span class="p">:</span> <span class="n">14</span><span class="p">,</span> <span class="v">height</span><span class="p">:</span> <span class="n">48</span><span class="p">,</span>
+               <span class="v">backgroundColor</span><span class="p">:</span> <span class="s">'#fff'</span><span class="p">,</span> <span class="v">fontSize</span><span class="p">:</span> <span class="n">15</span> <span class="p">},</span>
+  <span class="v">btnAdd</span><span class="p">:</span>     <span class="p">{</span> <span class="v">backgroundColor</span><span class="p">:</span> <span class="s">'#6366f1'</span><span class="p">,</span> <span class="v">width</span><span class="p">:</span> <span class="n">48</span><span class="p">,</span> <span class="v">height</span><span class="p">:</span> <span class="n">48</span><span class="p">,</span>
+               <span class="v">borderRadius</span><span class="p">:</span> <span class="n">10</span><span class="p">,</span> <span class="v">alignItems</span><span class="p">:</span> <span class="s">'center'</span><span class="p">,</span> <span class="v">justifyContent</span><span class="p">:</span> <span class="s">'center'</span> <span class="p">},</span>
+  <span class="v">btnAddTxt</span><span class="p">:</span>  <span class="p">{</span> <span class="v">color</span><span class="p">:</span> <span class="s">'#fff'</span><span class="p">,</span> <span class="v">fontSize</span><span class="p">:</span> <span class="n">26</span><span class="p">,</span> <span class="v">lineHeight</span><span class="p">:</span> <span class="n">30</span> <span class="p">},</span>
+  <span class="v">item</span><span class="p">:</span>       <span class="p">{</span> <span class="v">backgroundColor</span><span class="p">:</span> <span class="s">'#fff'</span><span class="p">,</span> <span class="v">borderRadius</span><span class="p">:</span> <span class="n">10</span><span class="p">,</span>
+               <span class="v">padding</span><span class="p">:</span> <span class="n">16</span><span class="p">,</span> <span class="v">marginBottom</span><span class="p">:</span> <span class="n">10</span><span class="p">,</span> <span class="v">flexDirection</span><span class="p">:</span> <span class="s">'row'</span><span class="p">,</span>
+               <span class="v">alignItems</span><span class="p">:</span> <span class="s">'center'</span><span class="p">,</span>
+               <span class="v">shadowColor</span><span class="p">:</span> <span class="s">'#000'</span><span class="p">,</span> <span class="v">shadowOpacity</span><span class="p">:</span> <span class="n">0.06</span><span class="p">,</span>
+               <span class="v">shadowRadius</span><span class="p">:</span> <span class="n">4</span><span class="p">,</span> <span class="v">elevation</span><span class="p">:</span> <span class="n">2</span> <span class="p">},</span>
+  <span class="v">itemTxt</span><span class="p">:</span>    <span class="p">{</span> <span class="v">flex</span><span class="p">:</span> <span class="n">1</span><span class="p">,</span> <span class="v">fontSize</span><span class="p">:</span> <span class="n">15</span><span class="p">,</span> <span class="v">color</span><span class="p">:</span> <span class="s">'#1f2937'</span> <span class="p">},</span>
+  <span class="v">seta</span><span class="p">:</span>       <span class="p">{</span> <span class="v">fontSize</span><span class="p">:</span> <span class="n">22</span><span class="p">,</span> <span class="v">color</span><span class="p">:</span> <span class="s">'#9ca3af'</span> <span class="p">},</span>
+  <span class="v">vazio</span><span class="p">:</span>      <span class="p">{</span> <span class="v">textAlign</span><span class="p">:</span> <span class="s">'center'</span><span class="p">,</span> <span class="v">color</span><span class="p">:</span> <span class="s">'#9ca3af'</span><span class="p">,</span> <span class="v">marginTop</span><span class="p">:</span> <span class="n">60</span><span class="p">,</span> <span class="v">fontSize</span><span class="p">:</span> <span class="n">16</span> <span class="p">},</span>
+<span class="p">})</span><span class="p">;</span></pre>
+  </div>
+
+  <!-- DetalhesScreen -->
+  <h3 class="reveal" style="font-family:var(--display);color:var(--heading);margin:2.5rem 0 .75rem;font-size:1.3rem;">screens/DetalhesScreen.js — Editar (UPDATE) e Deletar (DELETE)</h3>
+  <div class="code-wrap reveal">
+    <div class="code-header">
+      <div class="code-dots"><span></span><span></span><span></span></div>
+      <span class="code-filename">screens/DetalhesScreen.js</span>
+    </div>
+    <pre><span class="k">import</span> <span class="t">React</span><span class="p">,</span> <span class="p">{</span> <span class="hook">useState</span> <span class="p">}</span> <span class="k">from</span> <span class="s">'react'</span><span class="p">;</span>
+<span class="k">import</span> <span class="p">{</span>
+  <span class="t">View</span><span class="p">,</span> <span class="t">Text</span><span class="p">,</span> <span class="t">TextInput</span><span class="p">,</span> <span class="t">TouchableOpacity</span><span class="p">,</span>
+  <span class="t">StyleSheet</span><span class="p">,</span> <span class="t">Alert</span>
+<span class="p">}</span> <span class="k">from</span> <span class="s">'react-native'</span><span class="p">;</span>
+
+<span class="k">export default function</span> <span class="fn">DetalhesScreen</span>(<span class="p">{</span> <span class="v">route</span><span class="p">,</span> <span class="v">navigation</span><span class="p">,</span> <span class="v">onAtualizar</span><span class="p">,</span> <span class="v">onDeletar</span> <span class="p">}</span>) {
+  <span class="c">// Recebe os dados enviados pela HomeScreen via route.params</span>
+  <span class="k">const</span> <span class="p">{</span> <span class="v">tarefaId</span><span class="p">,</span> <span class="v">titulo</span> <span class="p">}</span> <span class="p">=</span> <span class="v">route</span><span class="p">.</span><span class="v">params</span><span class="p">;</span>
+
+  <span class="c">// Estado local inicializado com o título recebido</span>
+  <span class="k">const</span> <span class="p">[</span><span class="v">novoTitulo</span><span class="p">,</span> <span class="fn">setNovoTitulo</span><span class="p">]</span> <span class="p">=</span> <span class="hook">useState</span>(<span class="v">titulo</span>)<span class="p">;</span>
+
+  <span class="c">// UPDATE — salva e volta para a Home</span>
+  <span class="k">const</span> <span class="fn">handleSalvar</span> <span class="p">=</span> () <span class="p">=&gt;</span> <span class="p">{</span>
+    <span class="k">if</span> (<span class="v">novoTitulo</span><span class="p">.</span><span class="fn">trim</span>() <span class="p">===</span> <span class="s">''</span>) <span class="p">{</span>
+      <span class="t">Alert</span><span class="p">.</span><span class="fn">alert</span>(<span class="s">'Atenção'</span><span class="p">,</span> <span class="s">'O título não pode ficar vazio.'</span>)<span class="p">;</span>
+      <span class="k">return</span><span class="p">;</span>
+    <span class="p">}</span>
+    <span class="fn">onAtualizar</span>(<span class="v">tarefaId</span><span class="p">,</span> <span class="v">novoTitulo</span><span class="p">.</span><span class="fn">trim</span>())<span class="p">;</span>  <span class="c">// atualiza no App.js</span>
+    <span class="v">navigation</span><span class="p">.</span><span class="fn">goBack</span>()<span class="p">;</span>                       <span class="c">// volta para a Home</span>
+  <span class="p">};</span>
+
+  <span class="c">// DELETE — pede confirmação antes de deletar</span>
+  <span class="k">const</span> <span class="fn">handleDeletar</span> <span class="p">=</span> () <span class="p">=&gt;</span> <span class="p">{</span>
+    <span class="t">Alert</span><span class="p">.</span><span class="fn">alert</span>(
+      <span class="s">'Confirmar exclusão'</span><span class="p">,</span>
+      <span class="s">`Deletar "${</span><span class="v">titulo</span><span class="s">}"?`</span><span class="p">,</span>
+      <span class="p">[</span>
+        <span class="p">{</span> <span class="v">text</span><span class="p">:</span> <span class="s">'Cancelar'</span><span class="p">,</span> <span class="v">style</span><span class="p">:</span> <span class="s">'cancel'</span> <span class="p">},</span>
+        <span class="p">{</span>
+          <span class="v">text</span><span class="p">:</span> <span class="s">'Deletar'</span><span class="p">,</span> <span class="v">style</span><span class="p">:</span> <span class="s">'destructive'</span><span class="p">,</span>
+          <span class="v">onPress</span><span class="p">:</span> () <span class="p">=&gt;</span> <span class="p">{</span>
+            <span class="fn">onDeletar</span>(<span class="v">tarefaId</span>)<span class="p">;</span>    <span class="c">// remove no App.js</span>
+            <span class="v">navigation</span><span class="p">.</span><span class="fn">goBack</span>()<span class="p">;</span>    <span class="c">// volta para a Home</span>
+          <span class="p">},</span>
+        <span class="p">},</span>
+      <span class="p">]</span>
+    )<span class="p">;</span>
+  <span class="p">};</span>
+
+  <span class="k">return</span> (
+    <span class="m">&lt;View</span> <span class="prop">style</span><span class="p">={</span><span class="v">s.container</span><span class="p">}&gt;</span>
+      <span class="m">&lt;Text</span> <span class="prop">style</span><span class="p">={</span><span class="v">s.label</span><span class="p">}&gt;</span>Título da tarefa<span class="m">&lt;/Text&gt;</span>
+      <span class="m">&lt;TextInput</span>
+        <span class="prop">style</span><span class="p">={</span><span class="v">s.input</span><span class="p">}</span>
+        <span class="prop">value</span><span class="p">={</span><span class="v">novoTitulo</span><span class="p">}</span>
+        <span class="prop">onChangeText</span><span class="p">={</span><span class="v">setNovoTitulo</span><span class="p">}</span>
+        <span class="prop">autoFocus</span>
+      <span class="p">/&gt;</span>
+
+      <span class="c">{/* Botão de salvar — UPDATE */}</span>
+      <span class="m">&lt;TouchableOpacity</span> <span class="prop">style</span><span class="p">={</span><span class="v">s.btnSalvar</span><span class="p">}</span> <span class="prop">onPress</span><span class="p">={</span><span class="v">handleSalvar</span><span class="p">}&gt;</span>
+        <span class="m">&lt;Text</span> <span class="prop">style</span><span class="p">={</span><span class="v">s.btnTxt</span><span class="p">}&gt;</span>💾 Salvar alterações<span class="m">&lt;/Text&gt;</span>
+      <span class="m">&lt;/TouchableOpacity&gt;</span>
+
+      <span class="c">{/* Botão de deletar — DELETE */}</span>
+      <span class="m">&lt;TouchableOpacity</span> <span class="prop">style</span><span class="p">={</span><span class="v">s.btnDeletar</span><span class="p">}</span> <span class="prop">onPress</span><span class="p">={</span><span class="v">handleDeletar</span><span class="p">}&gt;</span>
+        <span class="m">&lt;Text</span> <span class="prop">style</span><span class="p">={</span><span class="v">s.btnTxt</span><span class="p">}&gt;</span>🗑️ Deletar tarefa<span class="m">&lt;/Text&gt;</span>
+      <span class="m">&lt;/TouchableOpacity&gt;</span>
+    <span class="m">&lt;/View&gt;</span>
+  )<span class="p">;</span>
+}
+
+<span class="k">const</span> <span class="v">s</span> <span class="p">=</span> <span class="t">StyleSheet</span><span class="p">.</span><span class="fn">create</span>(<span class="p">{</span>
+  <span class="v">container</span><span class="p">:</span>  <span class="p">{</span> <span class="v">flex</span><span class="p">:</span> <span class="n">1</span><span class="p">,</span> <span class="v">padding</span><span class="p">:</span> <span class="n">24</span><span class="p">,</span> <span class="v">backgroundColor</span><span class="p">:</span> <span class="s">'#f8f9fe'</span> <span class="p">},</span>
+  <span class="v">label</span><span class="p">:</span>      <span class="p">{</span> <span class="v">fontSize</span><span class="p">:</span> <span class="n">13</span><span class="p">,</span> <span class="v">fontWeight</span><span class="p">:</span> <span class="s">'600'</span><span class="p">,</span> <span class="v">color</span><span class="p">:</span> <span class="s">'#6366f1'</span><span class="p">,</span>
+               <span class="v">marginBottom</span><span class="p">:</span> <span class="n">8</span><span class="p">,</span> <span class="v">textTransform</span><span class="p">:</span> <span class="s">'uppercase'</span><span class="p">,</span> <span class="v">letterSpacing</span><span class="p">:</span> <span class="n">1</span> <span class="p">},</span>
+  <span class="v">input</span><span class="p">:</span>      <span class="p">{</span> <span class="v">backgroundColor</span><span class="p">:</span> <span class="s">'#fff'</span><span class="p">,</span> <span class="v">borderWidth</span><span class="p">:</span> <span class="n">1</span><span class="p">,</span> <span class="v">borderColor</span><span class="p">:</span> <span class="s">'#d1d5db'</span><span class="p">,</span>
+               <span class="v">borderRadius</span><span class="p">:</span> <span class="n">10</span><span class="p">,</span> <span class="v">padding</span><span class="p">:</span> <span class="n">14</span><span class="p">,</span> <span class="v">fontSize</span><span class="p">:</span> <span class="n">16</span><span class="p">,</span> <span class="v">marginBottom</span><span class="p">:</span> <span class="n">24</span> <span class="p">},</span>
+  <span class="v">btnSalvar</span><span class="p">:</span>  <span class="p">{</span> <span class="v">backgroundColor</span><span class="p">:</span> <span class="s">'#6366f1'</span><span class="p">,</span> <span class="v">padding</span><span class="p">:</span> <span class="n">16</span><span class="p">,</span> <span class="v">borderRadius</span><span class="p">:</span> <span class="n">10</span><span class="p">,</span>
+               <span class="v">alignItems</span><span class="p">:</span> <span class="s">'center'</span><span class="p">,</span> <span class="v">marginBottom</span><span class="p">:</span> <span class="n">12</span> <span class="p">},</span>
+  <span class="v">btnDeletar</span><span class="p">:</span> <span class="p">{</span> <span class="v">backgroundColor</span><span class="p">:</span> <span class="s">'#ef4444'</span><span class="p">,</span> <span class="v">padding</span><span class="p">:</span> <span class="n">16</span><span class="p">,</span> <span class="v">borderRadius</span><span class="p">:</span> <span class="n">10</span><span class="p">,</span>
+               <span class="v">alignItems</span><span class="p">:</span> <span class="s">'center'</span> <span class="p">},</span>
+  <span class="v">btnTxt</span><span class="p">:</span>     <span class="p">{</span> <span class="v">color</span><span class="p">:</span> <span class="s">'#fff'</span><span class="p">,</span> <span class="v">fontWeight</span><span class="p">:</span> <span class="s">'bold'</span><span class="p">,</span> <span class="v">fontSize</span><span class="p">:</span> <span class="n">16</span> <span class="p">},</span>
+<span class="p">})</span><span class="p">;</span></pre>
+  </div>
+
+  <!-- Tabela resumo CRUD -->
+  <div class="reveal" style="margin-top:2rem">
+    <table class="type-table">
+      <thead>
+        <tr>
+          <th>Operação</th>
+          <th>Tela</th>
+          <th>Função no estado</th>
+          <th>Resultado</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="comp" style="color:var(--green)">CREATE</td>
+          <td>HomeScreen</td>
+          <td class="example">setTarefas(prev =&gt; [...prev, nova])</td>
+          <td>Nova tarefa aparece na lista</td>
+        </tr>
+        <tr>
+          <td class="comp" style="color:var(--accent)">READ</td>
+          <td>HomeScreen</td>
+          <td class="example">FlatList data={tarefas}</td>
+          <td>Lista renderizada automaticamente</td>
+        </tr>
+        <tr>
+          <td class="comp" style="color:var(--accent3)">UPDATE</td>
+          <td>DetalhesScreen</td>
+          <td class="example">prev.map(t =&gt; t.id === id ? {...t, titulo} : t)</td>
+          <td>Item atualizado sem recriar lista</td>
+        </tr>
+        <tr>
+          <td class="comp" style="color:var(--red)">DELETE</td>
+          <td>DetalhesScreen</td>
+          <td class="example">prev.filter(t =&gt; t.id !== id)</td>
+          <td>Item removido da lista</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="note success reveal">
+    <span class="note-icon">✅</span>
+    <div><strong style="color:var(--heading)">Padrão de dados imutáveis:</strong> Nunca modifique o array diretamente (<code>tarefas.push(...)</code>). Sempre crie uma <em>cópia nova</em> com <code>map</code>, <code>filter</code> ou spread (<code>[...prev, novo]</code>). Isso garante que o React detecte a mudança e re-renderize a tela.</div>
+  </div>
+</section>
+
+
+<!-- ════════════════════════════════════════════
+     SEÇÃO 6 — EXERCÍCIOS
+════════════════════════════════════════════ -->
+<section id="exercicios">
+  <div class="section-label reveal">06 — Pratique</div>
+  <h2 class="section-title reveal">Exercícios</h2>
+  <p class="section-desc reveal">Abra o <strong style="color:var(--heading)">snack.expo.dev</strong>, crie um novo Snack e tente resolver cada desafio. Quanto mais você codar, mais natural vai ficando!</p>
+
+  <div class="exercise reveal">
+    <div class="exercise-header">
+      <span class="exercise-num">EX 01</span>
+      <span class="exercise-title">Contador com Histórico</span>
+    </div>
+    <ul>
+      <li>Crie uma tela com um número central, botões <code>+</code> e <code>−</code>.</li>
+      <li>Use <code>useState</code> para o valor do contador.</li>
+      <li>Adicione um segundo <code>useState</code> com um array que guarda cada alteração feita.</li>
+      <li>Exiba o histórico abaixo do contador com um <code>FlatList</code>.</li>
+    </ul>
+    <div class="tip">💡 Dica: ao incrementar, faça <code>setHistorico(prev =&gt; [...prev, { acao: '+1', valor: novoVal }])</code></div>
+  </div>
+
+  <div class="exercise reveal" style="border-color:rgba(34,211,164,.2)">
+    <div class="exercise-header">
+      <span class="exercise-num" style="background:var(--green);color:#000">EX 02</span>
+      <span class="exercise-title">Perfil com Duas Telas</span>
+    </div>
+    <ul>
+      <li>Crie duas telas: <strong>ListaScreen</strong> (lista de usuários) e <strong>PerfilScreen</strong>.</li>
+      <li>Na ListaScreen, mostre 3–5 nomes em uma <code>FlatList</code>.</li>
+      <li>Ao tocar num nome, navegue para <strong>PerfilScreen</strong> passando o nome e a idade.</li>
+      <li>Na PerfilScreen, exiba o nome, a idade e um botão "Voltar".</li>
+    </ul>
+    <div class="tip" style="border-color:var(--green);color:var(--green)">💡 Dica: use <code>navigation.navigate('Perfil', { nome, idade })</code> e recupere com <code>route.params</code>.</div>
+  </div>
+
+  <div class="exercise reveal" style="border-color:rgba(245,158,11,.2)">
+    <div class="exercise-header">
+      <span class="exercise-num" style="background:var(--accent3);color:#000">EX 03</span>
+      <span class="exercise-title">Lista de Compras com Checkbox</span>
+    </div>
+    <ul>
+      <li>Monte uma lista de compras com itens que podem ser marcados como comprados.</li>
+      <li>Cada item tem <code>nome</code> e <code>comprado: false</code> no estado inicial.</li>
+      <li>Ao tocar no item, alterne o campo <code>comprado</code> usando <code>map</code>.</li>
+      <li>Itens comprados devem aparecer com texto riscado (<code>textDecorationLine: 'line-through'</code>).</li>
+    </ul>
+    <div class="tip" style="border-color:var(--accent3);color:var(--accent3)">💡 Dica: <code>setItens(prev =&gt; prev.map(i =&gt; i.id === id ? {...i, comprado: !i.comprado} : i))</code></div>
+  </div>
+
+  <div class="exercise reveal" style="border-color:rgba(124,58,237,.2)">
+    <div class="exercise-header">
+      <span class="exercise-num" style="background:var(--accent2)">EX 04</span>
+      <span class="exercise-title">Busca em Tempo Real</span>
+    </div>
+    <ul>
+      <li>Crie uma lista de pelo menos 10 cidades brasileiras.</li>
+      <li>Adicione um <code>TextInput</code> de busca no topo da tela.</li>
+      <li>Use <code>filter</code> para mostrar apenas as cidades que contêm o texto digitado.</li>
+      <li>A filtragem deve acontecer a cada letra digitada, em tempo real.</li>
+    </ul>
+    <div class="tip" style="border-color:var(--accent2);color:#c792ea">💡 Dica: filtre diretamente na prop <code>data</code> do FlatList: <code>data={cidades.filter(c =&gt; c.toLowerCase().includes(busca.toLowerCase()))}</code></div>
+  </div>
+
+  <div class="exercise reveal" style="border-color:rgba(248,113,113,.2)">
+    <div class="exercise-header">
+      <span class="exercise-num" style="background:var(--red)">EX 05</span>
+      <span class="exercise-title">CRUD de Notas com 3 Telas</span>
+    </div>
+    <ul>
+      <li>Expanda o exemplo do tutorial adicionando uma terceira tela: <strong>NovaNota</strong>.</li>
+      <li>Na HomeScreen, adicione um botão "+" que navega para <strong>NovaNota</strong>.</li>
+      <li>NovaNota tem campos de título e conteúdo, e um botão "Salvar".</li>
+      <li>Ao salvar, a nota volta para a Home e aparece na lista.</li>
+      <li>Ao tocar numa nota, vai para Detalhes com edição e deleção.</li>
+    </ul>
+    <div class="tip" style="border-color:var(--red);color:var(--red)">💡 Dica: crie a função <code>adicionarNota(titulo, conteudo)</code> no App.js e passe via prop para NovaNota usando o padrão children render do tutorial.</div>
+  </div>
+
+  <!-- Gabarito EX 03 — trecho da lógica de toggle -->
+  <h3 class="reveal" style="font-family:var(--display);color:var(--heading);margin:2.5rem 0 .75rem;font-size:1.2rem;">Gabarito parcial — Exercício 03 (lista de compras)</h3>
+  <div class="code-wrap reveal">
+    <div class="code-header">
+      <div class="code-dots"><span></span><span></span><span></span></div>
+      <span class="code-filename">ListaCompras.js — trecho principal</span>
+    </div>
+    <pre><span class="k">const</span> <span class="p">[</span><span class="v">itens</span><span class="p">,</span> <span class="fn">setItens</span><span class="p">]</span> <span class="p">=</span> <span class="hook">useState</span>(<span class="p">[</span>
+  <span class="p">{</span> <span class="v">id</span><span class="p">:</span> <span class="s">'1'</span><span class="p">,</span> <span class="v">nome</span><span class="p">:</span> <span class="s">'Arroz'</span><span class="p">,</span>    <span class="v">comprado</span><span class="p">:</span> <span class="k">false</span> <span class="p">},</span>
+  <span class="p">{</span> <span class="v">id</span><span class="p">:</span> <span class="s">'2'</span><span class="p">,</span> <span class="v">nome</span><span class="p">:</span> <span class="s">'Feijão'</span><span class="p">,</span>  <span class="v">comprado</span><span class="p">:</span> <span class="k">false</span> <span class="p">},</span>
+  <span class="p">{</span> <span class="v">id</span><span class="p">:</span> <span class="s">'3'</span><span class="p">,</span> <span class="v">nome</span><span class="p">:</span> <span class="s">'Café'</span><span class="p">,</span>    <span class="v">comprado</span><span class="p">:</span> <span class="k">false</span> <span class="p">},</span>
+<span class="p">])</span><span class="p">;</span>
+
+<span class="c">// Alterna comprado/não-comprado sem mutar o estado original</span>
+<span class="k">const</span> <span class="fn">toggleItem</span> <span class="p">=</span> (<span class="v">id</span>) <span class="p">=&gt;</span>
+  <span class="fn">setItens</span>(<span class="v">prev</span> <span class="p">=&gt;</span>
+    <span class="v">prev</span><span class="p">.</span><span class="fn">map</span>(<span class="v">i</span> <span class="p">=&gt;</span> <span class="v">i</span><span class="p">.</span><span class="v">id</span> <span class="p">===</span> <span class="v">id</span> <span class="p">?</span> <span class="p">{...</span><span class="v">i</span><span class="p">,</span> <span class="v">comprado</span><span class="p">:</span> <span class="p">!</span><span class="v">i</span><span class="p">.</span><span class="v">comprado</span><span class="p">}</span> <span class="p">:</span> <span class="v">i</span>)
+  )<span class="p">;</span>
+
+<span class="c">// Renderiza o item com estilo condicional</span>
+<span class="k">const</span> <span class="fn">renderItem</span> <span class="p">=</span> (<span class="p">{</span> <span class="v">item</span> <span class="p">}</span>) <span class="p">=&gt;</span> (
+  <span class="m">&lt;TouchableOpacity</span>
+    <span class="prop">style</span><span class="p">={</span><span class="v">s.item</span><span class="p">}</span>
+    <span class="prop">onPress</span><span class="p">={</span>() <span class="p">=&gt;</span> <span class="fn">toggleItem</span>(<span class="v">item</span><span class="p">.</span><span class="v">id</span>)<span class="p">}</span>
+  <span class="p">&gt;</span>
+    <span class="c">{/* Ícone muda conforme estado */}</span>
+    <span class="m">&lt;Text</span> <span class="prop">style</span><span class="p">={</span><span class="v">s.icon</span><span class="p">}&gt;</span>{<span class="v">item</span><span class="p">.</span><span class="v">comprado</span> ? <span class="s">'✅'</span> : <span class="s">'⬜'</span>}<span class="m">&lt;/Text&gt;</span>
+    <span class="m">&lt;Text</span> <span class="prop">style</span><span class="p">={[</span>
+      <span class="v">s</span><span class="p">.</span><span class="v">nome</span><span class="p">,</span>
+      <span class="v">item</span><span class="p">.</span><span class="v">comprado</span> <span class="p">&amp;&amp;</span> <span class="v">s</span><span class="p">.</span><span class="v">riscado</span>   <span class="c">{/* aplica estilo extra se comprado */}</span>
+    <span class="p">]}&gt;</span>{<span class="v">item</span><span class="p">.</span><span class="v">nome</span>}<span class="m">&lt;/Text&gt;</span>
+  <span class="m">&lt;/TouchableOpacity&gt;</span>
+)<span class="p">;</span>
+
+<span class="c">// Nos estilos:</span>
+<span class="v">riscado</span><span class="p">:</span> <span class="p">{</span> <span class="v">textDecorationLine</span><span class="p">:</span> <span class="s">'line-through'</span><span class="p">,</span> <span class="v">color</span><span class="p">:</span> <span class="s">'#9ca3af'</span> <span class="p">},</span></pre>
+  </div>
+</section>
+
+
+<!-- FOOTER -->
+<footer>
+  <div>Feito para os alunos do Mesquita por <span>Fernando Sturzbecher</span> e Claudin.</div>
+  <div style="margin-top:.5rem;color:#2e3450">Guia Visual React Native &amp; Expo • 2025</div>
+</footer>
+
+<script>
+  // Scroll reveal
+  const reveals = document.querySelectorAll('.reveal');
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.08, rootMargin: '0px 0px -40px 0px' });
+  reveals.forEach(el => observer.observe(el));
+
+  // Nav active highlight
+  const sections = document.querySelectorAll('section[id]');
+  const navLinks = document.querySelectorAll('nav a');
+  window.addEventListener('scroll', () => {
+    let current = '';
+    sections.forEach(section => {
+      const top = section.offsetTop - 80;
+      if (window.scrollY >= top) current = section.getAttribute('id');
+    });
+    navLinks.forEach(a => {
+      a.style.color = a.getAttribute('href') === '#' + current ? 'var(--heading)' : '';
+      a.style.borderColor = a.getAttribute('href') === '#' + current ? 'var(--accent)' : 'transparent';
+    });
+  });
+</script>
+</body>
+</html>
