@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>JS Lab: Dados</title>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #0d0d0d;
+      --surface: #161616;
+      --card: #1e1e1e;
+      --border: #2e2e2e;
+      --accent: #f5c542;
+      --accent2: #ff6b35;
+      --accent3: #ff3b51;
+      --text: #f0f0f0;
+      --muted: #888;
+      --green: #4ade80;
+      --red: #f87171;
+	  
+      --green-bg: #d8f3dc;
+      --red-bg: #ffe0e0;
+    }
+    body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+
+    /* ── Header ── */
+    header {
+      background: var(--surface);
+      padding: 1.1rem 2rem;
+      display: flex; align-items: center; gap: 1rem;
+    }
+    .phase-badge { background: var(--accent); color: var(--bg); font-size: .65rem; font-weight: 600; padding: .25rem .65rem; border-radius: 4px; letter-spacing: .1em; text-transform: uppercase; }
+    header h1 { color: #fff; font-size: 1.05rem; font-weight: 600; }
+    header p { color: #888; font-size: .78rem; margin-left: auto; font-family: 'DM Mono', monospace; }
+
+    /* ── Layout ── */
+    .page { margin: 0; padding: 2rem; display: flex; flex-direction: row; gap: 2rem; }
+
+    /* ── Section header ── */
+    .section-head { display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem; }
+    .section-num { background: var(--accent); color: var(--bg); width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: .85rem; flex-shrink: 0; }
+    .section-info h2 { font-size: 1rem; font-weight: 600; }
+    .section-info p { font-size: .78rem; color: var(--muted); }
+    .tag { font-family: 'DM Mono', monospace; font-size: .65rem; background: var(--bg); border: 1px solid var(--border); color: var(--accent); padding: .2rem .55rem; border-radius: 20px; margin-left: auto; }
+
+    /* Card base */
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      transition: border-color .2s;
+    }
+    .card:hover { border-color: var(--accent); }
+    .card-header {
+      display: flex;
+      align-items: center;
+      gap: .75rem;
+      padding: .9rem 1.1rem;
+      border-bottom: 1px solid var(--border);
+      background: rgba(255,255,255,.02);
+    }
+    .card-body { padding: 1.1rem; }
+    .card-body p { font-size: .85rem; color: var(--muted); line-height: 1.6; margin-bottom: .8rem; }
+
+    .hint {
+      font-family: 'DM Mono', monospace;
+      font-size: .75rem;
+      background: rgba(255,255,255,.04);
+      border-left: 3px solid var(--accent2);
+      padding: .5rem .75rem;
+      border-radius: 0 6px 6px 0;
+      color: #ccc;
+      margin-bottom: .75rem;
+    }
+    .hint .kw { color: var(--accent); font-weight: 500; }
+    .hint .cm { color: #aaa; }
+
+    /* ── 1. Shopping List ── */
+    .shopping-app { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+    .shop-input-row { display: flex; gap: .5rem; margin-bottom: 1rem; }
+    .shop-input {
+      flex: 1; background: var(--bg); border: 1.5px solid var(--border);
+      font-family: 'Plus Jakarta Sans', sans-serif; font-size: .9rem;
+      padding: .55rem .85rem; border-radius: 8px; outline: none; color: var(--text);
+      transition: border-color .2s;
+    }
+    .shop-input:focus { border-color: var(--accent); }
+    .add-btn {
+      background: var(--accent); color: #fff; border: none;
+      font-family: 'Plus Jakarta Sans', sans-serif; font-size: .85rem; font-weight: 700;
+      padding: .55rem 1rem; border-radius: 8px; cursor: pointer;
+    }
+    .list-title { font-size: .7rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); margin-bottom: .5rem; }
+    .shop-list { display: flex; flex-direction: column; gap: .4rem; min-height: 120px; }
+    .shop-item {
+      display: flex; align-items: center; gap: .6rem;
+      background: var(--bg); border: 1.5px solid var(--border);
+      border-radius: 8px; padding: .5rem .75rem; font-size: .85rem;
+    }
+    .shop-item .item-name { flex: 1; }
+    .shop-item .item-del { background: none; border: none; color: var(--muted); cursor: pointer; font-size: 1rem; line-height: 1; }
+    .shop-item.checked .item-name { text-decoration: line-through; color: var(--muted); }
+    .shop-item input[type=checkbox] { accent-color: var(--accent); width: 15px; height: 15px; }
+    .shop-stats { display: grid; grid-template-columns: 1fr 1fr; gap: .5rem; }
+    .stat-box { background: var(--bg); border: 1.5px solid var(--border); border-radius: 10px; padding: .75rem; text-align: center; }
+    .stat-num { font-size: 1.4rem; font-weight: 600; color: var(--accent); font-family: 'DM Mono', monospace; }
+    .stat-label { font-size: .7rem; color: var(--muted); margin-top: .1rem; }
+
+    /* ── 2. Student Cards ── */
+    .students-grid { display: grid; grid-template-columns: repeat(3, 8vw); gap: 1rem; }
+    .student-card {
+      border: 1.5px solid var(--border); border-radius: 12px; overflow: hidden;
+    }
+    .student-top { height: 60px; display: flex; align-items: center; justify-content: center; font-size: 1.8rem; }
+    .student-body { padding: .85rem; }
+    .student-name { font-weight: 600; font-size: .9rem; }
+    .student-sub { font-size: .75rem; color: var(--muted); margin-bottom: .6rem; }
+    .grade-row { display: flex; justify-content: space-between; font-size: .75rem; margin-bottom: .25rem; }
+    .grade-bar-wrap { height: 4px; background: var(--border); border-radius: 2px; margin-bottom: .6rem; }
+    .grade-bar { height: 100%; border-radius: 2px; background: var(--accent2); }
+    .gpa-badge { display: inline-block; font-family: 'DM Mono', monospace; font-size: .7rem; font-weight: 700; padding: .2rem .55rem; border-radius: 20px; }
+    .gpa-a { background: var(--green-bg); color: var(--bg); }
+    .gpa-b { background: #dbeafe; color: #1d4ed8; }
+    .gpa-c { background: #fef9c3; color: #92400e; }
+
+    /* ── 3. Text Analyzer ── */
+    .analyzer-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+    .text-input-wrap { display: flex; flex-direction: column; gap: .75rem; }
+    textarea.analyze-input {
+      background: var(--bg); border: 1.5px solid var(--border); border-radius: 10px;
+      font-family: 'Plus Jakarta Sans', sans-serif; font-size: .85rem; color: var(--text);
+      padding: .85rem; resize: none; height: 130px; outline: none; line-height: 1.6;
+      transition: border-color .2s;
+    }
+    textarea.analyze-input:focus { border-color: var(--accent2); }
+    .analyze-btn { background: var(--accent2); color: #fff; border: none; font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 700; font-size: .85rem; padding: .55rem 1rem; border-radius: 8px; cursor: pointer; }
+    .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: .6rem; }
+    .stat-tile { background: var(--bg); border: 1.5px solid var(--border); border-radius: 10px; padding: .85rem; }
+    .stat-tile .val { font-size: 1.5rem; font-weight: 600; color: var(--accent2); font-family: 'DM Mono', monospace; }
+    .stat-tile .lbl { font-size: .7rem; color: var(--muted); margin-top: .1rem; }
+    .reversed-text { grid-column: span 2; background: var(--bg); border: 1.5px solid var(--border); border-radius: 10px; padding: .85rem; font-family: 'DM Mono', monospace; font-size: .8rem; color: #555; word-break: break-all; min-height: 50px; }
+
+    /* ── Panel divider ── */
+    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; align-items: start; }
+  </style>
+</head>
+<body>
+
+<header>
+  <span class="phase-badge">Parte 2</span>
+  <h1>Trabalhando com dados</h1>
+  <p>arrays · objetos · strings</p>
+</header>
+
+<div class="page">
+
+  <div class="card">
+    <div class="card-header">
+      <div class="section-num">1</div>
+      <div class="section-info">
+        <h2>Lista de Compras</h2>
+      </div>
+      <span class="tag">arrays</span>
+    </div>
+    <div class="card-body">
+      <p>Use um array para armazenar items. Pratique push, splice, filter e forEach para renderizar e atualizar a lista.</p>
+      <div class="hint">
+        <span class="kw">let</span> items = []; <span class="cm">// seu array</span><br>
+        <span class="kw">function</span> addItem(name) { items.push(name); }<br>
+        <span class="kw">function</span> removeItem(index) { items.splice(index, <span class="kw">1</span>); }<br>
+        <span class="kw">function</span> renderList() { <span class="cm">/* forEach → cria elementos no DOM */</span> }
+      </div>
+      <div class="shopping-app">
+        <div>
+          <div class="shop-input-row">
+            <input class="shop-input" id="shop-input" type="text" placeholder="Adicione um item…"/>
+            <button class="add-btn" id="shop-add-btn">+</button>
+          </div>
+          <div class="list-title">Lista de Compras</div>
+          <div class="shop-list" id="shop-list">
+            <!-- Sample items — students will clear and rebuild with JS -->
+            <div class="shop-item"><input type="checkbox" checked/><span class="item-name" style="text-decoration:line-through;color:var(--muted)">Maçãs</span><button class="item-del">✕</button></div>
+            <div class="shop-item"><input type="checkbox"/><span class="item-name">Macarrão</span><button class="item-del">✕</button></div>
+            <div class="shop-item"><input type="checkbox"/><span class="item-name">Azeite</span><button class="item-del">✕</button></div>
+          </div>
+        </div>
+        <div>
+          <div class="list-title" style="margin-bottom:.75rem">Status — atualize com reduce / filter</div>
+          <div class="shop-stats">
+            <div class="stat-box"><div class="stat-num" id="stat-total">3</div><div class="stat-label">Total de Items</div></div>
+            <div class="stat-box"><div class="stat-num" id="stat-checked">1</div><div class="stat-label">No carrinho</div></div>
+            <div class="stat-box"><div class="stat-num" id="stat-remaining">2</div><div class="stat-label">Restantes</div></div>
+            <div class="stat-box"><div class="stat-num" id="stat-pct">33%</div><div class="stat-label">Pronto</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <div class="section-num">2</div>
+      <div class="section-info">
+        <h2>Gerador de Cartão do Aluno</h2>
+      </div>
+      <span class="tag">objetos · this · desestruturar</span>
+    </div>
+    <div class="card-body">
+	  <p>Crie um array de objetos 'estudante' com o método <code>calcGPA()</code>. Use <code>map()</code> para renderizar um cartão para cada.</p>
+      <div class="hint">
+        <span class="kw">const</span> students = [{<br>
+        &nbsp;&nbsp;name: <span class="kw">"Alex"</span>, emoji: <span class="kw">"🧑‍💻"</span>, color: <span class="kw">"#dbeafe"</span>,<br>
+        &nbsp;&nbsp;grades: { matematica: 90, ciencias: 85, ingles: 92 },<br>
+        &nbsp;&nbsp;calcGPA() { <span class="cm">/* média das notas */</span> }<br>
+        }]; <span class="cm">// adicione 1 aluno, então mapeie → renderize cartão</span>
+      </div>
+      <div class="students-grid" id="students-grid">
+        <!-- Sample static cards — students generate from objects -->
+        <div class="student-card">
+          <div class="student-top" style="background:#dbeafe">🧑‍💻</div>
+          <div class="student-body">
+            <div class="student-name">Alex</div>
+            <div class="student-sub">Nota 10</div>
+            <div class="grade-row"><span>Matematica</span><span>90</span></div>
+            <div class="grade-bar-wrap"><div class="grade-bar" style="width:90%"></div></div>
+            <div class="grade-row"><span>Ciencias</span><span>85</span></div>
+            <div class="grade-bar-wrap"><div class="grade-bar" style="width:85%"></div></div>
+            <div class="grade-row"><span>Ingles</span><span>92</span></div>
+            <div class="grade-bar-wrap"><div class="grade-bar" style="width:92%"></div></div>
+            <span class="gpa-badge gpa-a">Media: 3.9</span>
+          </div>
+        </div>
+        <div class="student-card">
+          <div class="student-top" style="background:#d8f3dc">🎨</div>
+          <div class="student-body">
+            <div class="student-name">Jamie</div>
+            <div class="student-sub">Nota 10</div>
+            <div class="grade-row"><span>Matematica</span><span>74</span></div>
+            <div class="grade-bar-wrap"><div class="grade-bar" style="width:74%;background:#8338ec"></div></div>
+            <div class="grade-row"><span>Ciencias</span><span>80</span></div>
+            <div class="grade-bar-wrap"><div class="grade-bar" style="width:80%;background:#8338ec"></div></div>
+            <div class="grade-row"><span>Ingles</span><span>88</span></div>
+            <div class="grade-bar-wrap"><div class="grade-bar" style="width:88%;background:#8338ec"></div></div>
+            <span class="gpa-badge gpa-b">Media: 3.2</span>
+          </div>
+        </div>
+        <div class="student-card" style="border-style:dashed;display:flex;align-items:center;justify-content:center;min-height:200px">
+          <div style="text-align:center;color:var(--muted)">
+            <div style="font-size:2rem;margin-bottom:.5rem">➕</div>
+            <div style="font-size:.8rem">Adicione um 3º aluno</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+		<div class="section-num">3</div>
+		<div class="section-info">
+		  <h2>Análise de Texto</h2>
+		  <p>Use métodos de string para analisar o input.</p>
+		</div>
+		<span class="tag">string</span>
+	</div>
+      <div class="card-body">
+        <div class="hint">
+          text.<span class="kw">split</span>(<span class="kw">" "</span>).length <span class="cm">// palavras</span><br>
+          text.<span class="kw">length</span> <span class="cm">// caracteres</span><br>
+          text.<span class="kw">split</span>(<span class="kw">""</span>).<span class="kw">reverse</span>().<span class="kw">join</span>(<span class="kw">""</span>)
+        </div>
+        <div class="analyzer-grid">
+          <div class="text-input-wrap">
+            <textarea class="analyze-input" id="analyze-text" placeholder="Digite ou cole algum texto aqui e clique Analisar…">JavaScript é incrível e divertido de aprender!</textarea>
+            <button class="analyze-btn" id="analyze-btn">Analisar Texto</button>
+          </div>
+          <div>
+            <div class="stats-grid">
+              <div class="stat-tile"><div class="val" id="word-count">7</div><div class="lbl">Palavras</div></div>
+              <div class="stat-tile"><div class="val" id="char-count">46</div><div class="lbl">Caracteres</div></div>
+              <div class="stat-tile"><div class="val" id="unique-count">7</div><div class="lbl">Palavras únicas</div></div>
+              <div class="stat-tile"><div class="val" id="sentence-count">1</div><div class="lbl">Frases</div></div>
+              <div class="reversed-text" id="reversed-text">Ao contrário: !rednerpa ed oditrevid e levírcni é tpircSavaJ</div>
+            </div>
+          </div>
+        </div>
+      </div>
+  </div>
+
+</div><!-- /page -->
+
+<script>
+  // ── Analyze button starter ──
+  document.getElementById('analyze-btn').addEventListener('click', () => {
+    const text = document.getElementById('analyze-text').value;
+    // Students: use string methods to update word-count, char-count, etc.
+    console.log('Text to analyze:', text);
+  });
+</script>
+
+</body>
+</html>

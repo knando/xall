@@ -1,0 +1,1372 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JavaScript Básico</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;600;700&family=Syne:wght@400;700;800&family=DM+Sans:ital,wght@0,300;0,400;1,300&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:        #0b0d12;
+    --surface:   #111420;
+    --surface2:  #171b28;
+    --border:    #1e2436;
+    --accent:    #f7df1e;
+    --accent2:   #7c3aed;
+    --accent3:   #f59e0b;
+    --green:     #22d3a4;
+    --red:       #f87171;
+    --text:      #c9d1e0;
+    --muted:     #5a6280;
+    --heading:   #eef2ff;
+    --mono:      'JetBrains Mono', monospace;
+    --sans:      'DM Sans', sans-serif;
+    --display:   'Times New Roman', serif;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--sans);
+    font-size: 15px;
+    line-height: 1.7;
+    min-height: 100vh;
+    font-variant-ligatures: none;
+  }
+
+  /* ── NOISE OVERLAY ── */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 0;
+    opacity: .45;
+  }
+
+  /* ── NAV ── */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    background: rgba(11,13,18,.92);
+    backdrop-filter: blur(14px);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    padding: 0 2rem;
+    height: 56px;
+    overflow-x: none;
+    scrollbar-width: none;
+  }
+  nav::-webkit-scrollbar { display: none; }
+
+  nav .logo {
+    font-family: var(--display);
+    font-weight: 600;
+    font-size: 1rem;
+    color: var(--accent);
+    white-space: nowrap;
+    margin-right: 2rem;
+    letter-spacing: -0.02em;
+    display: flex;
+    align-items: center;
+    gap: .4rem;
+  }
+  nav .logo .js-badge {
+    background: var(--accent);
+    color: #000;
+    font-size: .7rem;
+    font-weight: 600;
+    padding: .1rem .35rem;
+    border-radius: 3px;
+  }
+
+  nav a {
+    color: var(--muted);
+    text-decoration: none;
+    font-family: var(--mono);
+    font-size: .68rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: .08em;
+    padding: 0 .85rem;
+    height: 56px;
+    display: flex;
+    align-items: center;
+    white-space: nowrap;
+    border-bottom: 2px solid transparent;
+    transition: color .2s, border-color .2s;
+  }
+  nav a:hover { color: var(--heading); border-color: var(--accent); }
+  nav a.active { color: var(--heading); border-color: var(--accent); }
+
+  /* ── HERO ── */
+  #hero {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 6rem 2rem 4rem;
+    position: relative;
+    overflow: hidden;
+  }
+
+  #hero::before {
+    content: '';
+    position: absolute;
+    width: 700px; height: 700px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(247,223,30,.06) 0%, transparent 70%);
+    top: 50%; left: 50%;
+    transform: translate(-50%,-50%);
+    animation: pulse 6s ease-in-out infinite;
+  }
+
+  @keyframes pulse {
+    0%,100% { transform: translate(-50%,-50%) scale(1); opacity: .6; }
+    50%      { transform: translate(-50%,-50%) scale(1.15); opacity: 1; }
+  }
+
+  .hero-tag {
+    font-family: var(--mono);
+    font-size: .72rem;
+    color: var(--accent);
+    letter-spacing: .18em;
+    text-transform: uppercase;
+    margin-bottom: 1.5rem;
+    opacity: 0;
+    animation: fadeUp .6s .2s forwards;
+  }
+
+  #hero h1 {
+    font-family: var(--display);
+    font-size: clamp(3.5rem, 10vw, 7rem);
+    font-weight: 600;
+    line-height: .95;
+    letter-spacing: -.04em;
+    color: var(--heading);
+    opacity: 0;
+    animation: fadeUp .7s .4s forwards;
+  }
+
+  #hero h1 span { color: var(--accent); }
+
+  .hero-sub {
+    max-width: 520px;
+    margin: 1.5rem auto 0;
+    color: var(--muted);
+    font-size: 1rem;
+    font-weight: 300;
+    opacity: 0;
+    animation: fadeUp .7s .6s forwards;
+  }
+
+  .hero-badges {
+    display: flex;
+    gap: .75rem;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin-top: 2.5rem;
+    opacity: 0;
+    animation: fadeUp .7s .8s forwards;
+  }
+
+  .badge {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: .35rem .9rem;
+    font-family: var(--mono);
+    font-size: .72rem;
+    color: var(--muted);
+  }
+
+  /* Phase roadmap pills */
+  .phases-row {
+    display: flex;
+    gap: .5rem;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin-top: 1.5rem;
+    opacity: 0;
+    animation: fadeUp .7s 1s forwards;
+  }
+  .phase-pill {
+    display: flex;
+    align-items: center;
+    gap: .4rem;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: .35rem .85rem;
+    font-family: var(--mono);
+    font-size: .68rem;
+    color: var(--muted);
+    text-decoration: none;
+    transition: all .2s;
+  }
+  .phase-pill:hover { border-color: var(--accent); color: var(--accent); }
+  .phase-pill .num {
+    background: var(--accent);
+    color: #000;
+    width: 16px; height: 16px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: .6rem;
+    font-weight: 600;
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .scroll-hint {
+    position: absolute;
+    bottom: 2.5rem;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: .4rem;
+    color: var(--muted);
+    font-family: var(--mono);
+    font-size: .65rem;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    opacity: 0;
+    animation: fadeUp .7s 1.4s forwards;
+  }
+  .scroll-hint::after {
+    content: '';
+    width: 1px; height: 40px;
+    background: linear-gradient(to bottom, var(--accent), transparent);
+    animation: scrollLine 2s ease-in-out infinite;
+  }
+  @keyframes scrollLine {
+    0%,100% { opacity: 1; }
+    50%      { opacity: .2; }
+  }
+
+  /* ── SECTIONS ── */
+  section { padding: 5rem 2rem; max-width: 980px; margin: 0 auto; }
+  section + section { border-top: 1px solid var(--border); }
+
+  .section-label {
+    font-family: var(--mono);
+    font-size: .65rem;
+    letter-spacing: .2em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: .75rem;
+  }
+
+  .section-title {
+    font-family: var(--display);
+    font-size: clamp(2rem, 5vw, 3rem);
+    font-weight: 600;
+    color: var(--heading);
+    letter-spacing: -.03em;
+    line-height: 1.1;
+    margin-bottom: 1.5rem;
+  }
+
+  .section-desc {
+    color: var(--muted);
+    max-width: 640px;
+    margin-bottom: 3rem;
+    font-weight: 300;
+  }
+
+  /* ── DEFINITION CARDS ── */
+  .def-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 1rem;
+    margin-bottom: 2.5rem;
+  }
+
+  .def-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1.25rem 1.4rem;
+    position: relative;
+    overflow: hidden;
+    transition: border-color .25s, transform .2s;
+  }
+  .def-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0;
+    width: 3px; height: 100%;
+    background: var(--accent);
+    border-radius: 0 2px 2px 0;
+  }
+  .def-card:hover { border-color: rgba(247,223,30,.3); transform: translateY(-2px); }
+  .def-card.green::before  { background: var(--green); }
+  .def-card.amber::before  { background: var(--accent3); }
+  .def-card.purple::before { background: var(--accent2); }
+  .def-card.red::before    { background: var(--red); }
+
+  .def-term {
+    font-family: var(--mono);
+    font-size: .78rem;
+    font-weight: 700;
+    color: var(--accent);
+    text-transform: uppercase;
+    letter-spacing: .1em;
+    margin-bottom: .3rem;
+  }
+  .def-card.green  .def-term { color: var(--green); }
+  .def-card.amber  .def-term { color: var(--accent3); }
+  .def-card.purple .def-term { color: var(--accent2); }
+  .def-card.red    .def-term { color: var(--red); }
+  .def-desc { font-size: .88rem; color: var(--text); line-height: 1.55; }
+
+  /* ── CODE BLOCK ── */
+  .code-wrap {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+    margin: 1.5rem 0;
+    position: relative;
+  }
+  .code-header {
+    background: var(--surface2);
+    border-bottom: 1px solid var(--border);
+    padding: .55rem 1rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+  .code-dots { display: flex; gap: 6px; }
+  .code-dots span { width: 10px; height: 10px; border-radius: 50%; }
+  .code-dots span:nth-child(1) { background: #ff5f57; }
+  .code-dots span:nth-child(2) { background: #febc2e; }
+  .code-dots span:nth-child(3) { background: #28c840; }
+  .code-filename { font-family: var(--mono); font-size: .68rem; color: var(--muted); letter-spacing: .04em; }
+
+  pre {
+    padding: 1.4rem 1.5rem;
+    overflow-x: auto;
+    font-family: var(--mono);
+    font-size: .82rem;
+    line-height: 1.75;
+    tab-size: 2;
+  }
+
+  /* Syntax colors — JS edition */
+  .k  { color: #c792ea; font-weight: 600; }   /* keyword: let, const, function, if */
+  .fn { color: #82aaff; }                      /* function name */
+  .s  { color: #c3e88d; }                      /* string */
+  .n  { color: #f78c6c; }                      /* number */
+  .c  { color: #546e7a; font-style: italic; }  /* comment */
+  .p  { color: var(--accent); }                /* punctuation / operator */
+  .v  { color: #eeffff; }                      /* variable */
+  .b  { color: var(--accent3); }               /* boolean / special value */
+  .m  { color: #80cbc4; }                      /* method */
+
+  /* ── NOTE BOXES ── */
+  .note {
+    display: flex;
+    gap: .75rem;
+    align-items: flex-start;
+    padding: .9rem 1.1rem;
+    border-radius: 6px;
+    margin: 1rem 0;
+    font-size: .88rem;
+  }
+  .note.info    { background: rgba(247,223,30,.05); border: 1px solid rgba(247,223,30,.2); }
+  .note.warning { background: rgba(245,158,11,.07); border: 1px solid rgba(245,158,11,.2); }
+  .note.danger  { background: rgba(248,113,113,.07); border: 1px solid rgba(248,113,113,.2); }
+  .note.green   { background: rgba(34,211,164,.06); border: 1px solid rgba(34,211,164,.2); }
+  .note-icon { font-size: 1rem; flex-shrink: 0; padding-top: .1rem; }
+  .note.info    .note-icon { color: var(--accent); }
+  .note.warning .note-icon { color: var(--accent3); }
+  .note.danger  .note-icon { color: var(--red); }
+  .note.green   .note-icon { color: var(--green); }
+
+  /* ── TABLE ── */
+  .type-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: var(--mono);
+    font-size: .8rem;
+    margin: 1.5rem 0;
+  }
+  .type-table th {
+    text-align: left;
+    padding: .6rem 1rem;
+    border-bottom: 2px solid var(--accent);
+    color: var(--accent);
+    font-size: .68rem;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+  }
+  .type-table td { padding: .65rem 1rem; border-bottom: 1px solid var(--border); color: var(--text); }
+  .type-table tr:hover td { background: var(--surface2); }
+  .type-table .keyword { color: #c792ea; }
+  .type-table .example { color: var(--green); }
+  .type-table .note-cell { color: var(--accent3); }
+
+  /* ── OP GRID ── */
+  .op-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: .75rem;
+    margin: 1.5rem 0;
+  }
+  .op-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: .9rem 1.1rem;
+    display: flex;
+    align-items: flex-start;
+    gap: .75rem;
+    transition: border-color .2s;
+  }
+  .op-card:hover { border-color: rgba(247,223,30,.25); }
+  .op-sym { font-family: var(--mono); font-size: 1.3rem; font-weight: 700; color: var(--accent); min-width: 2.2rem; text-align: center; line-height: 1; padding-top: 2px; }
+  .op-card.green  .op-sym { color: var(--green); }
+  .op-card.amber  .op-sym { color: var(--accent3); }
+  .op-card.purple .op-sym { color: #c792ea; }
+  .op-card.red    .op-sym { color: var(--red); }
+  .op-info { flex: 1; }
+  .op-name { font-size: .8rem; color: var(--heading); font-weight: 600; line-height: 1.3; }
+  .op-eg   { font-family: var(--mono); font-size: .72rem; color: var(--muted); margin-top: .2rem; }
+
+  /* ── PREC LIST ── */
+  .prec-list { display: flex; flex-direction: column; gap: 2px; margin: 1.5rem 0; }
+  .prec-row  { display: flex; align-items: center; gap: .75rem; }
+  .prec-level { font-family: var(--mono); font-size: .65rem; color: var(--muted); min-width: 24px; text-align: right; }
+  .prec-bar { background: var(--surface2); border: 1px solid var(--border); border-radius: 3px; padding: .3rem .8rem; font-family: var(--mono); font-size: .8rem; color: var(--text); flex: 1; display: flex; justify-content: space-between; align-items: center; }
+  .prec-ops { color: var(--accent); font-weight: 600; }
+  .prec-name { color: var(--muted); font-size: .68rem; }
+
+  /* ── EXERCISE ── */
+  .exercise {
+    background: linear-gradient(135deg, rgba(247,223,30,.03) 0%, rgba(124,58,237,.05) 100%);
+    border: 1px solid rgba(247,223,30,.18);
+    border-radius: 8px;
+    padding: 1.5rem 1.75rem;
+    margin: 2rem 0;
+  }
+  .exercise-header { display: flex; align-items: center; gap: .75rem; margin-bottom: 1rem; }
+  .exercise-num { background: var(--accent); color: #000; font-family: var(--mono); font-size: .72rem; font-weight: 700; padding: .2rem .6rem; border-radius: 3px; }
+  .exercise-title { font-family: var(--display); font-weight: 700; color: var(--heading); font-size: 1rem; }
+  .exercise ul { padding-left: 1.2rem; color: var(--text); font-size: .9rem; }
+  .exercise li { margin-bottom: .3rem; }
+  .exercise .tip { margin-top: 1rem; padding: .75rem 1rem; background: rgba(245,158,11,.07); border-left: 3px solid var(--accent3); border-radius: 0 4px 4px 0; font-size: .85rem; color: var(--accent3); }
+
+  /* ── LOOP VISUALIZER ── */
+  .loop-vis { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 1.5rem; margin: 1.5rem 0; }
+  .loop-row { display: flex; align-items: center; gap: .5rem; font-family: var(--mono); font-size: .78rem; padding: .3rem 0; color: var(--muted); border-left: 2px solid transparent; padding-left: .75rem; }
+  .loop-row.active { color: var(--heading); border-left-color: var(--accent); background: rgba(247,223,30,.04); }
+  .loop-i    { color: var(--accent3); font-weight: 700; min-width: 60px; }
+  .loop-cond { color: var(--green); }
+  .loop-out  { color: var(--accent); }
+
+  /* ── FLOW DIAGRAM ── */
+  .flow-wrap { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 2rem; margin: 1.5rem 0; display: flex; flex-direction: column; align-items: center; gap: 0; font-family: var(--mono); font-size: .78rem; }
+  .flow-box { border-radius: 6px; padding: .55rem 1.6rem; text-align: center; min-width: 180px; color: var(--heading); }
+  .flow-box.start  { background: var(--accent2); }
+  .flow-box.cond   { background: var(--surface2); border: 2px solid var(--accent3); color: var(--accent3); clip-path: polygon(50% 0%,100% 50%,50% 100%,0% 50%); min-width: 200px; padding: 1.1rem 2rem; }
+  .flow-box.action { background: var(--surface2); border: 1px solid var(--green); color: var(--green); }
+  .flow-box.end    { background: var(--red); color: #fff; }
+  .flow-arrow { width: 2px; height: 28px; background: var(--muted); position: relative; }
+  .flow-arrow::after { content: ''; position: absolute; bottom: 0; left: 50%; transform: translateX(-50%); border: 5px solid transparent; border-top-color: var(--muted); margin-bottom: -10px; }
+
+  /* ── ARRAY VISUALIZER ── */
+  .array-vis { display: flex; align-items: stretch; gap: 0; margin: 1.5rem 0; overflow-x: auto; }
+  .arr-cell { background: var(--surface); border: 1px solid var(--border); padding: .75rem 1rem; text-align: center; min-width: 70px; position: relative; }
+  .arr-cell:not(:last-child) { border-right: none; }
+  .arr-cell:first-child { border-radius: 6px 0 0 6px; }
+  .arr-cell:last-child  { border-radius: 0 6px 6px 0; }
+  .arr-cell .arr-val { font-family: var(--mono); font-size: .9rem; color: var(--heading); font-weight: 600; }
+  .arr-cell .arr-idx { font-family: var(--mono); font-size: .6rem; color: var(--muted); margin-top: .35rem; }
+  .arr-cell.highlight { background: rgba(247,223,30,.08); border-color: rgba(247,223,30,.3); }
+  .arr-cell.highlight .arr-val { color: var(--accent); }
+
+  /* ── METHOD CARDS ── */
+  .method-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: .75rem; margin: 1.5rem 0; }
+  .method-card { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 1rem 1.1rem; transition: border-color .2s; }
+  .method-card:hover { border-color: rgba(247,223,30,.25); }
+  .method-name { font-family: var(--mono); font-size: .82rem; color: var(--accent); font-weight: 600; margin-bottom: .3rem; }
+  .method-desc { font-size: .82rem; color: var(--text); line-height: 1.5; }
+  .method-eg   { font-family: var(--mono); font-size: .72rem; color: var(--green); margin-top: .35rem; }
+
+  /* ── PROMISE CHAIN ── */
+  .promise-chain { display: flex; flex-direction: column; gap: 0; margin: 1.5rem 0; }
+  .prom-step { display: flex; gap: 1rem; align-items: flex-start; padding: .75rem 1rem; border-left: 2px solid var(--border); margin-left: 1rem; position: relative; }
+  .prom-step::before { content: ''; position: absolute; left: -5px; top: 1rem; width: 8px; height: 8px; border-radius: 50%; background: var(--border); }
+  .prom-step.resolve { border-left-color: var(--green); }
+  .prom-step.resolve::before { background: var(--green); }
+  .prom-step.reject  { border-left-color: var(--red); }
+  .prom-step.reject::before  { background: var(--red); }
+  .prom-step.then    { border-left-color: var(--accent); }
+  .prom-step.then::before    { background: var(--accent); }
+  .prom-kw { font-family: var(--mono); font-size: .78rem; font-weight: 700; white-space: nowrap; }
+  .prom-kw.res { color: var(--green); }
+  .prom-kw.rej { color: var(--red); }
+  .prom-kw.thn { color: var(--accent); }
+  .prom-kw.cat { color: var(--accent3); }
+  .prom-desc { font-size: .85rem; color: var(--text); line-height: 1.5; }
+
+  /* ── SCROLL ANIMATIONS ── */
+  .reveal { opacity: 0; transform: translateY(24px); transition: opacity .55s ease, transform .55s ease; }
+  .reveal.visible { opacity: 1; transform: none; }
+
+  /* ── PHASE BANNER ── */
+  .phase-banner {
+    display: inline-flex;
+    align-items: center;
+    gap: .6rem;
+    background: rgba(247,223,30,.08);
+    border: 1px solid rgba(247,223,30,.2);
+    border-radius: 6px;
+    padding: .4rem 1rem;
+    font-family: var(--mono);
+    font-size: .7rem;
+    color: var(--accent);
+    letter-spacing: .06em;
+    margin-bottom: 1.5rem;
+  }
+  .phase-banner .ph-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); }
+
+  /* ── FOOTER ── */
+  footer {
+    text-align: center;
+    padding: 4rem 2rem;
+    color: var(--muted);
+    font-family: var(--mono);
+    font-size: .72rem;
+    letter-spacing: .06em;
+    border-top: 1px solid var(--border);
+  }
+  footer span { color: var(--accent); }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 640px) {
+    nav a { padding: 0 .6rem; font-size: .62rem; }
+    nav .logo { margin-right: 1rem; }
+    .op-grid { grid-template-columns: 1fr 1fr; }
+    .def-grid { grid-template-columns: 1fr; }
+    .method-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav id="main-nav">
+  <div class="logo"><span class="js-badge">JS</span> básico</div>
+  <a href="#variaveis">Variáveis</a>
+  <a href="#operadores">Operadores</a>
+  <a href="#condicionais">Condicionais</a>
+  <a href="#loops">Laços</a>
+  <a href="#arrays">Arrays</a>
+  <a href="#objetos">Objetos</a>
+  <a href="#funcoes">Funções</a>
+  <a href="#dom">DOM</a>
+  <a href="#async">Async</a>
+  <a href="#exercicios">Exercícios</a>
+</nav>
+
+<!-- HERO -->
+<section id="hero">
+  <div class="hero-tag">JavaScript</div>
+  <h1>Conceitos básicos de <span>JS</span></h1>
+  <p class="hero-sub">Variáveis, operadores, funções, DOM, arrays, objetos e um pouco mais</p>
+  <div class="hero-badges">
+    <span class="badge">console.log("Olá!")</span>
+    <span class="badge">const, let</span>
+    <span class="badge">DOM</span>
+    <span class="badge">async/await</span>
+  </div>
+  <div class="phases-row">
+    <a class="phase-pill" href="#variaveis"><span class="num">1</span> Fundamentos</a>
+    <a class="phase-pill" href="#arrays"><span class="num">2</span> Dados</a>
+    <a class="phase-pill" href="#dom"><span class="num">3</span> DOM</a>
+    <a class="phase-pill" href="#async"><span class="num">4</span> Async</a>
+    <a class="phase-pill" href="#exercicios"><span class="num">5</span> Prática</a>
+  </div>
+  <div class="scroll-hint">role para baixo</div>
+</section>
+
+
+<!-- ════════════════════════
+     FASE 1 — VARIÁVEIS
+════════════════════════ -->
+<section id="variaveis">
+  <div class="phase-banner reveal"><span class="ph-dot"></span> Fundamentos</div>
+  <div class="section-label reveal">Armazenando Informação</div>
+  <h2 class="section-title reveal">Variáveis &amp; Tipos</h2>
+  <p class="section-desc reveal">Uma variável é um <strong style="color:var(--heading)">espaço com nome</strong> na memória do computador. Em JavaScript, você tem três formas de criar: <code style="color:var(--accent)">const</code>, <code style="color:var(--accent)">let</code> e (o antigo) <code style="color:#c792ea">var</code>.</p>
+
+  <div class="def-grid reveal">
+    <div class="def-card">
+      <div class="def-term">const</div>
+      <div class="def-desc">Valor <strong style="color:var(--heading)">constante</strong> — não pode ser reatribuído. Use sempre que o valor não vai mudar.</div>
+    </div>
+    <div class="def-card green">
+      <div class="def-term">let</div>
+      <div class="def-desc">Variável com <strong style="color:var(--heading)">escopo de bloco</strong>. Pode ser reatribuída. Prefira ao <code>var</code>.</div>
+    </div>
+    <div class="def-card amber">
+      <div class="def-term">var</div>
+      <div class="def-desc">A forma antiga. Tem <strong style="color:var(--heading)">escopo de função</strong> e sofre hoisting. Evite em código moderno.</div>
+    </div>
+    <div class="def-card purple">
+      <div class="def-term">Tipo Primitivo</div>
+      <div class="def-desc">Valor simples: <code>string</code>, <code>number</code>, <code>boolean</code>, <code>null</code>, <code>undefined</code>.</div>
+    </div>
+    <div class="def-card red">
+      <div class="def-term">typeof</div>
+      <div class="def-desc">Operador que diz <strong style="color:var(--heading)">qual é o tipo</strong> de um valor: <code>typeof 42</code> → <code>"number"</code>.</div>
+    </div>
+    <div class="def-card">
+      <div class="def-term">console.log</div>
+      <div class="def-desc">Sua melhor ferramenta: <strong style="color:var(--heading)">imprime valores</strong> no console do navegador (F12).</div>
+    </div>
+  </div>
+
+  <div class="reveal">
+    <table class="type-table">
+      <thead>
+        <tr>
+          <th>Tipo</th>
+          <th>Exemplo</th>
+          <th>typeof retorna</th>
+          <th>Observação</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="keyword">string</td>
+          <td class="example">"Olá"  'mundo'  `texto`</td>
+          <td class="example">"string"</td>
+          <td>Texto entre aspas duplas ou simples</td>
+        </tr>
+        <tr>
+          <td class="keyword">number</td>
+          <td class="example">42  3.14  -7</td>
+          <td class="example">"number"</td>
+          <td>Inteiros e decimais no mesmo tipo</td>
+        </tr>
+        <tr>
+          <td class="keyword">boolean</td>
+          <td class="example">true  false</td>
+          <td class="example">"boolean"</td>
+          <td>Resultado de comparações</td>
+        </tr>
+        <tr>
+          <td class="keyword">null</td>
+          <td class="example">null</td>
+          <td class="note-cell">"object" ⚠️</td>
+          <td>Bug histórico do JS — null não é objeto</td>
+        </tr>
+        <tr>
+          <td class="keyword">undefined</td>
+          <td class="example">undefined</td>
+          <td class="example">"undefined"</td>
+          <td>Variável declarada mas sem valor</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="code-wrap reveal">
+    <div class="code-header">
+      <div class="code-dots"><span></span><span></span><span></span></div>
+      <span class="code-filename">variaveis.js</span>
+    </div>
+    <pre><span class="c">// ── const: valor não muda ──────────────────────</span>
+<span class="k">const</span> <span class="v">nome</span> <span class="p">=</span> <span class="s">"Ana"</span><span class="p">;</span>
+<span class="k">const</span> <span class="v">anoNascimento</span> <span class="p">=</span> <span class="n">2005</span><span class="p">;</span>
+<span class="k">const</span> <span class="v">ehEstudante</span> <span class="p">=</span> <span class="b">true</span><span class="p">;</span>
+
+<span class="c">// ── let: pode ser reatribuído ──────────────────</span>
+<span class="k">let</span> <span class="v">pontuacao</span> <span class="p">=</span> <span class="n">0</span><span class="p">;</span>
+<span class="v">pontuacao</span> <span class="p">=</span> <span class="n">100</span><span class="p">;</span>        <span class="c">// ✅ funciona</span>
+
+<span class="c">// ── Template literals (aspas simples) ──────────────</span>
+<span class="k">const</span> <span class="v">idade</span> <span class="p">=</span> <span class="n">2025</span> <span class="p">-</span> <span class="v">anoNascimento</span><span class="p">;</span>
+<span class="k">const</span> <span class="v">mensagem</span> <span class="p">=</span> <span class="s">`Olá, <span class="p">${</span><span class="v">nome</span><span class="p">}</span>! Você tem <span class="p">${</span><span class="v">idade</span><span class="p">}</span> anos.`</span><span class="p">;</span>
+<span class="fn">console</span><span class="p">.</span><span class="m">log</span>(<span class="v">mensagem</span>)<span class="p">;</span>    <span class="c">// Olá, Ana! Você tem 20 anos.</span>
+
+<span class="c">// ── typeof ─────────────────────────────────────</span>
+<span class="fn">console</span><span class="p">.</span><span class="m">log</span>(<span class="k">typeof</span> <span class="v">nome</span>)<span class="p">;</span>         <span class="c">// "string"</span>
+<span class="fn">console</span><span class="p">.</span><span class="m">log</span>(<span class="k">typeof</span> <span class="v">pontuacao</span>)<span class="p">;</span>    <span class="c">// "number"</span>
+<span class="fn">console</span><span class="p">.</span><span class="m">log</span>(<span class="k">typeof</span> <span class="v">ehEstudante</span>)<span class="p">;</span>  <span class="c">// "boolean"</span></pre>
+  </div>
+
+  <div class="note info reveal">
+    <span class="note-icon">💡</span>
+    <div><strong style="color:var(--heading)">Regra prática:</strong> Use <code>const</code> por padrão. Só troque para <code>let</code> se precisar reatribuir o valor. Nunca use <code>var</code> em código novo.</div>
+  </div>
+</section>
+
+<section id="operadores">
+  <div class="section-label reveal">Cálculos &amp; Comparações</div>
+  <h2 class="section-title reveal">Operadores</h2>
+  <p class="section-desc reveal">Operadores são <strong style="color:var(--heading)">símbolos que realizam operações</strong> sobre valores. Em JavaScript temos aritméticos, relacionais, lógicos e de atribuição.</p>
+
+  <h3 class="reveal" style="font-family:var(--display);color:var(--heading);font-size:1.3rem;font-weight:800;">Aritméticos</h3>
+  <div class="op-grid reveal">
+    <div class="op-card"><div class="op-sym">+</div><div class="op-info"><div class="op-name">Adição / Concatenação</div><div class="op-eg">5 + 3 → 8<br>"Oi" + " " + "JS" → "Oi JS"</div></div></div>
+    <div class="op-card"><div class="op-sym">-</div><div class="op-info"><div class="op-name">Subtração</div><div class="op-eg">10 - 4 → 6</div></div></div>
+    <div class="op-card"><div class="op-sym">*</div><div class="op-info"><div class="op-name">Multiplicação</div><div class="op-eg">3 * 7 → 21</div></div></div>
+    <div class="op-card"><div class="op-sym">/</div><div class="op-info"><div class="op-name">Divisão</div><div class="op-eg">10 / 4 → 2.5</div></div></div>
+    <div class="op-card amber"><div class="op-sym">%</div><div class="op-info"><div class="op-name">Módulo (resto)</div><div class="op-eg">10 % 3 → 1<br>par: n % 2 === 0</div></div></div>
+    <div class="op-card amber"><div class="op-sym">**</div><div class="op-info"><div class="op-name">Potência</div><div class="op-eg">2 ** 10 → 1024</div></div></div>
+    <div class="op-card amber"><div class="op-sym">++</div><div class="op-info"><div class="op-name">Incremento</div><div class="op-eg">x++ → x = x + 1</div></div></div>
+    <div class="op-card amber"><div class="op-sym">--</div><div class="op-info"><div class="op-name">Decremento</div><div class="op-eg">x-- → x = x - 1</div></div></div>
+  </div>
+
+  <h3 class="reveal" style="font-family:var(--display);color:var(--heading);font-size:1.3rem;font-weight:800;margin-top:1.5rem;">Relacionais — retornam true ou false</h3>
+  <div class="op-grid reveal">
+    <div class="op-card green"><div class="op-sym" style="color:var(--green)">===</div><div class="op-info"><div class="op-name">Igual (valor e tipo)</div><div class="op-eg">3 === "3" → false</div></div></div>
+    <div class="op-card green"><div class="op-sym" style="color:var(--green)">!==</div><div class="op-info"><div class="op-name">Diferente (estrito)</div><div class="op-eg">3 !== "3" → true</div></div></div>
+    <div class="op-card green"><div class="op-sym" style="color:var(--green)">&gt;</div><div class="op-info"><div class="op-name">Maior que</div><div class="op-eg">5 &gt; 3 → true</div></div></div>
+    <div class="op-card green"><div class="op-sym" style="color:var(--green)">&lt;</div><div class="op-info"><div class="op-name">Menor que</div><div class="op-eg">2 &lt; 8 → true</div></div></div>
+    <div class="op-card green"><div class="op-sym" style="color:var(--green)">&gt;=</div><div class="op-info"><div class="op-name">Maior ou igual</div><div class="op-eg">5 &gt;= 5 → true</div></div></div>
+    <div class="op-card green"><div class="op-sym" style="color:var(--green)">&lt;=</div><div class="op-info"><div class="op-name">Menor ou igual</div><div class="op-eg">3 &lt;= 9 → true</div></div></div>
+  </div>
+
+  <div class="note warning reveal">
+    <span class="note-icon">⚠️</span>
+    <div><strong style="color:var(--heading)">== vs ===</strong> — Em JS sempre use <code>===</code> (comparação estrita). O <code>==</code> faz conversão de tipos silenciosa e causa bugs: <code>0 == false</code> → <code>true</code>, <code>0 === false</code> → <code>false</code>.</div>
+  </div>
+
+  <h3 class="reveal" style="font-family:var(--display);color:var(--heading);font-size:1.3rem;font-weight:800;margin-top:1.5rem;">Lógicos</h3>
+  <div class="op-grid reveal">
+    <div class="op-card purple"><div class="op-sym">&&</div><div class="op-info"><div class="op-name">E lógico (AND)</div><div class="op-eg">true && false → false<br>ambos devem ser true</div></div></div>
+    <div class="op-card purple"><div class="op-sym">||</div><div class="op-info"><div class="op-name">OU lógico (OR)</div><div class="op-eg">true || false → true<br>pelo menos um true</div></div></div>
+    <div class="op-card purple"><div class="op-sym">!</div><div class="op-info"><div class="op-name">NÃO lógico (NOT)</div><div class="op-eg">!true → false</div></div></div>
+    <div class="op-card amber"><div class="op-sym">??</div><div class="op-info"><div class="op-name">Nullish Coalescing</div><div class="op-eg">null ?? "padrão" → "padrão"</div></div></div>
+  </div>
+
+  <div class="code-wrap reveal">
+    <div class="code-header">
+      <div class="code-dots"><span></span><span></span><span></span></div>
+      <span class="code-filename">operadores.js</span>
+    </div>
+    <pre><span class="k">const</span> <span class="v">a</span> <span class="p">=</span> <span class="n">10</span><span class="p">,</span> <span class="v">b</span> <span class="p">=</span> <span class="n">3</span><span class="p">;</span>
+
+<span class="c">// Aritméticos</span>
+<span class="fn">console</span><span class="p">.</span><span class="m">log</span>(<span class="v">a</span> <span class="p">+</span> <span class="v">b</span>)<span class="p">;</span>   <span class="c">// 13</span>
+<span class="fn">console</span><span class="p">.</span><span class="m">log</span>(<span class="v">a</span> <span class="p">%</span> <span class="v">b</span>)<span class="p">;</span>   <span class="c">// 1 (resto de 10 ÷ 3)</span>
+<span class="fn">console</span><span class="p">.</span><span class="m">log</span>(<span class="n">2</span> <span class="p">**</span> <span class="n">8</span>)<span class="p">;</span>   <span class="c">// 256</span>
+
+<span class="c">// Relacionais estritos</span>
+<span class="fn">console</span><span class="p">.</span><span class="m">log</span>(<span class="n">3</span> <span class="p">===</span> <span class="s">"3"</span>)<span class="p">;</span>  <span class="c">// false — tipos diferentes</span>
+<span class="fn">console</span><span class="p">.</span><span class="m">log</span>(<span class="n">3</span> <span class="p">==</span>  <span class="s">"3"</span>)<span class="p">;</span>  <span class="c">// true  — evite!</span>
+
+<span class="c">// Lógicos</span>
+<span class="k">const</span> <span class="v">maiorDeIdade</span> <span class="p">=</span> <span class="n">18</span><span class="p">;</span>
+<span class="k">const</span> <span class="v">temCNH</span> <span class="p">=</span> <span class="b">true</span><span class="p">;</span>
+<span class="fn">console</span><span class="p">.</span><span class="m">log</span>(<span class="v">maiorDeIdade</span> <span class="p">&gt;=</span> <span class="n">18</span> <span class="p">&&</span> <span class="v">temCNH</span>)<span class="p">;</span>  <span class="c">// true</span>
+
+<span class="c">// Nullish coalescing</span>
+<span class="k">const</span> <span class="v">apelido</span> <span class="p">=</span> <span class="b">null</span><span class="p">;</span>
+<span class="fn">console</span><span class="p">.</span><span class="m">log</span>(<span class="v">apelido</span> <span class="p">??</span> <span class="s">"Sem apelido"</span>)<span class="p">;</span>  <span class="c">// "Sem apelido"</span></pre>
+  </div>
+</section>
+
+<section id="condicionais">
+  <div class="section-label reveal">Decisões</div>
+  <h2 class="section-title reveal">Condicionais</h2>
+  <p class="section-desc reveal">O programa <strong style="color:var(--heading)">escolhe um caminho</strong> baseado em uma condição. Em JS: <code>if / else if / else</code> para condições dinâmicas e <code>switch</code> para valores fixos.</p>
+
+  <div class="def-grid reveal">
+    <div class="def-card"><div class="def-term">if</div><div class="def-desc">"Se" — executa o bloco se a condição for <code>true</code>.</div></div>
+    <div class="def-card amber"><div class="def-term">else if</div><div class="def-desc">Encadeia condições extras testadas em ordem.</div></div>
+    <div class="def-card green"><div class="def-term">else</div><div class="def-desc">"Senão" — executado quando nenhuma condição anterior foi verdadeira.</div></div>
+    <div class="def-card purple"><div class="def-term">switch</div><div class="def-desc">Compara uma variável com vários valores fixos via <code>case</code>.</div></div>
+    <div class="def-card red"><div class="def-term">Operador ternário</div><div class="def-desc"><code>condição ? seTrue : seFalse</code> — if/else em uma linha.</div></div>
+    <div class="def-card"><div class="def-term">Truthy / Falsy</div><div class="def-desc">Valores que JS trata como verdadeiro/falso: <code>0, "", null, undefined, NaN</code> são falsy.</div></div>
+  </div>
+
+  <div class="flow-wrap reveal">
+    <div class="flow-box start" style="min-width:200px">INÍCIO</div>
+    <div class="flow-arrow"></div>
+    <div class="flow-box cond">nota >= 7 ?</div>
+    <div style="display:flex;align-items:flex-start;gap:3rem;width:100%;justify-content:center;margin-top:-10px">
+      <div style="display:flex;flex-direction:column;align-items:center">
+        <span style="font-family:var(--mono);font-size:.65rem;color:var(--green);padding:.3rem">SIM</span>
+        <div class="flow-arrow"></div>
+        <div class="flow-box action">"Aprovado ✅"</div>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:center">
+        <span style="font-family:var(--mono);font-size:.65rem;color:var(--red);padding:.3rem">NÃO</span>
+        <div class="flow-arrow"></div>
+        <div class="flow-box cond" style="clip-path:none;padding:.55rem 1.6rem;color:var(--accent3);border-color:var(--accent3)">nota >= 5 ?</div>
+        <div style="display:flex;gap:2rem;margin-top:0">
+          <div style="display:flex;flex-direction:column;align-items:center">
+            <span style="font-family:var(--mono);font-size:.65rem;color:var(--green);padding:.3rem">SIM</span>
+            <div class="flow-arrow"></div>
+            <div class="flow-box action">"Recuperação ⚠️"</div>
+          </div>
+          <div style="display:flex;flex-direction:column;align-items:center">
+            <span style="font-family:var(--mono);font-size:.65rem;color:var(--red);padding:.3rem">NÃO</span>
+            <div class="flow-arrow"></div>
+            <div class="flow-box end">"Reprovado ❌"</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="code-wrap reveal">
+    <div class="code-header">
+      <div class="code-dots"><span></span><span></span><span></span></div>
+      <span class="code-filename">condicionais.js</span>
+    </div>
+    <pre><span class="c">// ── if / else if / else ────────────────────────</span>
+<span class="k">const</span> <span class="v">nota</span> <span class="p">=</span> <span class="n">6.5</span><span class="p">;</span>
+
+<span class="k">if</span> (<span class="v">nota</span> <span class="p">&gt;=</span> <span class="n">7</span>) {
+  <span class="fn">console</span><span class="p">.</span><span class="m">log</span>(<span class="s">"✅ Aprovado!"</span>)<span class="p">;</span>
+} <span class="k">else if</span> (<span class="v">nota</span> <span class="p">&gt;=</span> <span class="n">5</span>) {
+  <span class="fn">console</span><span class="p">.</span><span class="m">log</span>(<span class="s">"⚠️ Recuperação."</span>)<span class="p">;</span>
+} <span class="k">else</span> {
+  <span class="fn">console</span><span class="p">.</span><span class="m">log</span>(<span class="s">"❌ Reprovado."</span>)<span class="p">;</span>
+}
+
+<span class="c">// ── Operador ternário ──────────────────────────</span>
+<span class="k">const</span> <span class="v">status</span> <span class="p">=</span> <span class="v">nota</span> <span class="p">&gt;=</span> <span class="n">7</span> <span class="p">?</span> <span class="s">"Aprovado"</span> <span class="p">:</span> <span class="s">"Reprovado"</span><span class="p">;</span>
+
+<span class="c">// ── switch ─────────────────────────────────────</span>
+<span class="k">const</span> <span class="v">dia</span> <span class="p">=</span> <span class="s">"segunda"</span><span class="p">;</span>
+<span class="k">switch</span> (<span class="v">dia</span>) {
+  <span class="k">case</span> <span class="s">"sábado"</span><span class="p">:</span>
+  <span class="k">case</span> <span class="s">"domingo"</span><span class="p">:</span>
+    <span class="fn">console</span><span class="p">.</span><span class="m">log</span>(<span class="s">"🎉 Fim de semana!"</span>)<span class="p">;</span>
+    <span class="k">break</span><span class="p">;</span>
+  <span class="k">default</span><span class="p">:</span>
+    <span class="fn">console</span><span class="p">.</span><span class="m">log</span>(<span class="s">"💼 Dia de semana."</span>)<span class="p">;</span>
+}</pre>
+  </div>
+
+  <div class="note warning reveal">
+    <span class="note-icon">⚠️</span>
+    <div><strong style="color:var(--heading)">Não esqueça o break no switch!</strong> — Sem <code>break</code>, a execução "cai" nos <code>case</code> seguintes automaticamente (fall-through). Geralmente é um bug.</div>
+  </div>
+</section>
+
+<section id="loops">
+  <div class="section-label reveal">Repetição</div>
+  <h2 class="section-title reveal">Laços (Loops)</h2>
+  <p class="section-desc reveal">Laços <strong style="color:var(--heading)">repetem um bloco de código</strong> enquanto uma condição for verdadeira. Sem eles, você teria que repetir o mesmo código.</p>
+
+  <div class="def-grid reveal">
+    <div class="def-card"><div class="def-term">for</div><div class="def-desc">Número de repetições <em>conhecido</em>. Tem inicialização, condição e incremento na mesma linha.</div></div>
+    <div class="def-card green"><div class="def-term">while</div><div class="def-desc">Repete <em>enquanto</em> a condição for verdadeira. Testa <strong>antes</strong> — pode nunca executar.</div></div>
+    <div class="def-card amber"><div class="def-term">do…while</div><div class="def-desc">Executa <strong>ao menos uma vez</strong>, depois testa a condição.</div></div>
+    <div class="def-card purple"><div class="def-term">for…of</div><div class="def-desc">Itera sobre os <strong>valores</strong> de um array ou string diretamente.</div></div>
+    <div class="def-card red"><div class="def-term">break</div><div class="def-desc">Sai do laço imediatamente.</div></div>
+    <div class="def-card"><div class="def-term">continue</div><div class="def-desc">Pula para a próxima iteração sem executar o restante do bloco.</div></div>
+  </div>
+
+  <h3 class="reveal" style="font-family:var(--display);color:var(--heading);font-size:1.2rem;font-weight:800;">Visualizando o for</h3>
+  <div class="loop-vis reveal">
+    <div style="font-family:var(--mono);font-size:.65rem;color:var(--muted);letter-spacing:.1em;text-transform:uppercase;margin-bottom:.5rem;">for (let i = 0; i &lt; 5; i++)</div>
+    <div class="loop-row active"><span class="loop-i">i = 0</span><span class="loop-cond">0 &lt; 5 ✓</span><span style="color:var(--muted);flex:1">→</span><span class="loop-out">executa bloco</span></div>
+    <div class="loop-row active"><span class="loop-i">i = 1</span><span class="loop-cond">1 &lt; 5 ✓</span><span style="color:var(--muted);flex:1">→</span><span class="loop-out">executa bloco</span></div>
+    <div class="loop-row active"><span class="loop-i">i = 2</span><span class="loop-cond">2 &lt; 5 ✓</span><span style="color:var(--muted);flex:1">→</span><span class="loop-out">executa bloco</span></div>
+    <div class="loop-row active"><span class="loop-i">i = 3</span><span class="loop-cond">3 &lt; 5 ✓</span><span style="color:var(--muted);flex:1">→</span><span class="loop-out">executa bloco</span></div>
+    <div class="loop-row active"><span class="loop-i">i = 4</span><span class="loop-cond">4 &lt; 5 ✓</span><span style="color:var(--muted);flex:1">→</span><span class="loop-out">executa bloco</span></div>
+    <div class="loop-row" style="color:var(--red)"><span class="loop-i" style="color:var(--red)">i = 5</span><span style="color:var(--red)">5 &lt; 5 ✗ → PARA</span></div>
+  </div>
+
+  <div class="code-wrap reveal">
+    <div class="code-header">
+      <div class="code-dots"><span></span><span></span><span></span></div>
+      <span class="code-filename">loops.js</span>
+    </div>
+    <pre><span class="c">// ── for clássico ───────────────────────────────</span>
+<span class="k">for</span> (<span class="k">let</span> <span class="v">i</span> <span class="p">=</span> <span class="n">1</span><span class="p">;</span> <span class="v">i</span> <span class="p">&lt;=</span> <span class="n">5</span><span class="p">;</span> <span class="v">i</span><span class="p">++</span>) {
+  <span class="fn">console</span><span class="p">.</span><span class="m">log</span>(<span class="s">`Iteração <span class="p">${</span><span class="v">i</span><span class="p">}</span>`</span>)<span class="p">;</span>
+}
+
+<span class="c">// ── for…of — percorre arrays ───────────────────</span>
+<span class="k">const</span> <span class="v">frutas</span> <span class="p">=</span> [<span class="s">"🍎 Maçã"</span><span class="p">,</span> <span class="s">"🍌 Banana"</span><span class="p">,</span> <span class="s">"🍊 Laranja"</span>]<span class="p">;</span>
+<span class="k">for</span> (<span class="k">const</span> <span class="v">fruta</span> <span class="k">of</span> <span class="v">frutas</span>) {
+  <span class="fn">console</span><span class="p">.</span><span class="m">log</span>(<span class="v">fruta</span>)<span class="p">;</span>
+}
+
+<span class="c">// ── while — condição desconhecida ──────────────</span>
+<span class="k">let</span> <span class="v">tentativas</span> <span class="p">=</span> <span class="n">0</span><span class="p">;</span>
+<span class="k">while</span> (<span class="v">tentativas</span> <span class="p">&lt;</span> <span class="n">3</span>) {
+  <span class="fn">console</span><span class="p">.</span><span class="m">log</span>(<span class="s">"Tentando..."</span>)<span class="p">;</span>
+  <span class="v">tentativas</span><span class="p">++;</span>
+}
+
+<span class="c">// ── continue e break ───────────────────────────</span>
+<span class="k">for</span> (<span class="k">let</span> <span class="v">i</span> <span class="p">=</span> <span class="n">1</span><span class="p">;</span> <span class="v">i</span> <span class="p">&lt;=</span> <span class="n">10</span><span class="p">;</span> <span class="v">i</span><span class="p">++</span>) {
+  <span class="k">if</span> (<span class="v">i</span> <span class="p">%</span> <span class="n">2</span> <span class="p">===</span> <span class="n">0</span>) <span class="k">continue</span><span class="p">;</span>  <span class="c">// pula pares</span>
+  <span class="k">if</span> (<span class="v">i</span> <span class="p">&gt;</span> <span class="n">7</span>) <span class="k">break</span><span class="p">;</span>            <span class="c">// para em 7</span>
+  <span class="fn">console</span><span class="p">.</span><span class="m">log</span>(<span class="v">i</span>)<span class="p">;</span>               <span class="c">// 1 3 5 7</span>
+}</pre>
+  </div>
+</section>
+
+<section id="arrays">
+  <div class="phase-banner reveal"><span class="ph-dot"></span> Trabalhando com Dados</div>
+  <div class="section-label reveal">Coleções</div>
+  <h2 class="section-title reveal">Arrays</h2>
+  <p class="section-desc reveal">Um array é uma <strong style="color:var(--heading)">lista ordenada de valores</strong>. Cada item tem um índice começando em <code>0</code>. Arrays têm métodos poderosos para transformar dados.</p>
+
+  <h3 class="reveal" style="font-family:var(--display);color:var(--heading);font-size:1.1rem;font-weight:800;margin-bottom:.75rem;">Anatomia de um Array</h3>
+  <div class="array-vis reveal">
+    <div class="arr-cell highlight"><div class="arr-val">"Ana"</div><div class="arr-idx">índice 0</div></div>
+    <div class="arr-cell"><div class="arr-val">"Bruno"</div><div class="arr-idx">índice 1</div></div>
+    <div class="arr-cell"><div class="arr-val">"Carlos"</div><div class="arr-idx">índice 2</div></div>
+    <div class="arr-cell"><div class="arr-val">"Diana"</div><div class="arr-idx">índice 3</div></div>
+    <div class="arr-cell"><div class="arr-val">→ .length = 4</div><div class="arr-idx">propriedade</div></div>
+  </div>
+
+  <div class="method-grid reveal">
+    <div class="method-card"><div class="method-name">.push(item)</div><div class="method-desc">Adiciona ao <strong>final</strong>.</div><div class="method-eg">arr.push("novo") → [... "novo"]</div></div>
+    <div class="method-card"><div class="method-name">.pop()</div><div class="method-desc">Remove e retorna o <strong>último</strong>.</div><div class="method-eg">arr.pop() → remove "Diana"</div></div>
+    <div class="method-card"><div class="method-name">.unshift(item)</div><div class="method-desc">Adiciona ao <strong>início</strong>.</div><div class="method-eg">arr.unshift("Zero") → ["Zero", ...]</div></div>
+    <div class="method-card"><div class="method-name">.shift()</div><div class="method-desc">Remove e retorna o <strong>primeiro</strong>.</div><div class="method-eg">arr.shift() → remove "Ana"</div></div>
+    <div class="method-card"><div class="method-name">.indexOf(val)</div><div class="method-desc">Retorna o <strong>índice</strong> ou -1.</div><div class="method-eg">arr.indexOf("Bruno") → 1</div></div>
+    <div class="method-card"><div class="method-name">.includes(val)</div><div class="method-desc">Verifica se o valor <strong>existe</strong>.</div><div class="method-eg">arr.includes("Ana") → true</div></div>
+    <div class="method-card" style="border-color:rgba(34,211,164,.3)"><div class="method-name" style="color:var(--green)">.forEach(fn)</div><div class="method-desc">Executa uma função para <strong>cada item</strong>. Não retorna array.</div><div class="method-eg">arr.forEach(x => console.log(x))</div></div>
+    <div class="method-card" style="border-color:rgba(34,211,164,.3)"><div class="method-name" style="color:var(--green)">.map(fn)</div><div class="method-desc"><strong>Transforma</strong> cada item. Retorna novo array.</div><div class="method-eg">[1,2,3].map(x => x*2) → [2,4,6]</div></div>
+    <div class="method-card" style="border-color:rgba(34,211,164,.3)"><div class="method-name" style="color:var(--green)">.filter(fn)</div><div class="method-desc"><strong>Filtra</strong> itens que passam no teste.</div><div class="method-eg">[1..10].filter(x => x%2===0)</div></div>
+    <div class="method-card" style="border-color:rgba(34,211,164,.3)"><div class="method-name" style="color:var(--green)">.reduce(fn, ini)</div><div class="method-desc"><strong>Acumula</strong> todos os itens em um valor.</div><div class="method-eg">[1,2,3].reduce((a,b)=>a+b, 0) → 6</div></div>
+    <div class="method-card" style="border-color:rgba(245,158,11,.3)"><div class="method-name" style="color:var(--accent3)">.find(fn)</div><div class="method-desc">Retorna o <strong>primeiro</strong> item que passa no teste.</div><div class="method-eg">arr.find(x => x > 5)</div></div>
+    <div class="method-card" style="border-color:rgba(245,158,11,.3)"><div class="method-name" style="color:var(--accent3)">.sort(fn)</div><div class="method-desc"><strong>Ordena</strong> o array (modifica o original!).</div><div class="method-eg">arr.sort((a,b) => a-b)</div></div>
+  </div>
+
+  <div class="code-wrap reveal">
+    <div class="code-header">
+      <div class="code-dots"><span></span><span></span><span></span></div>
+      <span class="code-filename">arrays.js</span>
+    </div>
+    <pre><span class="k">const</span> <span class="v">notas</span> <span class="p">=</span> [<span class="n">7.5</span><span class="p">,</span> <span class="n">4.0</span><span class="p">,</span> <span class="n">9.2</span><span class="p">,</span> <span class="n">6.8</span><span class="p">,</span> <span class="n">3.5</span>]<span class="p">;</span>
+
+<span class="c">// map — transforma cada nota</span>
+<span class="k">const</span> <span class="v">arredondadas</span> <span class="p">=</span> <span class="v">notas</span><span class="p">.</span><span class="m">map</span>(<span class="v">n</span> <span class="p">=&gt;</span> <span class="fn">Math</span><span class="p">.</span><span class="m">round</span>(<span class="v">n</span>))<span class="p">;</span>
+<span class="c">// [8, 4, 9, 7, 4]</span>
+
+<span class="c">// filter — só aprovados</span>
+<span class="k">const</span> <span class="v">aprovados</span> <span class="p">=</span> <span class="v">notas</span><span class="p">.</span><span class="m">filter</span>(<span class="v">n</span> <span class="p">=&gt;</span> <span class="v">n</span> <span class="p">&gt;=</span> <span class="n">7</span>)<span class="p">;</span>
+<span class="c">// [7.5, 9.2]</span>
+
+<span class="c">// reduce — média da turma</span>
+<span class="k">const</span> <span class="v">soma</span> <span class="p">=</span> <span class="v">notas</span><span class="p">.</span><span class="m">reduce</span>((<span class="v">acc</span><span class="p">,</span> <span class="v">n</span>) <span class="p">=&gt;</span> <span class="v">acc</span> <span class="p">+</span> <span class="v">n</span><span class="p">,</span> <span class="n">0</span>)<span class="p">;</span>
+<span class="k">const</span> <span class="v">media</span> <span class="p">=</span> <span class="v">soma</span> <span class="p">/</span> <span class="v">notas</span><span class="p">.</span><span class="v">length</span><span class="p">;</span>
+<span class="fn">console</span><span class="p">.</span><span class="m">log</span>(<span class="s">`Média: <span class="p">${</span><span class="v">media</span><span class="p">.</span><span class="m">toFixed</span>(<span class="n">1</span>)<span class="p">}</span>`</span>)<span class="p">;</span>  <span class="c">// "Média: 6.2"</span>
+
+<span class="c">// Encadeamento — média dos aprovados</span>
+<span class="k">const</span> <span class="v">mediaAprovados</span> <span class="p">=</span> <span class="v">notas</span>
+  <span class="p">.</span><span class="m">filter</span>(<span class="v">n</span> <span class="p">=&gt;</span> <span class="v">n</span> <span class="p">&gt;=</span> <span class="n">7</span>)
+  <span class="p">.</span><span class="m">reduce</span>((<span class="v">a</span><span class="p">,</span> <span class="v">b</span>) <span class="p">=&gt;</span> <span class="v">a</span> <span class="p">+</span> <span class="v">b</span><span class="p">,</span> <span class="n">0</span>) <span class="p">/</span> <span class="v">aprovados</span><span class="p">.</span><span class="v">length</span><span class="p">;</span>
+<span class="fn">console</span><span class="p">.</span><span class="m">log</span>(<span class="v">mediaAprovados</span>)<span class="p">;</span>  <span class="c">// 8.35</span></pre>
+  </div>
+</section>
+
+<section id="objetos">
+  <div class="section-label reveal">Estruturas de Dados</div>
+  <h2 class="section-title reveal">Objetos</h2>
+  <p class="section-desc reveal">Objetos armazenam dados como pares <strong style="color:var(--heading)">chave: valor</strong>. São a base do JavaScript — quase tudo é um objeto.</p>
+
+  <div class="def-grid reveal">
+    <div class="def-card"><div class="def-term">Propriedade</div><div class="def-desc">Par <code>chave: valor</code> dentro de um objeto.</div></div>
+    <div class="def-card green"><div class="def-term">Método</div><div class="def-desc">Função que é <strong>propriedade</strong> de um objeto. Usa <code>this</code> para acessar o próprio objeto.</div></div>
+    <div class="def-card amber"><div class="def-term">Desestruturação</div><div class="def-desc">Extrai propriedades em variáveis: <code>const { nome, idade } = pessoa;</code></div></div>
+    <div class="def-card purple"><div class="def-term">Spread (...)</div><div class="def-desc">Copia ou mescla objetos: <code>const novo = { ...obj1, ...obj2 };</code></div></div>
+    <div class="def-card red"><div class="def-term">this</div><div class="def-desc">Dentro de um método, <code>this</code> aponta para o próprio objeto.</div></div>
+    <div class="def-card"><div class="def-term">Optional chaining (?.) </div><div class="def-desc">Acessa propriedades sem erro se o objeto for null: <code>user?.address?.city</code></div></div>
+  </div>
+
+  <div class="code-wrap reveal">
+    <div class="code-header">
+      <div class="code-dots"><span></span><span></span><span></span></div>
+      <span class="code-filename">objetos.js</span>
+    </div>
+    <pre><span class="c">// ── Criando um objeto ──────────────────────────</span>
+<span class="k">const</span> <span class="v">aluno</span> <span class="p">=</span> {
+  <span class="v">nome</span><span class="p">:</span> <span class="s">"Bruno"</span><span class="p">,</span>
+  <span class="v">idade</span><span class="p">:</span> <span class="n">17</span><span class="p">,</span>
+  <span class="v">notas</span><span class="p">:</span> [<span class="n">8</span><span class="p">,</span> <span class="n">7.5</span><span class="p">,</span> <span class="n">9</span>]<span class="p">,</span>
+  <span class="fn">calcMedia</span>() {
+    <span class="k">const</span> <span class="v">soma</span> <span class="p">=</span> <span class="k">this</span><span class="p">.</span><span class="v">notas</span><span class="p">.</span><span class="m">reduce</span>((<span class="v">a</span><span class="p">,</span> <span class="v">b</span>) <span class="p">=&gt;</span> <span class="v">a</span> <span class="p">+</span> <span class="v">b</span><span class="p">,</span> <span class="n">0</span>)<span class="p">;</span>
+    <span class="k">return</span> <span class="v">soma</span> <span class="p">/</span> <span class="k">this</span><span class="p">.</span><span class="v">notas</span><span class="p">.</span><span class="v">length</span><span class="p">;</span>
+  }
+}<span class="p">;</span>
+
+<span class="fn">console</span><span class="p">.</span><span class="m">log</span>(<span class="v">aluno</span><span class="p">.</span><span class="v">nome</span>)<span class="p">;</span>          <span class="c">// "Bruno"</span>
+<span class="fn">console</span><span class="p">.</span><span class="m">log</span>(<span class="v">aluno</span><span class="p">.</span><span class="fn">calcMedia</span>())<span class="p">;</span>  <span class="c">// 8.17</span>
+
+<span class="c">// ── Desestruturação ────────────────────────────</span>
+<span class="k">const</span> { <span class="v">nome</span><span class="p">,</span> <span class="v">idade</span> } <span class="p">=</span> <span class="v">aluno</span><span class="p">;</span>
+
+<span class="c">// ── Spread — copiar e atualizar ────────────────</span>
+<span class="k">const</span> <span class="v">alunoAtualizado</span> <span class="p">=</span> { <span class="p">...</span><span class="v">aluno</span><span class="p">,</span> <span class="v">idade</span><span class="p">:</span> <span class="n">18</span> }<span class="p">;</span>
+
+<span class="c">// ── Optional chaining ──────────────────────────</span>
+<span class="k">const</span> <span class="v">cidade</span> <span class="p">=</span> <span class="v">aluno</span><span class="p">?.</span><span class="v">endereco</span><span class="p">?.</span><span class="v">cidade</span> <span class="p">??</span> <span class="s">"Não informado"</span><span class="p">;</span>
+<span class="fn">console</span><span class="p">.</span><span class="m">log</span>(<span class="v">cidade</span>)<span class="p">;</span>  <span class="c">// "Não informado"</span>
+
+<span class="c">// ── Array de objetos ───────────────────────────</span>
+<span class="k">const</span> <span class="v">turma</span> <span class="p">=</span> [
+  { <span class="v">nome</span><span class="p">:</span> <span class="s">"Ana"</span><span class="p">,</span> <span class="v">nota</span><span class="p">:</span> <span class="n">9</span> }<span class="p">,</span>
+  { <span class="v">nome</span><span class="p">:</span> <span class="s">"Bruno"</span><span class="p">,</span> <span class="v">nota</span><span class="p">:</span> <span class="n">6</span> }<span class="p">,</span>
+  { <span class="v">nome</span><span class="p">:</span> <span class="s">"Carla"</span><span class="p">,</span> <span class="v">nota</span><span class="p">:</span> <span class="n">8</span> }<span class="p">,</span>
+]<span class="p">;</span>
+<span class="k">const</span> <span class="v">melhores</span> <span class="p">=</span> <span class="v">turma</span><span class="p">.</span><span class="m">filter</span>((<span class="p">{</span> <span class="v">nota</span> <span class="p">}</span>) <span class="p">=&gt;</span> <span class="v">nota</span> <span class="p">&gt;=</span> <span class="n">7</span>)<span class="p">;</span></pre>
+  </div>
+</section>
+
+<section id="funcoes">
+  <div class="section-label reveal">Reutilizando Código</div>
+  <h2 class="section-title reveal">Funções</h2>
+  <p class="section-desc reveal">Funções são <strong style="color:var(--heading)">blocos de código reutilizáveis</strong> com nome. Em JavaScript, funções são "cidadãos de primeira classe" — podem ser guardadas em variáveis, passadas como argumentos e retornadas por outras funções.</p>
+
+  <div class="def-grid reveal">
+    <div class="def-card"><div class="def-term">Declaração</div><div class="def-desc"><code>function nome() {}</code> — sofre hoisting, pode ser chamada antes de ser declarada.</div></div>
+    <div class="def-card green"><div class="def-term">Expressão</div><div class="def-desc"><code>const fn = function() {}</code> — atribuída a uma variável, sem hoisting.</div></div>
+    <div class="def-card amber"><div class="def-term">Arrow Function</div><div class="def-desc"><code>const fn = () => {}</code> — sintaxe curta do ES6. Não tem seu próprio <code>this</code>.</div></div>
+    <div class="def-card purple"><div class="def-term">Callback</div><div class="def-desc">Função passada como <strong>argumento</strong> para outra função e chamada depois.</div></div>
+    <div class="def-card red"><div class="def-term">Parâmetro padrão</div><div class="def-desc"><code>function fn(x = 10) {}</code> — valor usado se o argumento for <code>undefined</code>.</div></div>
+    <div class="def-card"><div class="def-term">return</div><div class="def-desc">Encerra a função e <strong>devolve</strong> um valor. Sem return → retorna <code>undefined</code>.</div></div>
+  </div>
+
+  <div class="code-wrap reveal">
+    <div class="code-header">
+      <div class="code-dots"><span></span><span></span><span></span></div>
+      <span class="code-filename">funcoes.js</span>
+    </div>
+    <pre><span class="c">// ── Declaração de função ───────────────────────</span>
+<span class="k">function</span> <span class="fn">saudar</span>(<span class="v">nome</span><span class="p">,</span> <span class="v">hora</span> <span class="p">=</span> <span class="s">"dia"</span>) {
+  <span class="k">return</span> <span class="s">`Bom <span class="p">${</span><span class="v">hora</span><span class="p">}</span>, <span class="p">${</span><span class="v">nome</span><span class="p">}</span>!`</span><span class="p">;</span>
+}
+<span class="fn">console</span><span class="p">.</span><span class="m">log</span>(<span class="fn">saudar</span>(<span class="s">"Ana"</span>))<span class="p">;</span>          <span class="c">// "Bom dia, Ana!"</span>
+<span class="fn">console</span><span class="p">.</span><span class="m">log</span>(<span class="fn">saudar</span>(<span class="s">"Bruno"</span><span class="p">,</span> <span class="s">"noite"</span>))<span class="p">;</span> <span class="c">// "Boa noite, Bruno!"</span>
+
+<span class="c">// ── Arrow function ─────────────────────────────</span>
+<span class="k">const</span> <span class="fn">dobrar</span> <span class="p">=</span> <span class="v">n</span> <span class="p">=&gt;</span> <span class="v">n</span> <span class="p">*</span> <span class="n">2</span><span class="p">;</span>  <span class="c">// return implícito</span>
+<span class="fn">console</span><span class="p">.</span><span class="m">log</span>(<span class="fn">dobrar</span>(<span class="n">5</span>))<span class="p">;</span>       <span class="c">// 10</span>
+
+<span class="c">// ── Callback ───────────────────────────────────</span>
+<span class="k">const</span> <span class="v">numeros</span> <span class="p">=</span> [<span class="n">3</span><span class="p">,</span> <span class="n">1</span><span class="p">,</span> <span class="n">4</span><span class="p">,</span> <span class="n">1</span><span class="p">,</span> <span class="n">5</span>]<span class="p">;</span>
+<span class="k">const</span> <span class="v">pares</span> <span class="p">=</span> <span class="v">numeros</span><span class="p">.</span><span class="m">filter</span>(<span class="v">n</span> <span class="p">=&gt;</span> <span class="v">n</span> <span class="p">%</span> <span class="n">2</span> <span class="p">===</span> <span class="n">0</span>)<span class="p">;</span>  <span class="c">// arrow como callback</span>
+<span class="k">const</span> <span class="v">dobrados</span> <span class="p">=</span> <span class="v">numeros</span><span class="p">.</span><span class="m">map</span>(<span class="fn">dobrar</span>)<span class="p">;</span>          <span class="c">// função como callback</span>
+
+<span class="c">// ── Funções que retornam funções ───────────────</span>
+<span class="k">function</span> <span class="fn">multiplicador</span>(<span class="v">fator</span>) {
+  <span class="k">return</span> <span class="v">n</span> <span class="p">=&gt;</span> <span class="v">n</span> <span class="p">*</span> <span class="v">fator</span><span class="p">;</span>
+}
+<span class="k">const</span> <span class="fn">triplicar</span> <span class="p">=</span> <span class="fn">multiplicador</span>(<span class="n">3</span>)<span class="p">;</span>
+<span class="fn">console</span><span class="p">.</span><span class="m">log</span>(<span class="fn">triplicar</span>(<span class="n">7</span>))<span class="p">;</span>  <span class="c">// 21</span></pre>
+  </div>
+
+  <div class="note green reveal">
+    <span class="note-icon">🚀</span>
+    <div><strong style="color:var(--heading)">Arrow functions com return implícito:</strong> Quando o corpo da função é uma única expressão, pode-se omitir <code>{}</code> e <code>return</code>: <code>const dobrar = n => n * 2</code> é igual a <code>const dobrar = n => { return n * 2; }</code>.</div>
+  </div>
+</section>
+
+<section id="dom">
+  <div class="phase-banner reveal"><span class="ph-dot"></span> O DOM</div>
+  <div class="section-label reveal">Manipulando a Página</div>
+  <h2 class="section-title reveal">DOM — Document Object Model</h2>
+  <p class="section-desc reveal">O DOM é a <strong style="color:var(--heading)">representação da página HTML como objetos JS</strong>. Com ele você seleciona elementos, muda conteúdo, adiciona classes, cria novos elementos e responde a eventos do usuário.</p>
+
+  <div class="def-grid reveal">
+    <div class="def-card"><div class="def-term">querySelector</div><div class="def-desc">Seleciona o <strong>primeiro</strong> elemento que bate com o seletor CSS.</div></div>
+    <div class="def-card green"><div class="def-term">querySelectorAll</div><div class="def-desc">Retorna <strong>todos</strong> os elementos como NodeList.</div></div>
+    <div class="def-card amber"><div class="def-term">innerHTML / textContent</div><div class="def-desc"><code>innerHTML</code> — HTML dentro do elemento. <code>textContent</code> — só texto, mais seguro.</div></div>
+    <div class="def-card purple"><div class="def-term">classList</div><div class="def-desc">Manipula classes: <code>.add()</code>, <code>.remove()</code>, <code>.toggle()</code>, <code>.contains()</code>.</div></div>
+    <div class="def-card red"><div class="def-term">addEventListener</div><div class="def-desc">Registra uma função para ser chamada quando um evento ocorre.</div></div>
+    <div class="def-card"><div class="def-term">createElement</div><div class="def-desc">Cria um novo elemento HTML: <code>document.createElement("div")</code>.</div></div>
+  </div>
+
+  <div class="code-wrap reveal">
+    <div class="code-header">
+      <div class="code-dots"><span></span><span></span><span></span></div>
+      <span class="code-filename">dom.js</span>
+    </div>
+    <pre><span class="c">// ── Selecionar elementos ───────────────────────</span>
+<span class="k">const</span> <span class="v">titulo</span> <span class="p">=</span> <span class="fn">document</span><span class="p">.</span><span class="m">querySelector</span>(<span class="s">"h1"</span>)<span class="p">;</span>
+<span class="k">const</span> <span class="v">botao</span>  <span class="p">=</span> <span class="fn">document</span><span class="p">.</span><span class="m">querySelector</span>(<span class="s">"#meu-btn"</span>)<span class="p">;</span>
+<span class="k">const</span> <span class="v">itens</span>  <span class="p">=</span> <span class="fn">document</span><span class="p">.</span><span class="m">querySelectorAll</span>(<span class="s">".item"</span>)<span class="p">;</span>
+
+<span class="c">// ── Alterar conteúdo ───────────────────────────</span>
+<span class="v">titulo</span><span class="p">.</span><span class="v">textContent</span> <span class="p">=</span> <span class="s">"Novo título!"</span><span class="p">;</span>
+<span class="v">titulo</span><span class="p">.</span><span class="v">style</span><span class="p">.</span><span class="v">color</span> <span class="p">=</span> <span class="s">"#f7df1e"</span><span class="p">;</span>
+
+<span class="c">// ── Classes ────────────────────────────────────</span>
+<span class="v">titulo</span><span class="p">.</span><span class="v">classList</span><span class="p">.</span><span class="m">add</span>(<span class="s">"destaque"</span>)<span class="p">;</span>
+<span class="v">titulo</span><span class="p">.</span><span class="v">classList</span><span class="p">.</span><span class="m">toggle</span>(<span class="s">"visivel"</span>)<span class="p">;</span>
+
+<span class="c">// ── Eventos ────────────────────────────────────</span>
+<span class="v">botao</span><span class="p">.</span><span class="m">addEventListener</span>(<span class="s">"click"</span><span class="p">,</span> () <span class="p">=&gt;</span> {
+  <span class="v">titulo</span><span class="p">.</span><span class="v">textContent</span> <span class="p">=</span> <span class="s">"Clicou!"</span><span class="p">;</span>
+})<span class="p">;</span>
+
+<span class="c">// ── Criar elemento dinamicamente ───────────────</span>
+<span class="k">function</span> <span class="fn">criarItem</span>(<span class="v">texto</span>) {
+  <span class="k">const</span> <span class="v">li</span> <span class="p">=</span> <span class="fn">document</span><span class="p">.</span><span class="m">createElement</span>(<span class="s">"li"</span>)<span class="p">;</span>
+  <span class="v">li</span><span class="p">.</span><span class="v">textContent</span> <span class="p">=</span> <span class="v">texto</span><span class="p">;</span>
+  <span class="v">li</span><span class="p">.</span><span class="v">classList</span><span class="p">.</span><span class="m">add</span>(<span class="s">"item"</span>)<span class="p">;</span>
+  <span class="fn">document</span><span class="p">.</span><span class="m">querySelector</span>(<span class="s">"#lista"</span>)<span class="p">.</span><span class="m">appendChild</span>(<span class="v">li</span>)<span class="p">;</span>
+}
+
+<span class="c">// ── Event delegation ───────────────────────────</span>
+<span class="fn">document</span><span class="p">.</span><span class="m">querySelector</span>(<span class="s">"#lista"</span>)<span class="p">.</span><span class="m">addEventListener</span>(<span class="s">"click"</span><span class="p">,</span> (<span class="v">e</span>) <span class="p">=&gt;</span> {
+  <span class="k">if</span> (<span class="v">e</span><span class="p">.</span><span class="v">target</span><span class="p">.</span><span class="v">classList</span><span class="p">.</span><span class="m">contains</span>(<span class="s">"item"</span>)) {
+    <span class="v">e</span><span class="p">.</span><span class="v">target</span><span class="p">.</span><span class="v">classList</span><span class="p">.</span><span class="m">toggle</span>(<span class="s">"concluido"</span>)<span class="p">;</span>
+  }
+})<span class="p">;</span></pre>
+  </div>
+
+  <div class="note info reveal">
+    <span class="note-icon">💡</span>
+    <div><strong style="color:var(--heading)">Eventos comuns:</strong> <code>click</code>, <code>input</code>, <code>submit</code>, <code>keydown</code>, <code>keyup</code>, <code>mouseover</code>, <code>change</code>, <code>DOMContentLoaded</code>. Use <code>e.preventDefault()</code> para cancelar o comportamento padrão (ex: evitar recarregar a página no submit de um form).</div>
+  </div>
+</section>
+
+<section id="async">
+  <div class="phase-banner reveal"><span class="ph-dot"></span> Async &amp; APIs</div>
+  <div class="section-label reveal">Código Assíncrono</div>
+  <h2 class="section-title reveal">Async, Promises &amp; Fetch</h2>
+  <p class="section-desc reveal">JavaScript executa de forma <strong style="color:var(--heading)">não-bloqueante</strong>: operações lentas (rede, timer) acontecem "em paralelo". Promises e async/await são a forma moderna de lidar com isso.</p>
+
+  <div class="def-grid reveal">
+    <div class="def-card"><div class="def-term">setTimeout</div><div class="def-desc">Executa uma função <strong>após</strong> X milissegundos. Base dos callbacks assíncronos.</div></div>
+    <div class="def-card green"><div class="def-term">Promise</div><div class="def-desc">Representa um valor que estará disponível <strong>no futuro</strong>. Pode ser <code>pending</code>, <code>resolved</code> ou <code>rejected</code>.</div></div>
+    <div class="def-card amber"><div class="def-term">.then() / .catch()</div><div class="def-desc">Encadeia ações após a Promise resolver (<code>then</code>) ou falhar (<code>catch</code>).</div></div>
+    <div class="def-card purple"><div class="def-term">async / await</div><div class="def-desc">Sintaxe que faz código assíncrono <strong>parecer síncrono</strong>. Mais legível que <code>.then()</code>.</div></div>
+    <div class="def-card red"><div class="def-term">fetch()</div><div class="def-desc">API nativa para fazer <strong>requisições HTTP</strong>. Retorna uma Promise.</div></div>
+    <div class="def-card"><div class="def-term">try / catch</div><div class="def-desc">Captura erros em código <code>async</code>. Sempre use com <code>await fetch()</code>.</div></div>
+  </div>
+
+  <h3 class="reveal" style="font-family:var(--display);color:var(--heading);font-size:1.2rem;font-weight:800;margin-bottom:.75rem;">Como uma Promise funciona</h3>
+  <div class="promise-chain reveal">
+    <div class="prom-step then">
+      <div class="prom-kw thn">new Promise()</div>
+      <div class="prom-desc">Cria a promessa. Recebe uma função com <code>resolve</code> e <code>reject</code>. O estado inicial é <em>pending</em>.</div>
+    </div>
+    <div class="prom-step resolve">
+      <div class="prom-kw res">resolve("dados")</div>
+      <div class="prom-desc">Sucesso! O valor passado vai para o próximo <code>.then()</code>.</div>
+    </div>
+    <div class="prom-step reject">
+      <div class="prom-kw rej">reject(new Error())</div>
+      <div class="prom-desc">Falha! O erro é capturado pelo <code>.catch()</code>.</div>
+    </div>
+    <div class="prom-step then">
+      <div class="prom-kw thn">.then(dados => ...)</div>
+      <div class="prom-desc">Processa o resultado. Pode retornar outro valor ou outra Promise (encadeamento).</div>
+    </div>
+    <div class="prom-step then">
+      <div class="prom-kw cat">.catch(err => ...)</div>
+      <div class="prom-desc">Captura qualquer erro de qualquer <code>.then()</code> anterior na cadeia.</div>
+    </div>
+  </div>
+
+  <div class="code-wrap reveal">
+    <div class="code-header">
+      <div class="code-dots"><span></span><span></span><span></span></div>
+      <span class="code-filename">async.js</span>
+    </div>
+    <pre><span class="c">// ── async / await + fetch ──────────────────────</span>
+<span class="k">async function</span> <span class="fn">buscarPais</span>(<span class="v">nome</span>) {
+  <span class="k">try</span> {
+    <span class="k">const</span> <span class="v">resposta</span> <span class="p">=</span> <span class="k">await</span> <span class="fn">fetch</span>(
+      <span class="s">`https://restcountries.com/v3.1/name/<span class="p">${</span><span class="v">nome</span><span class="p">}</span>`</span>
+    )<span class="p">;</span>
+
+    <span class="k">if</span> (<span class="p">!</span><span class="v">resposta</span><span class="p">.</span><span class="v">ok</span>) {
+      <span class="k">throw new</span> <span class="fn">Error</span>(<span class="s">`Erro HTTP: <span class="p">${</span><span class="v">resposta</span><span class="p">.</span><span class="v">status</span><span class="p">}</span>`</span>)<span class="p">;</span>
+    }
+
+    <span class="k">const</span> [<span class="v">pais</span>] <span class="p">=</span> <span class="k">await</span> <span class="v">resposta</span><span class="p">.</span><span class="m">json</span>()<span class="p">;</span>  <span class="c">// desestrutura array</span>
+
+    <span class="fn">console</span><span class="p">.</span><span class="m">log</span>(<span class="v">pais</span><span class="p">.</span><span class="v">name</span><span class="p">.</span><span class="v">common</span>)<span class="p">;</span>       <span class="c">// "Brazil"</span>
+    <span class="fn">console</span><span class="p">.</span><span class="m">log</span>(<span class="v">pais</span><span class="p">.</span><span class="v">capital</span>[<span class="n">0</span>])<span class="p">;</span>         <span class="c">// "Brasília"</span>
+    <span class="fn">console</span><span class="p">.</span><span class="m">log</span>(<span class="v">pais</span><span class="p">.</span><span class="v">population</span><span class="p">.</span><span class="m">toLocaleString</span>()<span class="p">);</span>
+
+  } <span class="k">catch</span> (<span class="v">erro</span>) {
+    <span class="fn">console</span><span class="p">.</span><span class="m">error</span>(<span class="s">"Deu ruim:"</span><span class="p">,</span> <span class="v">erro</span><span class="p">.</span><span class="v">message</span>)<span class="p">;</span>
+  } <span class="k">finally</span> {
+    <span class="fn">console</span><span class="p">.</span><span class="m">log</span>(<span class="s">"Busca concluída."</span>)<span class="p">;</span>  <span class="c">// sempre executa</span>
+  }
+}
+
+<span class="fn">buscarPais</span>(<span class="s">"brazil"</span>)<span class="p">;</span>
+
+<span class="c">// ── Timer assíncrono ───────────────────────────</span>
+<span class="k">function</span> <span class="fn">esperar</span>(<span class="v">ms</span>) {
+  <span class="k">return new</span> <span class="fn">Promise</span>(<span class="v">resolve</span> <span class="p">=&gt;</span> <span class="fn">setTimeout</span>(<span class="v">resolve</span><span class="p">,</span> <span class="v">ms</span>))<span class="p">;</span>
+}
+
+<span class="k">async function</span> <span class="fn">contagem</span>() {
+  <span class="fn">console</span><span class="p">.</span><span class="m">log</span>(<span class="s">"3..."</span>)<span class="p">;</span>
+  <span class="k">await</span> <span class="fn">esperar</span>(<span class="n">1000</span>)<span class="p">;</span>
+  <span class="fn">console</span><span class="p">.</span><span class="m">log</span>(<span class="s">"2..."</span>)<span class="p">;</span>
+  <span class="k">await</span> <span class="fn">esperar</span>(<span class="n">1000</span>)<span class="p">;</span>
+  <span class="fn">console</span><span class="p">.</span><span class="m">log</span>(<span class="s">"🚀 Lançar!"</span>)<span class="p">;</span>
+}
+<span class="fn">contagem</span>()<span class="p">;</span></pre>
+  </div>
+
+  <div class="note info reveal">
+    <span class="note-icon">💡</span>
+    <div><strong style="color:var(--heading)">localStorage:</strong> Para salvar dados no navegador sem banco de dados use <code>localStorage.setItem("chave", JSON.stringify(valor))</code> e <code>JSON.parse(localStorage.getItem("chave"))</code> para recuperar. Os dados persistem mesmo após fechar o navegador.</div>
+  </div>
+</section>
+
+<section id="exercicios">
+  <div class="phase-banner reveal"><span class="ph-dot"></span> Pratique</div>
+  <div class="section-label reveal">Desafios</div>
+  <h2 class="section-title reveal">Exercícios Práticos</h2>
+  <p class="section-desc reveal">A melhor forma de aprender é <strong style="color:var(--heading)">codar</strong>. Cada exercício reforça os conceitos de uma fase. Tente antes de ver a dica!</p>
+
+  <!-- EX 01 -->
+  <div class="exercise reveal">
+    <div class="exercise-header">
+      <span class="exercise-num">EX 01</span>
+      <span class="exercise-title">Calculadora com Switch</span>
+    </div>
+    <ul>
+      <li>Leia dois números e um operador (<code>+</code>, <code>-</code>, <code>*</code>, <code>/</code>) com <code>prompt()</code>.</li>
+      <li>Use <code>switch</code> para calcular e exibir o resultado com <code>alert()</code>.</li>
+      <li>Trate a divisão por zero com uma mensagem de erro.</li>
+      <li>Use <code>Number()</code> para converter a string do prompt para número.</li>
+    </ul>
+    <div class="tip">💡 Dica: <code>const n1 = Number(prompt("Primeiro número:"));</code> — o prompt sempre retorna string, converta antes de calcular.</div>
+  </div>
+
+  <!-- EX 02 -->
+  <div class="exercise reveal" style="border-color:rgba(34,211,164,.2)">
+    <div class="exercise-header">
+      <span class="exercise-num" style="background:var(--green);color:#000">EX 02</span>
+      <span class="exercise-title">Analisador de Turma</span>
+    </div>
+    <ul>
+      <li>Crie um array de objetos com <code>{ nome, nota }</code> para pelo menos 5 alunos.</li>
+      <li>Use <code>.filter()</code> para separar aprovados (nota ≥ 7) de reprovados.</li>
+      <li>Use <code>.map()</code> para criar um array só com os nomes dos aprovados.</li>
+      <li>Use <code>.reduce()</code> para calcular a média geral da turma.</li>
+      <li>Mostre tudo no console com <code>console.log()</code>.</li>
+    </ul>
+    <div class="tip" style="border-color:var(--green);color:var(--green)">💡 Dica: <code>const media = notas.reduce((a, b) => a + b, 0) / notas.length</code> — o segundo argumento do reduce é o valor inicial do acumulador.</div>
+  </div>
+
+  <!-- EX 03 -->
+  <div class="exercise reveal" style="border-color:rgba(245,158,11,.2)">
+    <div class="exercise-header">
+      <span class="exercise-num" style="background:var(--accent3);color:#000">EX 03</span>
+      <span class="exercise-title">Lista de Tarefas (DOM)</span>
+    </div>
+    <ul>
+      <li>Crie um HTML com um <code>&lt;input&gt;</code>, um <code>&lt;button&gt;</code> e uma <code>&lt;ul&gt;</code>.</li>
+      <li>Ao clicar no botão, crie um <code>&lt;li&gt;</code> com o texto do input usando <code>createElement</code>.</li>
+      <li>Adicione um botão "✕" em cada item para removê-lo da lista.</li>
+      <li>Ao clicar no item, adicione a classe <code>concluido</code> (riscado com CSS).</li>
+    </ul>
+    <div class="tip" style="border-color:var(--accent3);color:var(--accent3)">💡 Dica: crie o botão de deletar dentro da função <code>criarItem(texto)</code> e use <code>li.remove()</code> no click do botão.</div>
+  </div>
+
+  <!-- EX 04 -->
+  <div class="exercise reveal" style="border-color:rgba(124,58,237,.2)">
+    <div class="exercise-header">
+      <span class="exercise-num" style="background:var(--accent2)">EX 04</span>
+      <span class="exercise-title">Buscador de Países</span>
+    </div>
+    <ul>
+      <li>Crie um input de texto e um botão "Buscar" no HTML.</li>
+      <li>Ao clicar, use <code>fetch</code> + <code>async/await</code> para buscar de <code>restcountries.com/v3.1/name/NOME</code>.</li>
+      <li>Exiba na página: nome do país, capital, população e bandeira (<code>country.flags.png</code>).</li>
+      <li>Mostre mensagem de erro se o país não for encontrado.</li>
+    </ul>
+    <div class="tip" style="border-color:var(--accent2);color:#c792ea">💡 Dica: a API retorna um array, use desestruturação: <code>const [pais] = await res.json();</code>. Verifique <code>res.ok</code> antes do <code>.json()</code>.</div>
+  </div>
+
+  <!-- EX 05 -->
+  <div class="exercise reveal" style="border-color:rgba(248,113,113,.2)">
+    <div class="exercise-header">
+      <span class="exercise-num" style="background:var(--red)">EX 05</span>
+      <span class="exercise-title">Jogo: Adivinhe o Número</span>
+    </div>
+    <ul>
+      <li>Gere um número secreto entre 1 e 100 com <code>Math.floor(Math.random() * 100) + 1</code>.</li>
+      <li>O usuário digita palpites em um input. A cada tentativa, diga "Maior" ou "Menor".</li>
+      <li>Mostre quantas tentativas foram necessárias quando acertar.</li>
+      <li>Adicione um botão "Novo Jogo" que reinicia sem recarregar a página.</li>
+    </ul>
+    <div class="tip" style="border-color:var(--red);color:var(--red)">💡 Dica: guarde o número secreto e o contador em variáveis no escopo do módulo. Use <code>let</code> para poder reassignar ao reiniciar.</div>
+  </div>
+
+  <!-- EX 06 BÔNUS -->
+  <div class="exercise reveal" style="border-color:rgba(247,223,30,.3);background:linear-gradient(135deg, rgba(247,223,30,.04), rgba(124,58,237,.06))">
+    <div class="exercise-header">
+      <span class="exercise-num" style="background:var(--accent);color:#000">BÔNUS</span>
+      <span class="exercise-title">Notas com localStorage</span>
+    </div>
+    <ul>
+      <li>Crie um app de bloco de notas: input de título, textarea para o conteúdo, botão "Salvar".</li>
+      <li>Salve as notas em <code>localStorage</code> como array de objetos <code>{ id, titulo, texto, data }</code>.</li>
+      <li>Ao carregar a página, recupere e renderize as notas salvas.</li>
+      <li>Adicione botão de excluir em cada nota (remove do array e atualiza localStorage).</li>
+    </ul>
+    <div class="tip">💡 Dica: use <code>Date.now()</code> como ID único. Sempre salve o array inteiro: <code>localStorage.setItem("notas", JSON.stringify(notas))</code>.</div>
+  </div>
+</section>
+
+
+<!-- FOOTER -->
+<footer>
+  <div>Feito para os alunos do Mesquita por <span>Fernando Sturzbecher</span> e IA.</div>
+  <div style="margin-top:.5rem;color:#2e3450">Guia Visual JavaScript Básico • 2025</div>
+</footer>
+
+<script>
+  // ── Scroll Reveal ──
+  const reveals = document.querySelectorAll('.reveal');
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.07, rootMargin: '0px 0px -40px 0px' });
+  reveals.forEach(el => observer.observe(el));
+
+  // ── Nav active highlight ──
+  const sections = document.querySelectorAll('section[id]');
+  const navLinks = document.querySelectorAll('nav a');
+  window.addEventListener('scroll', () => {
+    let current = '';
+    sections.forEach(section => {
+      if (window.scrollY >= section.offsetTop - 80) {
+        current = section.getAttribute('id');
+      }
+    });
+    navLinks.forEach(a => {
+      const isActive = a.getAttribute('href') === '#' + current;
+      a.style.color = isActive ? 'var(--heading)' : '';
+      a.style.borderColor = isActive ? 'var(--accent)' : 'transparent';
+    });
+  });
+</script>
+</body>
+</html>

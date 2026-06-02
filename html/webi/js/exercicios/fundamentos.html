@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>JS Lab — Fundamentos</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0d0d0d;
+      --surface: #161616;
+      --card: #1e1e1e;
+      --border: #2e2e2e;
+      --accent: #f5c542;
+      --accent2: #ff6b35;
+      --text: #f0f0f0;
+      --muted: #888;
+      --green: #4ade80;
+      --red: #f87171;
+    }
+
+    body {
+      font-family: 'Times New Roman', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    /* ── Header ── */
+    header {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 1rem 2rem;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+    .phase-badge {
+      background: var(--accent);
+      color: #000;
+      font-size: .65rem;
+      font-weight: 600;
+      padding: .25rem .65rem;
+      border-radius: 4px;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+    }
+    header h1 { font-size: 1.1rem; font-weight: 600; }
+    header p { font-size: .8rem; color: var(--muted); margin-left: auto; font-family: 'DM Mono', monospace; }
+
+    /* ── Layout ── */
+
+    .desafios {
+      padding: 2rem;
+      display: flex;
+      flex-direction: row;
+      gap: 1.5rem;
+      border-right: 1px solid var(--border);
+    }
+
+    .section-title {
+      font-size: .65rem;
+      letter-spacing: .15em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: .25rem;
+    }
+
+    /* ── Cards de Desafio ── */
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      transition: border-color .2s;
+    }
+    .card:hover { border-color: var(--accent); }
+
+    .card-header {
+      display: flex;
+      align-items: center;
+      gap: .75rem;
+      padding: .9rem 1.1rem;
+      border-bottom: 1px solid var(--border);
+      background: rgba(255,255,255,.02);
+    }
+    .card-num {
+      width: 28px; height: 28px;
+      background: var(--accent);
+      color: #000;
+      border-radius: 6px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: .8rem; font-weight: 600;
+      flex-shrink: 0;
+    }
+    .card-title { font-size: .95rem; font-weight: 600; }
+    .card-tag {
+      margin-left: auto;
+      font-size: .65rem;
+      font-family: 'DM Mono', monospace;
+      color: var(--accent);
+      background: rgba(245,197,66,.1);
+      padding: .2rem .5rem;
+      border-radius: 4px;
+    }
+
+    .card-body { padding: 1.1rem; }
+    .card-body p { font-size: .85rem; color: var(--muted); line-height: 1.6; margin-bottom: .8rem; }
+    .hint {
+      font-family: 'DM Mono', monospace;
+      font-size: .75rem;
+      background: rgba(255,255,255,.04);
+      border-left: 3px solid var(--accent2);
+      padding: .5rem .75rem;
+      border-radius: 0 6px 6px 0;
+      color: #ccc;
+      margin-bottom: .75rem;
+    }
+    .hint span { color: var(--accent2); }
+
+    /* ── 1: Cartão de visitas ── */
+    #info-card {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      background: linear-gradient(135deg, #1a1a2e, #16213e);
+      border: 1px solid #2a2a4e;
+      border-radius: 10px;
+      padding: 1rem 1.25rem;
+    }
+    .avatar {
+      width: 52px; height: 52px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.4rem;
+      flex-shrink: 0;
+    }
+    .info-details { flex: 1; }
+    .info-name { font-size: 1rem; font-weight: 600; color: var(--text); }
+    .info-meta { font-size: .8rem; color: var(--muted); margin-top: .2rem; }
+    .info-badge {
+      font-size: .7rem;
+      background: rgba(74,222,128,.15);
+      color: var(--green);
+      border: 1px solid rgba(74,222,128,.3);
+      padding: .2rem .6rem;
+      border-radius: 20px;
+    }
+
+    /* ── 2: Grade gaudéria ── */
+    .bah-grid {
+      display: grid;
+      grid-template-columns: repeat(10, 1fr);
+      gap: 4px;
+    }
+    .fz-cell {
+      aspect-ratio: 1;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: .6rem;
+      font-weight: 600;
+      font-family: 'DM Mono', monospace;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--muted);
+    }
+    .fz-cell.massa { background: rgba(99,102,241,.2); color: #a5b4fc; border-color: rgba(99,102,241,.4); }
+    .fz-cell.tri { background: rgba(245,197,66,.15); color: var(--accent); border-color: rgba(245,197,66,.3); }
+    .fz-cell.bah { background: rgba(255,107,53,.2); color: #fca5a5; border-color: rgba(255,107,53,.4); }
+
+    /* ── 3: Calculadora ── */
+    .gorjeta-form { display: flex; flex-direction: column; gap: .75rem; }
+    .field label { display: block; font-size: .7rem; color: var(--muted); margin-bottom: .3rem; letter-spacing: .05em; text-transform: uppercase; }
+    .field input {
+      width: 100%;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--text);
+      font-family: 'DM Mono', monospace;
+      font-size: .95rem;
+      padding: .5rem .75rem;
+      border-radius: 8px;
+      outline: none;
+      transition: border-color .2s;
+    }
+    .field input:focus { border-color: var(--accent); }
+    .gorjeta-btns { display: flex; gap: .4rem; }
+    .gorjeta-btn {
+      flex: 1;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--text);
+      font-family: 'Times New Roman', sans-serif;
+      font-size: .8rem;
+      font-weight: 600;
+      padding: .4rem;
+      border-radius: 7px;
+      cursor: pointer;
+      transition: background .15s;
+    }
+    .gorjeta-btn.active, .gorjeta-btn:hover { background: var(--accent); color: #000; border-color: var(--accent); }
+    .gorjeta-result {
+      background: linear-gradient(135deg, rgba(245,197,66,.1), rgba(255,107,53,.1));
+      border: 1px solid rgba(245,197,66,.2);
+      border-radius: 10px;
+      padding: .75rem 1rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .gorjeta-result .label { font-size: .7rem; color: var(--muted); }
+    .gorjeta-result .amount { font-size: 1.2rem; font-weight: 600; color: var(--accent); font-family: 'DM Mono', monospace; }
+
+    /* ── Challenge 4: Quiz Counter ── */
+    .quiz-wrap { display: flex; flex-direction: column; gap: .75rem; }
+    .quiz-question {
+      background: rgba(255,255,255,.03);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1rem;
+    }
+    .quiz-q { font-size: .9rem; font-weight: 600; margin-bottom: .75rem; }
+    .quiz-options { display: flex; flex-direction: column; gap: .4rem; }
+    .quiz-opt {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--text);
+      font-family: 'Times New Roman', sans-serif;
+      font-size: .8rem;
+      padding: .5rem .75rem;
+      border-radius: 8px;
+      cursor: pointer;
+      text-align: left;
+      transition: all .15s;
+    }
+    .quiz-opt:hover { border-color: var(--accent); color: var(--accent); }
+    .quiz-opt.correct { background: rgba(74,222,128,.15); border-color: var(--green); color: var(--green); }
+    .quiz-opt.wrong { background: rgba(248,113,113,.15); border-color: var(--red); color: var(--red); }
+    .score-bar {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: .75rem 1rem;
+    }
+    .score-num { font-size: 1.5rem; font-weight: 600; color: var(--accent); font-family: 'DM Mono', monospace; }
+    .score-label { font-size: .75rem; color: var(--muted); }
+    .score-track { flex: 1; height: 6px; background: var(--border); border-radius: 3px; }
+    .score-fill { height: 100%; background: var(--accent); border-radius: 3px; width: 0%; transition: width .4s; }
+
+  </style>
+</head>
+<body>
+
+<header>
+  <span class="phase-badge">Parte 1</span>
+  <h1>Fundamentos de JavaScript</h1>
+  <p>variáveis · operadores · controle · funções</p>
+</header>
+
+<div class="workspace">
+
+  <div class="desafios">
+
+    <!-- 1. Personal Info Card -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-num">1</div>
+        <div class="card-title">Cartão de Visita</div>
+        <span class="card-tag">variáveis & tipos</span>
+      </div>
+      <div class="card-body">
+        <p>Declare variáveis para nome, idade, cidade e emoji. Atualize o cartão abaixo usando <code>textContent</code> ou <code>innerHTML</code>.</p>
+        <div class="hint"><span>// Seu JS aqui</span><br>let name = "...";<br>let age = 0;<br>let city = "...";</div>
+        <div id="info-card">
+          <div class="avatar" id="info-emoji">🧑</div>
+          <div class="info-details">
+            <div class="info-name" id="info-name">Seu Nome</div>
+            <div class="info-meta" id="info-meta">Idade - Cidade</div>
+          </div>
+          <span class="info-badge">Student</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2. bah -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-num">2</div>
+        <div class="card-title">Grade gaudéria</div>
+        <span class="card-tag">controle · loops</span>
+      </div>
+      <div class="card-body">
+        <p>Use um loop <code>for</code> de 1–50. Adicione a classe CSS (<code>tri</code>, <code>massa</code>, ou <code>bah</code>) e texto pra cada célula.<br>
+		Múltiplos de 3 são Tri, múltiplos de 4 são Massa e múltiplos de ambos são Bah</p>
+        <div class="hint"><span>// Loop e cheque com if/else</span><br>// % (modulo) ajuda aqui</div>
+        <div class="bah-grid" id="bah-grid">
+          <!-- 100 cells — populate with JS -->
+          <div class="fz-cell">1</div>
+          <div class="fz-cell">2</div>
+          <div class="fz-cell tri">Tri</div>
+          <div class="fz-cell massa">Massa</div>
+          <div class="fz-cell">5</div>
+          <div class="fz-cell">6</div>
+          <div class="fz-cell">7</div>
+          <div class="fz-cell">8</div>
+          <div class="fz-cell tri">9</div>
+          <div class="fz-cell">10</div>
+          <!-- Popular classes e texto até 50 -->
+          <div class="fz-cell" style="opacity:.3">…</div>
+          <div class="fz-cell" style="opacity:.3">…</div>
+          <div class="fz-cell" style="opacity:.3">…</div>
+          <div class="fz-cell" style="opacity:.3">…</div>
+          <div class="fz-cell" style="opacity:.3">…</div>
+          <div class="fz-cell" style="opacity:.3">…</div>
+          <div class="fz-cell" style="opacity:.3">…</div>
+          <div class="fz-cell" style="opacity:.3">…</div>
+          <div class="fz-cell" style="opacity:.3">…</div>
+          <div class="fz-cell" style="opacity:.3">…</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 3. Calculadora de gorjeta -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-num">3</div>
+        <div class="card-title">Calculadora de Gorjeta</div>
+        <span class="card-tag">funções</span>
+      </div>
+      <div class="card-body">
+        <p>Escreva uma função <code>calcularGorjeta(conta, porcentagem, qtdPessoas)</code> que retorna o valor por pessoa. Chame ela quando o valor for alterado ou a porcentagem.</p>
+        <div class="hint"><span>function calcularGorjeta(conta, porcentagem, qtdPessoas) {</span><br>&nbsp;&nbsp;// retorne o total por pessoa<br>}</div>
+        <div class="gorjeta-form">
+          <div class="field">
+            <label>Total da Conta ($)</label>
+            <input type="number" id="gorjeta-conta" placeholder="0.00" value="85"/>
+          </div>
+          <div class="field">
+            <label>Gorjeta (%)</label>
+            <div class="gorjeta-btns">
+              <button class="gorjeta-btn active" data-tip="10">10%</button>
+              <button class="gorjeta-btn" data-tip="15">15%</button>
+              <button class="gorjeta-btn" data-tip="20">20%</button>
+              <button class="gorjeta-btn" data-tip="25">25%</button>
+            </div>
+          </div>
+          <div class="field">
+            <label>Dividido entre</label>
+            <input type="number" id="gorjeta-people" placeholder="1" value="3" min="1"/>
+          </div>
+          <div class="gorjeta-result">
+            <div>
+              <div class="label">Cada pessoa paga</div>
+              <div class="amount" id="gorjeta-amount">R$ 0.00</div>
+            </div>
+            <div style="text-align:right">
+              <div class="label">Total com gorjeta</div>
+              <div class="amount" id="gorjeta-total" style="font-size:.9rem; color: var(--muted)">R$ 0.00</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /desafios -->
+
+
+</div><!-- /workspace -->
+
+<script>
+
+  document.querySelectorAll('.gorjeta-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.gorjeta-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      // Adicione o cálculo aqui
+    });
+  });
+</script>
+
+</body>
+</html>
