@@ -24,28 +24,46 @@ class Header extends HTMLElement {
 				  VisualG
 				</a>
 			  </li>
-			  <li hidden>
+			  <li class="nav-item progmodi" hidden>
+				<a href="/xall/html/progmodi/c.html" class="nav-link text-white">
+				  <i class="bi me-5" width="16" height="16"></i>
+				  C
+				</a>
+			  </li>
+			  <li class="nav-item" hidden>
 				<a href="/xall/html/devmob/home.html" id="devmob" class="nav-link text-white">
 				  <i class="bi me-2 bi-phone" width="16" height="16"></i>
 				  Desenvolvimento Mobile
 				</a>
 			  </li>
-			  <li hidden>
+			  <li class="nav-item" hidden>
 				<a href="/xall/html/engsoft/home.html" id="engsoft" class="nav-link text-white">
 				  <i class="bi me-2 bi-pencil" width="16" height="16"></i>
 				  Engenharia de Software
 				</a>
 			  </li>
-			  <li hidden>
+			  <li class="nav-item">
 				<a href="/xall/html/webi/home.html" id="webi" class="nav-link text-white">
 				  <i class="bi me-2 bi-at" width="16" height="16"></i>
 				  Web I
 				</a>
 			  </li>
-			  <li hidden>
+			  <li class="nav-item webi" hidden>
+				<a href="/xall/html/webi/js.html" class="nav-link text-white">
+				  <i class="bi me-5" width="16" height="16"></i>
+				  Básico
+				</a>
+			  </li>
+			  <li class="nav-item">
 				<a href="/xall/html/webii/home.html" id="webii" class="nav-link text-white">
 				  <i class="bi me-2 bi-browser-chrome" width="16" height="16"></i>
 				  Web II
+				</a>
+			  </li>
+			  <li class="nav-item webii" hidden>
+				<a href="/xall/html/webii/spring.html" class="nav-link text-white">
+				  <i class="bi me-5" width="16" height="16"></i>
+				  Spring
 				</a>
 			  </li>
 			</ul>
