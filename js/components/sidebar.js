@@ -42,7 +42,7 @@ class Header extends HTMLElement {
 				  React Native
 				</a>
 			  </li>
-			  <li class="nav-item" hidden>
+			  <li class="nav-item">
 				<a href="/xall/html/engsoft/home.html" id="engsoft" class="nav-link text-white">
 				  <i class="bi me-2 bi-pencil" width="16" height="16"></i>
 				  Engenharia de Software
