@@ -30,10 +30,16 @@ class Header extends HTMLElement {
 				  C
 				</a>
 			  </li>
-			  <li class="nav-item" hidden>
+			  <li class="nav-item">
 				<a href="/xall/html/devmob/home.html" id="devmob" class="nav-link text-white">
 				  <i class="bi me-2 bi-phone" width="16" height="16"></i>
 				  Desenvolvimento Mobile
+				</a>
+			  </li>
+			  <li class="nav-item devmob" hidden>
+				<a href="/xall/html/devmob/react-native.html" class="nav-link text-white">
+				  <i class="bi me-5" width="16" height="16"></i>
+				  React Native
 				</a>
 			  </li>
 			  <li class="nav-item" hidden>
@@ -51,7 +57,7 @@ class Header extends HTMLElement {
 			  <li class="nav-item webi" hidden>
 				<a href="/xall/html/webi/js.html" class="nav-link text-white">
 				  <i class="bi me-5" width="16" height="16"></i>
-				  Básico
+				  Javascript
 				</a>
 			  </li>
 			  <li class="nav-item">
