@@ -1,0 +1,1349 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>C básico</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Nunito:wght@400;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:      #0d0f1a;
+  --surface: #141828;
+  --card:    #1a1f32;
+  --border:  #252d47;
+  --cyan:    #00e5ff;
+  --purple:  #a78bfa;
+  --green:   #34d399;
+  --amber:   #fbbf24;
+  --red:     #f87171;
+  --pink:    #f472b6;
+  --text:    #d4daf0;
+  --muted:   #4e5a7a;
+  --heading: #eef2ff;
+  --mono:    'JetBrains Mono', monospace;
+  --body:    'Nunito', sans-serif;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--body);
+  font-size: 16px;
+  line-height: 1.5;
+  font-variant-ligatures: none;
+  overflow-x: hidden;
+}
+
+/* ── NOISE ── */
+body::after {
+  content: '';
+  position: fixed; inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");
+  pointer-events: none; z-index: 999; opacity: .5;
+}
+
+/* ── NAV ── */
+nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  background: rgba(13,15,26,.9); backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; gap: 0;
+  padding: 0 1.5rem; height: 58px; overflow-x: none;
+}
+.nav-logo {
+  font-family: var(--body); font-weight: 900; font-size: 1.1rem;
+  color: var(--cyan); white-space: nowrap; margin-right: 1.5rem;
+  letter-spacing: -.02em; display: flex; align-items: center; gap: .4rem;
+}
+nav a {
+  color: var(--muted); text-decoration: none;
+  font-family: var(--body); font-size: .82rem; font-weight: 800;
+  padding: 0 .8rem; height: 58px; display: flex; align-items: center;
+  white-space: nowrap; border-bottom: 3px solid transparent;
+  transition: color .2s, border-color .2s; gap: .35rem;
+}
+nav a:hover { color: var(--heading); border-color: var(--cyan); }
+
+/* ── HERO ── */
+#hero {
+  min-height: 100vh; display: flex; flex-direction: column;
+  justify-content: center; align-items: center; text-align: center;
+  padding: 7rem 1.5rem 4rem; position: relative; overflow: hidden;
+}
+.hero-glow {
+  position: absolute; width: 600px; height: 600px; border-radius: 50%;
+  background: radial-gradient(circle, rgba(0,229,255,.08) 0%, transparent 65%);
+  top: 50%; left: 50%; transform: translate(-50%,-50%);
+  animation: breathe 5s ease-in-out infinite;
+}
+@keyframes breathe {
+  0%,100% { transform: translate(-50%,-50%) scale(1); }
+  50%      { transform: translate(-50%,-50%) scale(1.12); }
+}
+.hero-emoji {
+  font-size: 5rem; margin-bottom: 1rem;
+  animation: bounce 2.5s ease-in-out infinite;
+  filter: drop-shadow(0 0 20px rgba(0,229,255,.4));
+}
+@keyframes bounce {
+  0%,100% { transform: translateY(0); }
+  50%      { transform: translateY(-12px); }
+}
+#hero h1 {
+  font-family: var(--body); font-weight: 900;
+  font-size: clamp(2.8rem, 8vw, 5.5rem);
+  color: var(--heading); line-height: 1; letter-spacing: -.03em;
+  margin-bottom: .75rem; position: relative; z-index: 1;
+}
+#hero h1 span { color: var(--cyan); }
+.hero-sub {
+  font-size: clamp(1rem, 2.5vw, 1.25rem); color: var(--muted);
+  font-weight: 700; max-width: 500px; margin: 0 auto 2.5rem;
+  position: relative; z-index: 1;
+}
+.hero-chips {
+  display: flex; gap: .6rem; flex-wrap: wrap; justify-content: center;
+  position: relative; z-index: 1;
+}
+.chip {
+  background: var(--card); border: 1px solid var(--border); border-radius: 100px;
+  padding: .4rem 1rem; font-size: .85rem; font-weight: 800; color: var(--muted);
+  display: flex; align-items: center; gap: .4rem;
+}
+
+@keyframes fadeUp {
+  from { opacity:0; transform:translateY(20px); }
+  to   { opacity:1; transform:translateY(0); }
+}
+.reveal { opacity:0; transform:translateY(28px); transition: opacity .6s ease, transform .6s ease; }
+.reveal.visible { opacity:1; transform:none; }
+
+/* ── SECTION WRAPPER ── */
+.section-wrap { padding: 5rem 1.5rem; max-width: 980px; margin: 0 auto; }
+.section-wrap + .section-wrap { border-top: 1px solid var(--border); }
+.section-eyebrow {
+  font-family: var(--mono); font-size: .68rem; letter-spacing: .2em;
+  text-transform: uppercase; color: var(--cyan); margin-bottom: .6rem;
+}
+.section-title {
+  font-family: var(--body); font-weight: 900;
+  font-size: clamp(1.8rem, 4.5vw, 2.8rem);
+  color: var(--heading); letter-spacing: -.025em; line-height: 1.1;
+  margin-bottom: .75rem;
+}
+.section-lead {
+  color: var(--muted); font-weight: 700; font-size: 1rem;
+  max-width: 580px; margin-bottom: 2.5rem;
+}
+
+/* ── ANALOGY CARD ── */
+.analogy-card {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 16px; padding: 2rem;
+  display: grid; grid-template-columns: 1fr auto 1fr;
+  align-items: center; gap: 1rem; margin: 1.5rem 0;
+  overflow: hidden;
+}
+.analogy-side {
+  display: flex; flex-direction: column; align-items: center;
+  gap: .6rem; text-align: center;
+}
+.analogy-icon { font-size: 3.5rem; line-height: 1; }
+.analogy-label {
+  font-size: .78rem; font-weight: 800; text-transform: uppercase;
+  letter-spacing: .12em; color: var(--muted);
+}
+.analogy-name {
+  font-family: var(--mono); font-size: .9rem; font-weight: 700;
+}
+.analogy-arrow {
+  font-size: 2rem; color: var(--muted); flex-shrink: 0;
+}
+
+/* ── DRAWER GRID (variables) ── */
+.drawer-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(160px,1fr));
+  gap: 1rem; margin: 2rem 0;
+}
+.drawer {
+  background: var(--card); border: 2px solid var(--border);
+  border-radius: 12px; overflow: hidden;
+  transition: border-color .25s, transform .2s;
+  cursor: default;
+}
+.drawer:hover { border-color: var(--cyan); transform: translateY(-3px); }
+.drawer-label {
+  background: var(--surface); padding: .5rem .8rem;
+  font-family: var(--mono); font-size: .72rem; font-weight: 700;
+  color: var(--cyan); border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; gap: .4rem;
+}
+.drawer-body {
+  padding: .9rem .8rem; display: flex; flex-direction: column;
+  align-items: center; gap: .4rem;
+}
+.drawer-icon { font-size: 2.2rem; }
+.drawer-value {
+  font-family: var(--mono); font-size: 1rem; font-weight: 700; color: var(--heading);
+}
+.drawer-type {
+  font-size: .68rem; font-weight: 800; text-transform: uppercase;
+  letter-spacing: .1em; padding: .15rem .5rem; border-radius: 4px;
+  background: var(--surface); color: var(--muted);
+}
+.drawer.cyan  .drawer-label { color: var(--cyan);   } .drawer.cyan  .drawer-value { color: var(--cyan);   }
+.drawer.green .drawer-label { color: var(--green);  } .drawer.green .drawer-value { color: var(--green);  }
+.drawer.amber .drawer-label { color: var(--amber);  } .drawer.amber .drawer-value { color: var(--amber);  }
+.drawer.purple.drawer-label { color: var(--purple); } .drawer.purple.drawer-value { color: var(--purple); }
+
+/* ── PIPELINE (printf / scanf) ── */
+.pipeline {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 16px; padding: 1.75rem 1.5rem;
+  margin: 1.5rem 0;
+}
+.pipeline-row {
+  display: flex; align-items: center; gap: .75rem;
+  flex-wrap: wrap; margin-bottom: .75rem;
+}
+.pipeline-row:last-child { margin-bottom: 0; }
+.pipe-node {
+  display: flex; flex-direction: column; align-items: center;
+  gap: .3rem; text-align: center;
+}
+.pipe-icon { font-size: 2.5rem; line-height: 1; }
+.pipe-label {
+  font-size: .68rem; font-weight: 800; text-transform: uppercase;
+  letter-spacing: .1em; color: var(--muted);
+}
+.pipe-arrow {
+  font-size: 1.5rem; color: var(--border); flex-shrink: 0;
+}
+.pipe-code {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 8px; padding: .5rem .9rem;
+  font-family: var(--mono); font-size: .82rem; color: var(--heading);
+  white-space: nowrap;
+}
+.pipe-arrow.active { color: var(--cyan); animation: pulse-arrow 1.2s ease-in-out infinite; }
+@keyframes pulse-arrow {
+  0%,100% { opacity:.5; transform:scaleX(1); }
+  50%      { opacity:1;  transform:scaleX(1.15); }
+}
+
+/* ── SIDE-BY-SIDE COMPARE ── */
+.compare-2 {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 1px; background: var(--border); border-radius: 12px;
+  overflow: hidden; margin: 1.5rem 0;
+}
+.compare-pane { background: var(--card); padding: 1.2rem 1.4rem; }
+.compare-lang {
+  font-family: var(--mono); font-size: .68rem; font-weight: 700;
+  text-transform: uppercase; letter-spacing: .12em;
+  color: var(--muted); margin-bottom: .75rem;
+  display: flex; align-items: center; gap: .4rem;
+}
+.compare-pane pre {
+  font-family: var(--mono); font-size: .8rem; line-height: 1.75;
+  overflow-x: auto; font-variant-ligatures: none;
+}
+/* syntax */
+.k  { color: #c792ea; font-weight: 700; }
+.t  { color: #80cbc4; }
+.fn { color: #82aaff; }
+.s  { color: #c3e88d; }
+.n  { color: #f78c6c; }
+.c  { color: #546e7a; font-style: italic; }
+.p  { color: var(--cyan); }
+.v  { color: #eeffff; }
+.m  { color: var(--amber); }
+
+/* ── FLOW STEPS ── */
+.flow-steps {
+  display: flex; flex-direction: column; gap: 0;
+  margin: 1.5rem 0;
+}
+.flow-step {
+  display: flex; align-items: flex-start; gap: 1rem;
+  padding: 1rem 1.2rem;
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 0; position: relative;
+}
+.flow-step:first-child { border-radius: 12px 12px 0 0; }
+.flow-step:last-child  { border-radius: 0 0 12px 12px; }
+.flow-step:not(:last-child) { border-bottom: none; }
+.flow-step-icon { font-size: 2rem; flex-shrink: 0; padding-top: .1rem; }
+.flow-step-body { flex: 1; }
+.flow-step-title {
+  font-weight: 900; font-size: 1rem; color: var(--heading); margin-bottom: .2rem;
+}
+.flow-step-sub { font-size: .88rem; color: var(--muted); font-weight: 700; }
+.flow-connector {
+  width: 2px; height: 20px; background: var(--border);
+  margin: 0 auto; position: relative;
+}
+.flow-connector::after {
+  content: ''; position: absolute; bottom: -6px; left: 50%;
+  transform: translateX(-50%);
+  border: 5px solid transparent; border-top-color: var(--border);
+}
+
+/* ── OPERATOR GRID ── */
+.op-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(160px,1fr));
+  gap: .75rem; margin: 1.5rem 0;
+}
+.op-card {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 12px; padding: 1rem;
+  display: flex; flex-direction: column; align-items: center; gap: .5rem;
+  text-align: center; transition: border-color .2s, transform .2s;
+}
+.op-card:hover { transform: translateY(-2px); }
+.op-card.cyan   { border-color: rgba(0,229,255,.2);  } .op-card.cyan:hover   { border-color: var(--cyan);   }
+.op-card.green  { border-color: rgba(52,211,153,.2); } .op-card.green:hover  { border-color: var(--green);  }
+.op-card.amber  { border-color: rgba(251,191,36,.2); } .op-card.amber:hover  { border-color: var(--amber);  }
+.op-card.purple { border-color: rgba(167,139,250,.2);} .op-card.purple:hover { border-color: var(--purple); }
+.op-card.red    { border-color: rgba(248,113,113,.2);} .op-card.red:hover    { border-color: var(--red);    }
+.op-emoji { font-size: 2.2rem; }
+.op-sym { font-family: var(--mono); font-size: 1.5rem; font-weight: 700; color: var(--heading); line-height: 1; }
+.op-desc { font-size: .78rem; font-weight: 800; color: var(--muted); }
+.op-example { font-family: var(--mono); font-size: .72rem; color: var(--muted); }
+
+/* ── IF/ELSE VISUAL ── */
+.if-diagram {
+  margin: 1.5rem 0;
+  display: flex; flex-direction: column; align-items: center; gap: 0;
+}
+.if-box {
+  border-radius: 10px; padding: .65rem 1.8rem;
+  text-align: center; font-family: var(--mono); font-size: .88rem; font-weight: 700;
+  white-space: nowrap;
+}
+.if-box.start  { background: var(--purple);   color: #fff; border-radius: 24px; }
+.if-box.cond   { background: var(--card);      color: var(--amber); border: 2px solid var(--amber); }
+.if-box.yes    { background: var(--card);      color: var(--green); border: 2px solid var(--green); }
+.if-box.no     { background: var(--card);      color: var(--red);   border: 2px solid var(--red);   }
+.if-box.end    { background: var(--cyan);      color: #000; border-radius: 24px; }
+.if-arrow { width:2px; height:26px; background:var(--border); margin:0 auto; position:relative; }
+.if-arrow::after {
+  content:''; position:absolute; bottom:-7px; left:50%;
+  transform:translateX(-50%);
+  border:5px solid transparent; border-top-color:var(--border);
+}
+.if-branch { display:flex; gap:3rem; align-items:flex-start; width:100%; justify-content:center; }
+.if-branch-col { display:flex; flex-direction:column; align-items:center; gap:0; }
+.if-label { font-size:.72rem; font-weight:900; padding:.3rem .5rem; letter-spacing:.08em; }
+
+/* ── LOOP TRACK ── */
+.loop-track {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 14px; padding: 1.5rem; margin: 1.5rem 0;
+  position: relative; overflow: hidden;
+}
+.loop-header {
+  font-family: var(--mono); font-size: .72rem; color: var(--muted);
+  text-transform: uppercase; letter-spacing: .12em; margin-bottom: 1rem;
+}
+.track-row {
+  display: flex; align-items: center; gap: .75rem;
+  padding: .45rem .75rem; border-radius: 8px;
+  border-left: 3px solid transparent; margin-bottom: .3rem;
+  font-family: var(--mono); font-size: .82rem;
+  transition: all .15s;
+}
+.track-row.run { background: rgba(0,229,255,.06); border-left-color: var(--cyan); }
+.track-row.stop { background: rgba(248,113,113,.06); border-left-color: var(--red); }
+.track-i { color: var(--amber); font-weight: 700; min-width: 55px; }
+.track-cond { color: var(--green); }
+.track-out { color: var(--cyan); margin-left: auto; }
+.track-stop { color: var(--red); }
+
+/* ── NOTE ── */
+.note {
+  display: flex; gap: .75rem; align-items: flex-start;
+  padding: .9rem 1.1rem; border-radius: 10px; margin: 1rem 0;
+  font-size: .9rem; font-weight: 700;
+}
+.note.warn  { background:rgba(251,191,36,.07);  border:1px solid rgba(251,191,36,.25);  color:var(--amber);  }
+.note.info  { background:rgba(0,229,255,.07);   border:1px solid rgba(0,229,255,.25);   color:var(--cyan);   }
+.note.danger{ background:rgba(248,113,113,.07); border:1px solid rgba(248,113,113,.25); color:var(--red);    }
+.note.green { background:rgba(52,211,153,.07);  border:1px solid rgba(52,211,153,.25);  color:var(--green);  }
+.note-icon { font-size:1.2rem; flex-shrink:0; }
+
+/* ── EXERCISE ── */
+.ex-card {
+  background: linear-gradient(135deg, rgba(0,229,255,.04), rgba(167,139,250,.06));
+  border: 1px solid rgba(0,229,255,.2); border-radius: 14px;
+  padding: 1.5rem 1.75rem; margin: 2rem 0;
+}
+.ex-head { display:flex; align-items:center; gap:.75rem; margin-bottom:1rem; }
+.ex-num {
+  background: var(--cyan); color: #000; font-family: var(--mono);
+  font-size: .72rem; font-weight: 700; padding: .25rem .65rem; border-radius: 5px;
+}
+.ex-title { font-weight: 900; font-size: 1rem; color: var(--heading); }
+.ex-card ul { padding-left: 1.2rem; font-weight: 700; font-size: .9rem; }
+.ex-card li { margin-bottom: .3rem; }
+.ex-tip {
+  margin-top:1rem; padding:.7rem 1rem;
+  background:rgba(251,191,36,.07); border-left:3px solid var(--amber);
+  border-radius:0 6px 6px 0; font-size:.85rem; font-weight:700; color:var(--amber);
+}
+
+/* ── BIG VISUAL ANNOTATION (type sizes) ── */
+.type-visual {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(200px,1fr));
+  gap: 1rem; margin: 1.5rem 0;
+}
+.type-tile {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 14px; padding: 1.25rem 1rem;
+  display: flex; flex-direction: column; align-items: center; gap: .5rem;
+  text-align: center; transition: transform .2s, border-color .2s;
+}
+.type-tile:hover { transform: translateY(-3px); }
+.type-tile .big-icon  { font-size: 3rem; }
+.type-tile .type-kw   { font-family:var(--mono); font-size:1rem; font-weight:700; }
+.type-tile .type-what { font-size:.8rem; font-weight:800; color:var(--muted); }
+.type-tile .type-eg   { font-family:var(--mono); font-size:.78rem; color:var(--muted); }
+.type-tile .type-fmt  { font-family:var(--mono); font-size:.72rem; padding:.15rem .5rem; border-radius:5px; background:var(--surface); color:var(--muted); font-weight:700; }
+.type-tile.cyan   { border-color:rgba(0,229,255,.2);  } .type-tile.cyan   .type-kw { color:var(--cyan);   }
+.type-tile.green  { border-color:rgba(52,211,153,.2); } .type-tile.green  .type-kw { color:var(--green);  }
+.type-tile.amber  { border-color:rgba(251,191,36,.2); } .type-tile.amber  .type-kw { color:var(--amber);  }
+.type-tile.purple { border-color:rgba(167,139,250,.2);} .type-tile.purple .type-kw { color:var(--purple); }
+
+/* ── CODE BLOCK ── */
+.code-block {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 12px; overflow: hidden; margin: 1.25rem 0;
+}
+.code-bar {
+  background: var(--surface); border-bottom: 1px solid var(--border);
+  padding: .5rem 1rem; display: flex; align-items: center; gap: .75rem;
+}
+.code-dots { display:flex; gap:5px; }
+.code-dots span { width:9px;height:9px;border-radius:50%; }
+.code-dots span:nth-child(1){background:#ff5f57;}
+.code-dots span:nth-child(2){background:#febc2e;}
+.code-dots span:nth-child(3){background:#28c840;}
+.code-fname { font-family:var(--mono); font-size:.67rem; color:var(--muted); }
+.code-block pre {
+  padding:1.3rem 1.5rem; font-family:var(--mono); font-size:.82rem;
+  line-height:1.8; overflow-x:auto; font-variant-ligatures:none;
+}
+
+/* ── FOOTER ── */
+footer {
+  text-align:center; padding:3.5rem 1.5rem;
+  color:var(--muted); font-family:var(--mono); font-size:.72rem;
+  letter-spacing:.06em; border-top:1px solid var(--border);
+}
+footer span { color:var(--cyan); }
+
+/* ── RESPONSIVE ── */
+@media (max-width:600px){
+  .analogy-card { grid-template-columns: 1fr; }
+  .analogy-arrow { transform: rotate(90deg); margin: .5rem auto; }
+  .compare-2 { grid-template-columns:1fr; }
+  .if-branch { gap:1.5rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">🖥️ C</div>
+  <a href="#variaveis">📦 Variáveis</a>
+  <a href="#tipos">🏷️ Tipos</a>
+  <a href="#saida">📺 Saída</a>
+  <a href="#entrada">⌨️ Entrada</a>
+  <a href="#operadores">🔢 Operadores</a>
+  <a href="#condicionais">🔀 Condicionais</a>
+  <a href="#loops">🔁 Laços</a>
+  <a href="#exercicios">🏋️ Exercícios</a>
+</nav>
+
+<!-- ══ HERO ══ -->
+<section id="hero">
+  <div class="hero-glow"></div>
+  <div class="hero-emoji">🧑‍💻</div>
+  <h1>Programar em <span>C</span></h1>
+  <div class="hero-chips">
+    <div class="chip">📦 guardar dados</div>
+    <div class="chip">📺 mostrar na tela</div>
+    <div class="chip">⌨️ receber do usuário</div>
+    <div class="chip">🔀 tomar decisões</div>
+    <div class="chip">🔁 repetir ações</div>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════
+     SEÇÃO 1 — VARIÁVEIS = GAVETAS
+══════════════════════════════════ -->
+<section id="variaveis" class="section-wrap">
+  <div class="section-eyebrow reveal">01 — Dados</div>
+  <h2 class="section-title reveal">📦 Variável = Gaveta com Nome</h2>
+  <p class="section-lead reveal">Variável é como uma <strong style="color:var(--heading)">gaveta</strong>. Tem nome na frente e guarda um valor dentro.</p>
+
+  <!-- Gaveta → Variável analogy -->
+  <div class="analogy-card reveal">
+    <div class="analogy-side">
+      <div class="analogy-icon">🗄️</div>
+      <div style="font-size:1.5rem">📛 <strong style="color:var(--heading)">idade</strong></div>
+      <div style="font-size:2rem;color:var(--cyan);font-weight:900;font-family:var(--mono)">20</div>
+      <div class="analogy-label">gaveta no mundo real</div>
+    </div>
+    <div class="analogy-arrow">≡</div>
+    <div class="analogy-side">
+      <div class="analogy-icon">💻</div>
+      <div class="analogy-name" style="color:var(--cyan)">int idade = 20;</div>
+      <div class="analogy-label">variável em C</div>
+    </div>
+  </div>
+
+  <!-- Gavetas visuais -->
+  <h3 class="reveal" style="font-weight:900;color:var(--heading);margin:2rem 0 .5rem;font-size:1.2rem;">Cada gaveta guarda um valor:</h3>
+  <div class="drawer-grid reveal">
+    <div class="drawer cyan">
+      <div class="drawer-label">📛 idade</div>
+      <div class="drawer-body">
+        <div class="drawer-icon">🔢</div>
+        <div class="drawer-value">20</div>
+        <div class="drawer-type">int</div>
+      </div>
+    </div>
+    <div class="drawer green">
+      <div class="drawer-label">📛 nota</div>
+      <div class="drawer-body">
+        <div class="drawer-icon">📊</div>
+        <div class="drawer-value">8.5</div>
+        <div class="drawer-type">float</div>
+      </div>
+    </div>
+    <div class="drawer amber">
+      <div class="drawer-label">📛 letra</div>
+      <div class="drawer-body">
+        <div class="drawer-icon">🔤</div>
+        <div class="drawer-value">'A'</div>
+        <div class="drawer-type">char</div>
+      </div>
+    </div>
+    <div class="drawer purple">
+      <div class="drawer-label">📛 nome</div>
+      <div class="drawer-body">
+        <div class="drawer-icon">🪪</div>
+        <div class="drawer-value">"Ana"</div>
+        <div class="drawer-type">char[]</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Regras de nome -->
+  <div class="note warn reveal">
+    <div class="note-icon">⚠️</div>
+    <div>Nome da gaveta — sem espaço, sem acento, começa com letra: ✅ <code style="font-family:var(--mono)">nota_final</code> &nbsp; ❌ <code style="font-family:var(--mono)">nota final</code> &nbsp; ❌ <code style="font-family:var(--mono)">1nota</code></div>
+  </div>
+  <div class="note info reveal">
+    <div class="note-icon">💡</div>
+    <div>Trocar o valor da gaveta: <code style="font-family:var(--mono)">idade = 21;</code> — conteúdo antigo some. Gaveta guarda <strong style="color:var(--heading)">um valor apenas</strong>.</div>
+  </div>
+
+  <div class="code-block reveal">
+    <div class="code-bar">
+      <div class="code-dots"><span></span><span></span><span></span></div>
+      <span class="code-fname">variaveis.c</span>
+    </div>
+    <pre><span class="m">#include &lt;stdio.h&gt;</span>
+
+<span class="k">int</span> <span class="fn">main</span>() {
+
+    <span class="c">/* criar gavetas */</span>
+    <span class="t">int</span>   <span class="v">idade</span>    <span class="p">=</span> <span class="n">20</span><span class="p">;</span>      <span class="c">// 🔢 número inteiro</span>
+    <span class="t">float</span> <span class="v">nota</span>     <span class="p">=</span> <span class="n">8.5f</span><span class="p">;</span>   <span class="c">// 📊 número com vírgula</span>
+    <span class="t">char</span>  <span class="v">letra</span>    <span class="p">=</span> <span class="s">'A'</span><span class="p">;</span>    <span class="c">// 🔤 um caractere</span>
+    <span class="t">char</span>  <span class="v">nome</span>[<span class="n">30</span>] <span class="p">=</span> <span class="s">"Ana"</span><span class="p">;</span>  <span class="c">// 🪪 texto</span>
+
+    <span class="c">/* trocar o valor da gaveta */</span>
+    <span class="v">idade</span> <span class="p">=</span> <span class="n">21</span><span class="p">;</span>   <span class="c">// 20 some, entra 21</span>
+
+    <span class="k">return</span> <span class="n">0</span><span class="p">;</span>
+}</pre>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════
+     SEÇÃO 2 — TIPOS = ETIQUETAS
+══════════════════════════════════ -->
+<section id="tipos" class="section-wrap">
+  <div class="section-eyebrow reveal">02 — Tipos de Dado</div>
+  <h2 class="section-title reveal">🏷️ Tipo = Etiqueta da Gaveta</h2>
+  <p class="section-lead reveal">Cada gaveta tem uma <strong style="color:var(--heading)">etiqueta</strong> que diz <em>que tipo de coisa</em> cabe dentro dela.</p>
+
+  <div class="type-visual reveal">
+    <div class="type-tile cyan">
+      <div class="big-icon">🔢</div>
+      <div class="type-kw">int</div>
+      <div class="type-what">Número inteiro</div>
+      <div class="type-eg">42 &nbsp;·&nbsp; -7 &nbsp;·&nbsp; 0</div>
+      <div class="type-fmt">%d</div>
+    </div>
+    <div class="type-tile green">
+      <div class="big-icon">📐</div>
+      <div class="type-kw">float</div>
+      <div class="type-what">Número com vírgula</div>
+      <div class="type-eg">3.14 &nbsp;·&nbsp; 8.5 &nbsp;·&nbsp; -0.5</div>
+      <div class="type-fmt">%f</div>
+    </div>
+    <div class="type-tile amber">
+      <div class="big-icon">🎯</div>
+      <div class="type-kw">double</div>
+      <div class="type-what">Vírgula mais preciso</div>
+      <div class="type-eg">3.141592653</div>
+      <div class="type-fmt">%lf</div>
+    </div>
+    <div class="type-tile purple">
+      <div class="big-icon">🔤</div>
+      <div class="type-kw">char</div>
+      <div class="type-what">Uma só letra</div>
+      <div class="type-eg">'A' &nbsp;·&nbsp; 'z' &nbsp;·&nbsp; '5'</div>
+      <div class="type-fmt">%c</div>
+    </div>
+    <div class="type-tile" style="border-color:rgba(244,114,182,.2)">
+      <div class="big-icon">🪧</div>
+      <div class="type-kw" style="color:var(--pink)">char[]</div>
+      <div class="type-what">Texto (vários chars)</div>
+      <div class="type-eg">"Olá" &nbsp;·&nbsp; "Ana"</div>
+      <div class="type-fmt">%s</div>
+    </div>
+  </div>
+
+  <!-- Vírgula vs ponto -->
+  <div class="note warn reveal">
+    <div class="note-icon">🌎</div>
+    <div>Em C o decimal usa <strong style="color:var(--heading)">ponto</strong>, não vírgula:<br>
+    ✅ <code style="font-family:var(--mono)">float nota = 8.5f;</code> &nbsp;&nbsp; ❌ <code style="font-family:var(--mono)">float nota = 8,5f;</code></div>
+  </div>
+
+  <!-- Analogia: armário com tamanhos -->
+  <div class="analogy-card reveal" style="grid-template-columns:1fr">
+    <div style="display:flex;align-items:center;gap:2rem;flex-wrap:wrap;justify-content:center">
+      <div style="display:flex;flex-direction:column;align-items:center;gap:.4rem">
+        <div style="font-size:2.5rem">🔢</div>
+        <div style="font-family:var(--mono);font-weight:700;color:var(--cyan)">int</div>
+        <div style="font-size:.75rem;color:var(--muted);font-weight:800">4 bytes</div>
+        <div style="font-size:.75rem;color:var(--muted)">até 2 bilhões</div>
+      </div>
+      <div style="font-size:1.5rem;color:var(--border)">→ &nbsp;maior &nbsp;→</div>
+      <div style="display:flex;flex-direction:column;align-items:center;gap:.4rem">
+        <div style="font-size:2.5rem">📐</div>
+        <div style="font-family:var(--mono);font-weight:700;color:var(--green)">float</div>
+        <div style="font-size:.75rem;color:var(--muted);font-weight:800">4 bytes</div>
+        <div style="font-size:.75rem;color:var(--muted)">com casas decimais</div>
+      </div>
+      <div style="font-size:1.5rem;color:var(--border)">→ &nbsp;maior &nbsp;→</div>
+      <div style="display:flex;flex-direction:column;align-items:center;gap:.4rem">
+        <div style="font-size:2.5rem">🎯</div>
+        <div style="font-family:var(--mono);font-weight:700;color:var(--amber)">double</div>
+        <div style="font-size:.75rem;color:var(--muted);font-weight:800">8 bytes</div>
+        <div style="font-size:.75rem;color:var(--muted)">mais preciso ainda</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════
+     SEÇÃO 3 — PRINTF = OUTDOOR
+══════════════════════════════════ -->
+<section id="saida" class="section-wrap">
+  <div class="section-eyebrow reveal">03 — Saída</div>
+  <h2 class="section-title reveal">📺 printf = Outdoor / Quadro de Avisos</h2>
+  <p class="section-lead reveal"><code style="font-family:var(--mono);font-size:1rem;color:var(--cyan)">printf</code> pega o valor de dentro da gaveta e <strong style="color:var(--heading)">exibe na tela</strong> para todo mundo ver.</p>
+
+  <!-- Pipeline visual -->
+  <div class="pipeline reveal">
+    <div class="pipeline-row">
+      <div class="pipe-node">
+        <div class="pipe-icon">🗄️</div>
+        <div class="pipe-label">gaveta</div>
+        <div style="font-family:var(--mono);font-size:.75rem;color:var(--cyan)">idade = 20</div>
+      </div>
+      <div class="pipe-arrow active">➜</div>
+      <div class="pipe-node">
+        <div class="pipe-icon">🤲</div>
+        <div class="pipe-label">pegar valor</div>
+      </div>
+      <div class="pipe-arrow active">➜</div>
+      <div class="pipe-code">printf("%d", idade);</div>
+      <div class="pipe-arrow active">➜</div>
+      <div class="pipe-node">
+        <div class="pipe-icon">📺</div>
+        <div class="pipe-label">tela mostra</div>
+        <div style="font-size:1.5rem;font-weight:900;color:var(--heading)">20</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Formatos visuais -->
+  <h3 class="reveal" style="font-weight:900;color:var(--heading);margin:2rem 0 .5rem;font-size:1.2rem;">Como dizer ao printf qual tipo está na gaveta:</h3>
+  <div class="op-grid reveal" style="grid-template-columns:repeat(auto-fill,minmax(140px,1fr))">
+    <div class="op-card cyan">
+      <div class="op-emoji">🔢</div>
+      <div class="op-sym">%d</div>
+      <div class="op-desc">inteiro</div>
+      <div class="op-example">printf("%d", 42)</div>
+    </div>
+    <div class="op-card green">
+      <div class="op-emoji">📐</div>
+      <div class="op-sym">%f</div>
+      <div class="op-desc">float</div>
+      <div class="op-example">printf("%f", 3.14)</div>
+    </div>
+    <div class="op-card amber">
+      <div class="op-emoji">🔤</div>
+      <div class="op-sym">%c</div>
+      <div class="op-desc">um char</div>
+      <div class="op-example">printf("%c", 'A')</div>
+    </div>
+    <div class="op-card purple">
+      <div class="op-emoji">🪧</div>
+      <div class="op-sym">%s</div>
+      <div class="op-desc">texto</div>
+      <div class="op-example">printf("%s", "Ana")</div>
+    </div>
+  </div>
+
+  <!-- \n analogy -->
+  <div class="analogy-card reveal">
+    <div class="analogy-side">
+      <div class="analogy-icon">↵</div>
+      <div class="analogy-label">apertar Enter</div>
+    </div>
+    <div class="analogy-arrow">=</div>
+    <div class="analogy-side">
+      <div class="analogy-icon">💻</div>
+      <div class="analogy-name" style="color:var(--cyan)">\n dentro do printf</div>
+      <div class="analogy-label">pula para a próxima linha</div>
+    </div>
+  </div>
+
+  <div class="code-block reveal">
+    <div class="code-bar">
+      <div class="code-dots"><span></span><span></span><span></span></div>
+      <span class="code-fname">saida.c</span>
+    </div>
+    <pre><span class="m">#include &lt;stdio.h&gt;</span>
+
+<span class="k">int</span> <span class="fn">main</span>() {
+    <span class="t">int</span>   <span class="v">idade</span> <span class="p">=</span> <span class="n">20</span><span class="p">;</span>
+    <span class="t">float</span> <span class="v">nota</span>  <span class="p">=</span> <span class="n">8.5f</span><span class="p">;</span>
+    <span class="t">char</span>  <span class="v">nome</span>[<span class="n">30</span>] <span class="p">=</span> <span class="s">"Ana"</span><span class="p">;</span>
+
+    <span class="fn">printf</span>(<span class="s">"Nome: %s\n"</span>,   <span class="v">nome</span>)<span class="p">;</span>   <span class="c">// 🪧 Nome: Ana</span>
+    <span class="fn">printf</span>(<span class="s">"Idade: %d\n"</span>,  <span class="v">idade</span>)<span class="p">;</span>  <span class="c">// 🔢 Idade: 20</span>
+    <span class="fn">printf</span>(<span class="s">"Nota: %.1f\n"</span>, <span class="v">nota</span>)<span class="p">;</span>   <span class="c">// 📊 Nota: 8.5</span>
+
+    <span class="k">return</span> <span class="n">0</span><span class="p">;</span>
+}</pre>
+  </div>
+
+  <div class="note info reveal">
+    <div class="note-icon">💡</div>
+    <div><code style="font-family:var(--mono)">%.1f</code> RESULTADO mostra <strong style="color:var(--heading)">1</strong> número depois do ponto &nbsp;|&nbsp; <code style="font-family:var(--mono)">%.2f</code> RESULTADO mostra <strong style="color:var(--heading)">2</strong> números</div>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════
+     SEÇÃO 4 — SCANF = CAIXA DE CORREIO
+══════════════════════════════════ -->
+<section id="entrada" class="section-wrap">
+  <div class="section-eyebrow reveal">04 — Entrada</div>
+  <h2 class="section-title reveal">⌨️ scanf = Caixa de Correio</h2>
+  <p class="section-lead reveal"><code style="font-family:var(--mono);font-size:1rem;color:var(--cyan)">scanf</code> é como uma <strong style="color:var(--heading)">caixa de correio</strong>. O usuário digita algo e o valor vai direto para dentro da gaveta.</p>
+
+  <!-- Pipeline scanf -->
+  <div class="pipeline reveal">
+    <div class="pipeline-row">
+      <div class="pipe-node">
+        <div class="pipe-icon">👤</div>
+        <div class="pipe-label">usuário</div>
+        <div style="font-family:var(--mono);font-size:.82rem;color:var(--heading)">digita 25</div>
+      </div>
+      <div class="pipe-arrow active">➜</div>
+      <div class="pipe-node">
+        <div class="pipe-icon">⌨️</div>
+        <div class="pipe-label">teclado</div>
+      </div>
+      <div class="pipe-arrow active">➜</div>
+      <div class="pipe-code">scanf("%d", &amp;idade);</div>
+      <div class="pipe-arrow active">➜</div>
+      <div class="pipe-node">
+        <div class="pipe-icon">🗄️</div>
+        <div class="pipe-label">gaveta</div>
+        <div style="font-family:var(--mono);font-size:.82rem;color:var(--cyan)">idade = 25</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- & analogy -->
+  <div class="analogy-card reveal">
+    <div class="analogy-side">
+      <div class="analogy-icon">📍</div>
+      <div class="analogy-label">endereço da casa</div>
+      <div style="font-size:.85rem;color:var(--muted);font-weight:700">para saber onde entregar</div>
+    </div>
+    <div class="analogy-arrow">=</div>
+    <div class="analogy-side">
+      <div class="analogy-icon">💻</div>
+      <div class="analogy-name" style="color:var(--amber)">&amp;idade</div>
+      <div class="analogy-label">endereço da gaveta na memória</div>
+    </div>
+  </div>
+
+  <div class="note danger reveal">
+    <div class="note-icon">🔴</div>
+    <div><strong style="color:var(--heading)">Sempre use &amp; com scanf!</strong> &nbsp; ✅ <code style="font-family:var(--mono)">scanf("%d", &amp;idade)</code> &nbsp;&nbsp; ❌ <code style="font-family:var(--mono)">scanf("%d", idade)</code><br>Exceção: textos (char[]) — não precisam do &amp;: <code style="font-family:var(--mono)">scanf("%s", nome)</code></div>
+  </div>
+
+  <div class="code-block reveal">
+    <div class="code-bar">
+      <div class="code-dots"><span></span><span></span><span></span></div>
+      <span class="code-fname">entrada.c</span>
+    </div>
+    <pre><span class="m">#include &lt;stdio.h&gt;</span>
+
+<span class="k">int</span> <span class="fn">main</span>() {
+    <span class="t">int</span>   <span class="v">idade</span><span class="p">;</span>
+    <span class="t">float</span> <span class="v">nota</span><span class="p">;</span>
+    <span class="t">char</span>  <span class="v">nome</span>[<span class="n">50</span>]<span class="p">;</span>
+
+    <span class="fn">printf</span>(<span class="s">"Seu nome: "</span>)<span class="p">;</span>
+    <span class="fn">scanf</span>(<span class="s">"%s"</span>, <span class="v">nome</span>)<span class="p">;</span>     <span class="c">// texto: sem &amp;</span>
+
+    <span class="fn">printf</span>(<span class="s">"Sua idade: "</span>)<span class="p">;</span>
+    <span class="fn">scanf</span>(<span class="s">"%d"</span>, <span class="p">&amp;</span><span class="v">idade</span>)<span class="p">;</span>   <span class="c">// inteiro: com &amp;</span>
+
+    <span class="fn">printf</span>(<span class="s">"Sua nota: "</span>)<span class="p">;</span>
+    <span class="fn">scanf</span>(<span class="s">"%f"</span>, <span class="p">&amp;</span><span class="v">nota</span>)<span class="p">;</span>    <span class="c">// float: com &amp;</span>
+
+    <span class="fn">printf</span>(<span class="s">"Olá, %s! %d anos, nota %.1f\n"</span>,
+           <span class="v">nome</span>, <span class="v">idade</span>, <span class="v">nota</span>)<span class="p">;</span>
+
+    <span class="k">return</span> <span class="n">0</span><span class="p">;</span>
+}</pre>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════
+     SEÇÃO 5 — OPERADORES
+══════════════════════════════════ -->
+<section id="operadores" class="section-wrap">
+  <div class="section-eyebrow reveal">05 — Cálculos</div>
+  <h2 class="section-title reveal">🔢 Operadores</h2>
+  <p class="section-lead reveal">Símbolos que <strong style="color:var(--heading)">fazem contas</strong> ou <strong style="color:var(--heading)">comparam valores</strong> entre gavetas.</p>
+
+  <!-- Aritméticos -->
+  <h3 class="reveal" style="font-weight:900;color:var(--heading);margin-bottom:.75rem;display:flex;align-items:center;gap:.5rem;">🧮 Fazem contas</h3>
+  <div class="op-grid reveal">
+    <div class="op-card cyan">
+      <div class="op-emoji">➕</div>
+      <div class="op-sym">+</div>
+      <div class="op-desc">Adição</div>
+      <div class="op-example">3 + 2 RESULTADO 5</div>
+    </div>
+    <div class="op-card cyan">
+      <div class="op-emoji">➖</div>
+      <div class="op-sym">-</div>
+      <div class="op-desc">Subtração</div>
+      <div class="op-example">5 - 2 RESULTADO 3</div>
+    </div>
+    <div class="op-card cyan">
+      <div class="op-emoji">✖️</div>
+      <div class="op-sym">*</div>
+      <div class="op-desc">Multiplicação</div>
+      <div class="op-example">3 * 4 RESULTADO 12</div>
+    </div>
+    <div class="op-card cyan">
+      <div class="op-emoji">➗</div>
+      <div class="op-sym">/</div>
+      <div class="op-desc">Divisão</div>
+      <div class="op-example">10 / 2 RESULTADO 5</div>
+    </div>
+    <div class="op-card amber">
+      <div class="op-emoji">🔄</div>
+      <div class="op-sym">%</div>
+      <div class="op-desc">Resto</div>
+      <div class="op-example">10 % 3 RESULTADO 1</div>
+    </div>
+    <div class="op-card amber">
+      <div class="op-emoji">📈</div>
+      <div class="op-sym">++</div>
+      <div class="op-desc">+1 na gaveta</div>
+      <div class="op-example">x++ MESMO x = x+1</div>
+    </div>
+    <div class="op-card amber">
+      <div class="op-emoji">📉</div>
+      <div class="op-sym">--</div>
+      <div class="op-desc">-1 na gaveta</div>
+      <div class="op-example">x-- MESMO x = x-1</div>
+    </div>
+  </div>
+
+  <!-- Relacionais -->
+  <h3 class="reveal" style="font-weight:900;color:var(--heading);margin:2rem 0 .75rem;display:flex;align-items:center;gap:.5rem;">⚖️ Comparam valores — respondem 1 (verdadeiro/true) ou 0 (falso/false)</h3>
+  <div class="op-grid reveal">
+    <div class="op-card green">
+      <div class="op-emoji">🟰</div>
+      <div class="op-sym">==</div>
+      <div class="op-desc">igual a?</div>
+      <div class="op-example">5 == 5 RESULTADO 1 (✅)</div>
+    </div>
+    <div class="op-card green">
+      <div class="op-emoji">≠</div>
+      <div class="op-sym">!=</div>
+      <div class="op-desc">diferente?</div>
+      <div class="op-example">4 != 5 RESULTADO 1</div>
+    </div>
+    <div class="op-card green">
+      <div class="op-emoji">⬆️</div>
+      <div class="op-sym">&gt;</div>
+      <div class="op-desc">maior que?</div>
+      <div class="op-example">7 &gt; 3 RESULTADO 1</div>
+    </div>
+    <div class="op-card green">
+      <div class="op-emoji">⬇️</div>
+      <div class="op-sym">&lt;</div>
+      <div class="op-desc">menor que?</div>
+      <div class="op-example">2 &lt; 9 RESULTADO 1</div>
+    </div>
+    <div class="op-card green">
+      <div class="op-emoji">⬆️🟰</div>
+      <div class="op-sym">&gt;=</div>
+      <div class="op-desc">maior ou igual?</div>
+      <div class="op-example">5 &gt;= 5 RESULTADO 1</div>
+    </div>
+    <div class="op-card green">
+      <div class="op-emoji">⬇️🟰</div>
+      <div class="op-sym">&lt;=</div>
+      <div class="op-desc">menor ou igual?</div>
+      <div class="op-example">3 &lt;= 5 RESULTADO 1</div>
+    </div>
+  </div>
+
+  <!-- Lógicos -->
+  <h3 class="reveal" style="font-weight:900;color:var(--heading);margin:2rem 0 .75rem;display:flex;align-items:center;gap:.5rem;">🧠 Combinam condições</h3>
+  <div class="op-grid reveal">
+    <div class="op-card purple">
+      <div class="op-emoji">🤝</div>
+      <div class="op-sym">&amp;&amp;</div>
+      <div class="op-desc">E (ambos ✅?)</div>
+      <div class="op-example">sol ☀️ &amp;&amp; quente 🌡️</div>
+    </div>
+    <div class="op-card purple">
+      <div class="op-emoji">🔀</div>
+      <div class="op-sym">||</div>
+      <div class="op-desc">OU (um basta)</div>
+      <div class="op-example">carro 🚗 || ônibus 🚌</div>
+    </div>
+    <div class="op-card purple">
+      <div class="op-emoji">🔄</div>
+      <div class="op-sym">!</div>
+      <div class="op-desc">NÃO (inverte)</div>
+      <div class="op-example">!✅ → ❌</div>
+    </div>
+  </div>
+
+  <div class="note danger reveal">
+    <div class="note-icon">🔴</div>
+    <div>
+      <strong style="color:var(--heading)">=&nbsp; vs &nbsp;==</strong><br>
+      <code style="font-family:var(--mono)">x = 5</code> &nbsp; 📦 &nbsp; guarda 5 na gaveta (armazena valor em variável)<br>
+      <code style="font-family:var(--mono)">x == 5</code> &nbsp; ❓ &nbsp; compara se gaveta tem 5 (resultado 1 ou 0)
+    </div>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════
+     SEÇÃO 6 — CONDICIONAIS = ENCRUZILHADA
+══════════════════════════════════ -->
+<section id="condicionais" class="section-wrap">
+  <div class="section-eyebrow reveal">06 — Decisões</div>
+  <h2 class="section-title reveal">🔀 if / else = Encruzilhada</h2>
+  <p class="section-lead reveal">O programa chega numa <strong style="color:var(--heading)">encruzilhada</strong>. Dependendo da resposta (✅ ou ❌), ele escolhe um caminho diferente.</p>
+
+  <!-- Diagrama de fluxo visual -->
+  <div class="if-diagram reveal">
+    <div class="if-box start">🚶 Programa chega aqui</div>
+    <div class="if-arrow"></div>
+    <div class="if-box cond">❓ &nbsp; nota &gt;= 7 ?</div>
+    <div style="display:flex;gap:2.5rem;width:100%;justify-content:center;margin-top:0">
+      <div class="if-branch-col">
+        <div class="if-label" style="color:var(--green)">✅ SIM</div>
+        <div class="if-arrow"></div>
+        <div class="if-box yes">🎉 "Aprovado!"</div>
+      </div>
+      <div class="if-branch-col">
+        <div class="if-label" style="color:var(--red)">❌ NÃO</div>
+        <div class="if-arrow"></div>
+        <div class="if-box cond" style="border-color:var(--amber);color:var(--amber)">❓ &nbsp; nota &gt;= 5 ?</div>
+        <div style="display:flex;gap:1.5rem;justify-content:center">
+          <div class="if-branch-col">
+            <div class="if-label" style="color:var(--green)">✅</div>
+            <div class="if-arrow"></div>
+            <div class="if-box yes" style="font-size:.78rem">⚠️ "Recuperação"</div>
+          </div>
+          <div class="if-branch-col">
+            <div class="if-label" style="color:var(--red)">❌</div>
+            <div class="if-arrow"></div>
+            <div class="if-box no">😢 "Reprovado"</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="code-block reveal">
+    <div class="code-bar">
+      <div class="code-dots"><span></span><span></span><span></span></div>
+      <span class="code-fname">condicional.c</span>
+    </div>
+    <pre><span class="m">#include &lt;stdio.h&gt;</span>
+
+<span class="k">int</span> <span class="fn">main</span>() {
+    <span class="t">float</span> <span class="v">nota</span><span class="p">;</span>
+    <span class="fn">printf</span>(<span class="s">"Nota: "</span>)<span class="p">;</span>
+    <span class="fn">scanf</span>(<span class="s">"%f"</span>, <span class="p">&amp;</span><span class="v">nota</span>)<span class="p">;</span>
+
+    <span class="k">if</span> (<span class="v">nota</span> <span class="p">&gt;=</span> <span class="n">7</span>) {                <span class="c">// ✅ SIM</span>
+        <span class="fn">printf</span>(<span class="s">"Aprovado!\n"</span>)<span class="p">;</span>
+    } <span class="k">else if</span> (<span class="v">nota</span> <span class="p">&gt;=</span> <span class="n">5</span>) {         <span class="c">// ⚠️ talvez</span>
+        <span class="fn">printf</span>(<span class="s">"Recuperação\n"</span>)<span class="p">;</span>
+    } <span class="k">else</span> {                          <span class="c">// ❌ NÃO</span>
+        <span class="fn">printf</span>(<span class="s">"Reprovado\n"</span>)<span class="p">;</span>
+    }
+
+    <span class="k">return</span> <span class="n">0</span><span class="p">;</span>
+}</pre>
+  </div>
+
+  <!-- switch analogy -->
+  <h3 class="reveal" style="font-weight:900;color:var(--heading);margin:2.5rem 0 .5rem;font-size:1.2rem;">switch = Cardápio de opções fixas</h3>
+  <div class="analogy-card reveal">
+    <div class="analogy-side">
+      <div class="analogy-icon">📋</div>
+      <div style="font-size:.95rem;font-weight:800;color:var(--muted);margin-top:.3rem">
+        Opção 1 → 🍕<br>
+        Opção 2 → 🍔<br>
+        Outro &nbsp;&nbsp; → 🤷
+      </div>
+      <div class="analogy-label">cardápio do restaurante</div>
+    </div>
+    <div class="analogy-arrow">=</div>
+    <div class="analogy-side">
+      <pre style="font-family:var(--mono);font-size:.8rem;line-height:1.7;text-align:left"><span class="k">switch</span> (<span class="v">opcao</span>) {
+  <span class="k">case</span> <span class="n">1</span><span class="p">:</span>
+    <span class="fn">printf</span>(<span class="s">"Pizza\n"</span>)<span class="p">;</span>
+    <span class="k">break</span><span class="p">;</span>
+  <span class="k">case</span> <span class="n">2</span><span class="p">:</span>
+    <span class="fn">printf</span>(<span class="s">"Hamburguer\n"</span>)<span class="p">;</span>
+    <span class="k">break</span><span class="p">;</span>
+  <span class="k">default</span><span class="p">:</span>
+    <span class="fn">printf</span>(<span class="s">"Outro\n"</span>)<span class="p">;</span>
+}</pre>
+    </div>
+  </div>
+  <div class="note danger reveal">
+    <div class="note-icon">🔴</div>
+    <div>Sempre escreva <code style="font-family:var(--mono)">break;</code> depois de cada <code style="font-family:var(--mono)">case</code>. Sem break o programa cai no próximo case automaticamente!</div>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════
+     SEÇÃO 7 — LAÇOS = ESTEIRA
+══════════════════════════════════ -->
+<section id="loops" class="section-wrap">
+  <div class="section-eyebrow reveal">07 — Repetição</div>
+  <h2 class="section-title reveal">🔁 Laços = Esteira de Fábrica</h2>
+  <p class="section-lead reveal">Uma <strong style="color:var(--heading)">esteira</strong> repete o mesmo processo várias vezes. O laço faz o mesmo com o código — enquanto a condição for ✅.</p>
+
+  <!-- for analogy -->
+  <h3 class="reveal" style="font-weight:900;color:var(--heading);margin-bottom:.75rem;display:flex;align-items:center;gap:.5rem;">🏭 for — voltas contadas</h3>
+  <div class="analogy-card reveal">
+    <div class="analogy-side">
+      <div class="analogy-icon">🔔</div>
+      <div style="font-weight:800;font-size:.9rem;color:var(--muted);text-align:left;line-height:1.8">
+        começo: i = 0<br>
+        ✅ enquanto i &lt; 5<br>
+        &nbsp;&nbsp;&nbsp;fazer algo<br>
+        &nbsp;&nbsp;&nbsp;i++ (próxima)<br>
+        ❌ parar
+      </div>
+      <div class="analogy-label">campainha da fábrica</div>
+    </div>
+    <div class="analogy-arrow">=</div>
+    <div class="analogy-side">
+      <pre style="font-family:var(--mono);font-size:.82rem;line-height:1.9;text-align:left"><span class="k">for</span> (<span class="t">int</span> <span class="v">i</span> <span class="p">=</span> <span class="n">0</span><span class="p">;</span> <span class="v">i</span> <span class="p">&lt;</span> <span class="n">5</span><span class="p">;</span> <span class="v">i</span><span class="p">++</span>) {
+  <span class="c">// fazer algo 5 vezes</span>
+  <span class="fn">printf</span>(<span class="s">"%d\n"</span>, <span class="v">i</span>)<span class="p">;</span>
+}</pre>
+    </div>
+  </div>
+
+  <!-- Loop tracker visual -->
+  <div class="loop-track reveal">
+    <div class="loop-header">for (i = 0; i &lt; 5; i++) — passo a passo</div>
+    <div class="track-row run"><span class="track-i">i = 0</span><span class="track-cond">0 &lt; 5 ✅</span><span class="track-out">executa → imprime 0</span></div>
+    <div class="track-row run"><span class="track-i">i = 1</span><span class="track-cond">1 &lt; 5 ✅</span><span class="track-out">executa → imprime 1</span></div>
+    <div class="track-row run"><span class="track-i">i = 2</span><span class="track-cond">2 &lt; 5 ✅</span><span class="track-out">executa → imprime 2</span></div>
+    <div class="track-row run"><span class="track-i">i = 3</span><span class="track-cond">3 &lt; 5 ✅</span><span class="track-out">executa → imprime 3</span></div>
+    <div class="track-row run"><span class="track-i">i = 4</span><span class="track-cond">4 &lt; 5 ✅</span><span class="track-out">executa → imprime 4</span></div>
+    <div class="track-row stop"><span class="track-i">i = 5</span><span class="track-stop">5 &lt; 5 ❌ → PARA 🛑</span></div>
+  </div>
+
+  <!-- while analogy -->
+  <h3 class="reveal" style="font-weight:900;color:var(--heading);margin:2.5rem 0 .75rem;display:flex;align-items:center;gap:.5rem;">🚦 while — repete enquanto for ✅</h3>
+  <div class="analogy-card reveal">
+    <div class="analogy-side">
+      <div class="analogy-icon">🚦</div>
+      <div style="font-weight:800;font-size:.9rem;color:var(--muted)">Enquanto sinal ✅ verde<br>→ avançar<br>Sinal ❌ vermelho<br>→ parar</div>
+    </div>
+    <div class="analogy-arrow">=</div>
+    <div class="analogy-side">
+      <pre style="font-family:var(--mono);font-size:.82rem;line-height:1.9"><span class="k">while</span> (<span class="v">n</span> <span class="p">&gt;</span> <span class="n">0</span>) {
+  <span class="fn">printf</span>(<span class="s">"%d\n"</span>, <span class="v">n</span>)<span class="p">;</span>
+  <span class="v">n</span><span class="p">--;</span>
+}</pre>
+      <div class="analogy-label">repete enquanto n &gt; 0</div>
+    </div>
+  </div>
+
+  <!-- do while analogy -->
+  <h3 class="reveal" style="font-weight:900;color:var(--heading);margin:2.5rem 0 .75rem;display:flex;align-items:center;gap:.5rem;">🍽️ do…while — executa pelo menos 1 vez</h3>
+  <div class="analogy-card reveal">
+    <div class="analogy-side">
+      <div class="analogy-icon">🍽️</div>
+      <div style="font-weight:800;font-size:.9rem;color:var(--muted)">Sempre sirvo o prato<br>→ depois pergunto:<br>"Quer mais?"<br>✅ → repete<br>❌ → para</div>
+    </div>
+    <div class="analogy-arrow">=</div>
+    <div class="analogy-side">
+      <pre style="font-family:var(--mono);font-size:.82rem;line-height:1.9"><span class="k">do</span> {
+  <span class="fn">printf</span>(<span class="s">"Senha: "</span>)<span class="p">;</span>
+  <span class="fn">scanf</span>(<span class="s">"%d"</span>, <span class="p">&amp;</span><span class="v">s</span>)<span class="p">;</span>
+} <span class="k">while</span> (<span class="v">s</span> <span class="p">!=</span> <span class="n">1234</span>)<span class="p">;</span></pre>
+      <div class="analogy-label">tenta ao menos 1 vez</div>
+    </div>
+  </div>
+
+  <!-- Comparação dos 3 laços -->
+  <div class="flow-steps reveal" style="margin-top:2rem">
+    <div class="flow-step">
+      <div class="flow-step-icon">🏭</div>
+      <div class="flow-step-body">
+        <div class="flow-step-title">for &nbsp;<span style="font-family:var(--mono);color:var(--cyan);font-size:.82rem">for (i=0; i&lt;N; i++)</span></div>
+        <div class="flow-step-sub">Sabe quantas vezes vai repetir &nbsp;·&nbsp; número de voltas definido</div>
+      </div>
+    </div>
+    <div class="flow-connector"></div>
+    <div class="flow-step">
+      <div class="flow-step-icon">🚦</div>
+      <div class="flow-step-body">
+        <div class="flow-step-title">while &nbsp;<span style="font-family:var(--mono);color:var(--green);font-size:.82rem">while (cond)</span></div>
+        <div class="flow-step-sub">Não sabe quantas vezes &nbsp;·&nbsp; testa antes de entrar &nbsp;·&nbsp; pode não executar nenhuma vez</div>
+      </div>
+    </div>
+    <div class="flow-connector"></div>
+    <div class="flow-step">
+      <div class="flow-step-icon">🍽️</div>
+      <div class="flow-step-body">
+        <div class="flow-step-title">do…while &nbsp;<span style="font-family:var(--mono);color:var(--amber);font-size:.82rem">do { } while (cond);</span></div>
+        <div class="flow-step-sub">Executa ao menos 1 vez &nbsp;·&nbsp; testa depois de executar</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="code-block reveal">
+    <div class="code-bar">
+      <div class="code-dots"><span></span><span></span><span></span></div>
+      <span class="code-fname">loops.c</span>
+    </div>
+    <pre><span class="m">#include &lt;stdio.h&gt;</span>
+
+<span class="k">int</span> <span class="fn">main</span>() {
+
+    <span class="c">/* 🏭 for — tabuada do 5 */</span>
+    <span class="k">for</span> (<span class="t">int</span> <span class="v">i</span> <span class="p">=</span> <span class="n">1</span><span class="p">;</span> <span class="v">i</span> <span class="p">&lt;=</span> <span class="n">10</span><span class="p">;</span> <span class="v">i</span><span class="p">++</span>) {
+        <span class="fn">printf</span>(<span class="s">"5 x %d = %d\n"</span>, <span class="v">i</span>, <span class="n">5</span><span class="p">*</span><span class="v">i</span>)<span class="p">;</span>
+    }
+
+    <span class="c">/* 🚦 while — conta regressiva */</span>
+    <span class="t">int</span> <span class="v">n</span> <span class="p">=</span> <span class="n">5</span><span class="p">;</span>
+    <span class="k">while</span> (<span class="v">n</span> <span class="p">&gt;</span> <span class="n">0</span>) {
+        <span class="fn">printf</span>(<span class="s">"%d... "</span>, <span class="v">n</span>)<span class="p">;</span>
+        <span class="v">n</span><span class="p">--;</span>
+    }
+    <span class="fn">printf</span>(<span class="s">"\n"</span>)<span class="p">;</span>
+
+    <span class="c">/* 🍽️ do…while — validar senha */</span>
+    <span class="t">int</span> <span class="v">senha</span><span class="p">;</span>
+    <span class="k">do</span> {
+        <span class="fn">printf</span>(<span class="s">"Senha: "</span>)<span class="p">;</span>
+        <span class="fn">scanf</span>(<span class="s">"%d"</span>, <span class="p">&amp;</span><span class="v">senha</span>)<span class="p">;</span>
+    } <span class="k">while</span> (<span class="v">senha</span> <span class="p">!=</span> <span class="n">1234</span>)<span class="p">;</span>
+    <span class="fn">printf</span>(<span class="s">"Acesso!\n"</span>)<span class="p">;</span>
+
+    <span class="k">return</span> <span class="n">0</span><span class="p">;</span>
+}</pre>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════
+     SEÇÃO 8 — EXERCÍCIOS
+══════════════════════════════════ -->
+<section id="exercicios" class="section-wrap">
+  <div class="section-eyebrow reveal">08 — Praticar</div>
+  <h2 class="section-title reveal">🏋️ Exercícios</h2>
+  <p class="section-lead reveal">Hora de criar! Tente resolver antes de ver a dica.</p>
+
+  <div class="ex-card reveal">
+    <div class="ex-head">
+      <span class="ex-num">01</span>
+      <span class="ex-title">📦 Criar e exibir gavetas</span>
+    </div>
+    <ul>
+      <li>Crie gavetas: seu nome, sua idade, sua nota favorita.</li>
+      <li>Use <code style="font-family:var(--mono)">printf</code> para mostrar tudo na tela.</li>
+      <li>Formato: <code style="font-family:var(--mono)">"Nome: Ana | Idade: 20 | Nota: 9.5"</code></li>
+    </ul>
+    <div class="ex-tip">💡 Dica: use <code>char nome[50]</code> para texto, <code>int</code> para idade, <code>float</code> para nota.</div>
+  </div>
+
+  <div class="ex-card reveal" style="border-color:rgba(52,211,153,.2)">
+    <div class="ex-head">
+      <span class="ex-num" style="background:var(--green);color:#000">02</span>
+      <span class="ex-title">⌨️ Perguntar e responder</span>
+    </div>
+    <ul>
+      <li>Pergunte o nome do usuário com <code style="font-family:var(--mono)">printf</code>.</li>
+      <li>Leia a resposta com <code style="font-family:var(--mono)">scanf</code>.</li>
+      <li>Exiba: <code style="font-family:var(--mono)">"Olá, [nome]! Bem-vindo ao C!"</code></li>
+    </ul>
+    <div class="ex-tip" style="border-color:var(--green);color:var(--green)">💡 Dica: texto sem espaços → <code>scanf("%s", nome)</code> sem &amp;.</div>
+  </div>
+
+  <div class="ex-card reveal" style="border-color:rgba(251,191,36,.2)">
+    <div class="ex-head">
+      <span class="ex-num" style="background:var(--amber);color:#000">03</span>
+      <span class="ex-title">🔀 Estação do tempo</span>
+    </div>
+    <ul>
+      <li>Peça a temperatura atual (número inteiro).</li>
+      <li>Se &gt;= 30 → imprima "Muito quente!"</li>
+      <li>Se &gt;= 20 → imprima "Temperatura boa!"</li>
+      <li>Se &lt; 20 → imprima "Frio!"</li>
+    </ul>
+    <div class="ex-tip" style="border-color:var(--amber);color:var(--amber)">💡 Dica: use <code>if / else if / else</code> — 3 caminhos diferentes na encruzilhada.</div>
+  </div>
+
+  <div class="ex-card reveal" style="border-color:rgba(167,139,250,.2)">
+    <div class="ex-head">
+      <span class="ex-num" style="background:var(--purple)">04</span>
+      <span class="ex-title">🏭 Esteira: tabuada</span>
+    </div>
+    <ul>
+      <li>Pergunte um número ao usuário.</li>
+      <li>Use <code style="font-family:var(--mono)">for</code> para imprimir a tabuada de 1 a 10.</li>
+      <li>Formato: <code style="font-family:var(--mono)">5 x 3 = 15</code></li>
+    </ul>
+    <div class="ex-tip" style="border-color:var(--purple);color:var(--purple)">💡 Dica: <code>for (int i = 1; i &lt;= 10; i++)</code> — a esteira roda 10 vezes.</div>
+  </div>
+
+  <div class="ex-card reveal" style="border-color:rgba(248,113,113,.2)">
+    <div class="ex-head">
+      <span class="ex-num" style="background:var(--red)">05</span>
+      <span class="ex-title">🍽️ Adivinhe o número</span>
+    </div>
+    <ul>
+      <li>Defina um número secreto: <code style="font-family:var(--mono)">int secreto = 42;</code></li>
+      <li>Use <code style="font-family:var(--mono)">do…while</code> para pedir palpites.</li>
+      <li>Se palpite &gt; secreto → "Menor!"</li>
+      <li>Se palpite &lt; secreto → "Maior!"</li>
+      <li>Acertou → "Parabéns! Em [X] tentativas!"</li>
+    </ul>
+    <div class="ex-tip" style="border-color:var(--red);color:var(--red)">💡 Dica: use uma gaveta <code>int tentativas = 0</code> e incremente com <code>tentativas++</code> a cada volta.</div>
+  </div>
+
+  <!-- Gabarito EX 03 -->
+  <h3 class="reveal" style="font-weight:900;color:var(--heading);margin:2.5rem 0 .75rem;font-size:1.15rem;">✅ Gabarito — Exercício 03 (estação do tempo)</h3>
+  <div class="code-block reveal">
+    <div class="code-bar">
+      <div class="code-dots"><span></span><span></span><span></span></div>
+      <span class="code-fname">temperatura.c</span>
+    </div>
+    <pre><span class="m">#include &lt;stdio.h&gt;</span>
+
+<span class="k">int</span> <span class="fn">main</span>() {
+    <span class="t">int</span> <span class="v">temp</span><span class="p">;</span>
+
+    <span class="fn">printf</span>(<span class="s">"Temperatura: "</span>)<span class="p">;</span>
+    <span class="fn">scanf</span>(<span class="s">"%d"</span>, <span class="p">&amp;</span><span class="v">temp</span>)<span class="p">;</span>
+
+    <span class="k">if</span> (<span class="v">temp</span> <span class="p">&gt;=</span> <span class="n">30</span>) {
+        <span class="fn">printf</span>(<span class="s">"Muito quente!\n"</span>)<span class="p">;</span>
+    } <span class="k">else if</span> (<span class="v">temp</span> <span class="p">&gt;=</span> <span class="n">20</span>) {
+        <span class="fn">printf</span>(<span class="s">"Temperatura boa!\n"</span>)<span class="p">;</span>
+    } <span class="k">else</span> {
+        <span class="fn">printf</span>(<span class="s">"Frio!\n"</span>)<span class="p">;</span>
+    }
+
+    <span class="k">return</span> <span class="n">0</span><span class="p">;</span>
+}</pre>
+  </div>
+</section>
+
+
+<!-- FOOTER -->
+<footer>
+  <div><span>C Visual</span> &nbsp;·&nbsp; 2025</div>
+</footer>
+
+<script>
+  // Scroll reveal
+  const els = document.querySelectorAll('.reveal');
+  const obs = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) { e.target.classList.add('visible'); obs.unobserve(e.target); }
+    });
+  }, { threshold: 0.07, rootMargin: '0px 0px -36px 0px' });
+  els.forEach(el => obs.observe(el));
+
+  // Nav active
+  const secs = document.querySelectorAll('section[id]');
+  const links = document.querySelectorAll('nav a');
+  window.addEventListener('scroll', () => {
+    let cur = '';
+    secs.forEach(s => { if (window.scrollY >= s.offsetTop - 80) cur = s.id; });
+    links.forEach(a => {
+      const active = a.getAttribute('href') === '#' + cur;
+      a.style.color = active ? 'var(--heading)' : '';
+      a.style.borderColor = active ? 'var(--cyan)' : 'transparent';
+    });
+  });
+</script>
+</body>
+</html>
