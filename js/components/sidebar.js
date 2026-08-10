@@ -60,6 +60,12 @@ class Header extends HTMLElement {
 				  Programação OO I
 				</a>
 			  </li>
+			  <li class="nav-item progooi" hidden>
+				<a href="/xall/html/progooi/java.html" class="nav-link text-white">
+				  <i class="bi me-5" width="16" height="16"></i>
+				  Java
+				</a>
+			  </li>
 			  <li class="nav-item">
 				<a href="/xall/html/webi/home.html" id="webi" class="nav-link text-white">
 				  <i class="bi me-2 bi-at" width="16" height="16"></i>
