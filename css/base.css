@@ -1,6 +1,6 @@
 #content-component {
 	margin-left:1vw;
-	margin-top:1vh;
+	margin-top:2vh;
 	color: white;
 }
 #content-component a {
@@ -9,4 +9,7 @@
 }
 #content-component a:hover {
 	color: darkgreen;
+}
+h5 {
+	margin-top: 3vh;
 }
