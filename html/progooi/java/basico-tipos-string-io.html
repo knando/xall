@@ -1,0 +1,1219 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Java Básico</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;600;700&family=Syne:wght@400;700;800&family=DM+Sans:ital,wght@0,300;0,400;1,300&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:        #0b0d12;
+    --surface:   #111420;
+    --surface2:  #171b28;
+    --border:    #1e2436;
+    --accent:    #00e5ff;
+    --accent2:   #7c3aed;
+    --accent3:   #f59e0b;
+    --green:     #22d3a4;
+    --red:       #f87171;
+    --text:      #c9d1e0;
+    --muted:     #5a6280;
+    --heading:   #eef2ff;
+    --mono:      'JetBrains Mono', monospace;
+    --sans:      'DM Sans', sans-serif;
+    --display:   'Times', serif;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--sans);
+    font-size: 15px;
+    line-height: 1.7;
+    min-height: 100vh;
+    font-variant-ligatures: none;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 0;
+    opacity: .45;
+  }
+
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    background: rgba(11,13,18,.88);
+    backdrop-filter: blur(14px);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 0;
+    padding: 0 2rem;
+    height: 56px;
+	overflow:hidden;
+    overflow-x: auto;
+  }
+
+  nav .logo {
+    font-family: var(--display);
+    font-weight: 800;
+    font-size: 1.1rem;
+    color: var(--accent);
+    white-space: nowrap;
+    margin-right: 2rem;
+    letter-spacing: -0.03em;
+  }
+
+  nav a {
+    color: var(--muted);
+    text-decoration: none;
+    font-family: var(--mono);
+    font-size: .72rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: .08em;
+    padding: 0 .9rem;
+    height: 56px;
+    display: flex;
+    align-items: center;
+    white-space: nowrap;
+    border-bottom: 2px solid transparent;
+    transition: color .2s, border-color .2s;
+  }
+  nav a:hover { color: var(--heading); border-color: var(--accent); }
+
+  #hero {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 6rem 2rem 4rem;
+    position: relative;
+    overflow: hidden;
+  }
+
+  #hero::before {
+    content: '';
+    position: absolute;
+    width: 700px; height: 700px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(0,229,255,.07) 0%, transparent 70%);
+    top: 50%; left: 50%;
+    transform: translate(-50%,-50%);
+    animation: pulse 6s ease-in-out infinite;
+  }
+
+  @keyframes pulse {
+    0%,100% { transform: translate(-50%,-50%) scale(1); opacity: .6; }
+    50%      { transform: translate(-50%,-50%) scale(1.15); opacity: 1; }
+  }
+
+  .hero-tag {
+    font-family: var(--mono);
+    font-size: .72rem;
+    color: var(--accent);
+    letter-spacing: .18em;
+    text-transform: uppercase;
+    margin-bottom: 1.5rem;
+    opacity: 0;
+    animation: fadeUp .6s .2s forwards;
+  }
+
+  #hero h1 {
+    font-family: var(--display);
+    font-size: clamp(3.5rem, 10vw, 7rem);
+    font-weight: 800;
+    line-height: .95;
+    letter-spacing: -.04em;
+    color: var(--heading);
+    opacity: 0;
+    animation: fadeUp .7s .4s forwards;
+  }
+
+  #hero h1 span { color: var(--accent); }
+
+  .hero-sub {
+    max-width: 520px;
+    margin: 1.5rem auto 0;
+    color: var(--muted);
+    font-size: 1rem;
+    font-weight: 300;
+    opacity: 0;
+    animation: fadeUp .7s .6s forwards;
+  }
+
+  .hero-badges {
+    display: flex;
+    gap: .75rem;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin-top: 2.5rem;
+    opacity: 0;
+    animation: fadeUp .7s .8s forwards;
+  }
+
+  .badge {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: .35rem .9rem;
+    font-family: var(--mono);
+    font-size: .72rem;
+    color: var(--muted);
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .scroll-hint {
+    position: absolute;
+    bottom: 2.5rem;
+    left: 45%;
+    transform: translateX(-50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: .4rem;
+    color: var(--muted);
+    font-family: var(--mono);
+    font-size: .65rem;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    opacity: 0;
+    animation: fadeUp .7s 1.2s forwards;
+  }
+
+  .scroll-hint::after {
+    content: '';
+    width: 1px; height: 40px;
+    background: linear-gradient(to bottom, var(--accent), transparent);
+    animation: scrollLine 2s ease-in-out infinite;
+  }
+
+  @keyframes scrollLine {
+    0%,100% { opacity: 1; }
+    50%      { opacity: .2; }
+  }
+
+  section { padding: 5rem 2rem; max-width: 980px; margin: 0 auto; }
+  section + section { border-top: 1px solid var(--border); }
+
+  .section-label {
+    font-family: var(--mono);
+    font-size: .65rem;
+    letter-spacing: .2em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: .75rem;
+  }
+
+  .section-title {
+    font-family: var(--display);
+    font-size: clamp(2rem, 5vw, 3rem);
+    font-weight: 800;
+    color: var(--heading);
+    letter-spacing: -.03em;
+    line-height: 1.1;
+    margin-bottom: 1.5rem;
+  }
+
+  .section-desc {
+    color: var(--muted);
+    max-width: 640px;
+    margin-bottom: 3rem;
+    font-weight: 300;
+  }
+
+  .def-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 1rem;
+    margin-bottom: 2.5rem;
+  }
+
+  .def-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1.25rem 1.4rem;
+    position: relative;
+    overflow: hidden;
+    transition: border-color .25s, transform .2s;
+  }
+
+  .def-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0;
+    width: 3px; height: 100%;
+    background: var(--accent);
+    border-radius: 0 2px 2px 0;
+  }
+
+  .def-card:hover {
+    border-color: rgba(0,229,255,.3);
+    transform: translateY(-2px);
+  }
+
+  .def-card.green::before  { background: var(--green); }
+  .def-card.amber::before  { background: var(--accent3); }
+  .def-card.purple::before { background: var(--accent2); }
+  .def-card.red::before    { background: var(--red); }
+
+  .def-term {
+    font-family: var(--mono);
+    font-size: .78rem;
+    font-weight: 800;
+    color: var(--accent);
+    text-transform: uppercase;
+    letter-spacing: .1em;
+    margin-bottom: .3rem;
+  }
+
+  .def-card.green  .def-term { color: var(--green); }
+  .def-card.amber  .def-term { color: var(--accent3); }
+  .def-card.purple .def-term { color: var(--accent2); }
+  .def-card.red    .def-term { color: var(--red); }
+
+  .def-desc {
+    font-size: .88rem;
+    color: var(--text);
+    line-height: 1.55;
+  }
+
+  .code-wrap {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+    margin: 1.5rem 0;
+    position: relative;
+  }
+
+  .code-header {
+    background: var(--surface2);
+    border-bottom: 1px solid var(--border);
+    padding: .55rem 1rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .code-dots { display: flex; gap: 6px; }
+  .code-dots span {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+  }
+  .code-dots span:nth-child(1) { background: #ff5f57; }
+  .code-dots span:nth-child(2) { background: #febc2e; }
+  .code-dots span:nth-child(3) { background: #28c840; }
+
+  .code-filename {
+    font-family: var(--mono);
+    font-size: .68rem;
+    color: var(--muted);
+    letter-spacing: .04em;
+  }
+
+  pre {
+    padding: 1.4rem 1.5rem;
+    overflow-x: auto;
+    font-family: var(--mono);
+    font-size: .82rem;
+    line-height: 1.75;
+    tab-size: 4;
+  }
+
+  .k  { color: #c792ea; font-weight: 800; }
+  .t  { color: #80cbc4; }
+  .fn { color: #82aaff; }
+  .s  { color: #c3e88d; }
+  .n  { color: #f78c6c; }
+  .c  { color: #546e7a; font-style: italic; }
+  .p  { color: var(--accent); }
+  .v  { color: #eeffff; }
+  .m  { color: var(--accent3); }
+  .cl { color: #ffcb6b; }
+
+  .type-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: var(--mono);
+    font-size: .8rem;
+    margin: 1.5rem 0;
+  }
+
+  .type-table th {
+    text-align: left;
+    padding: .6rem 1rem;
+    border-bottom: 2px solid var(--accent);
+    color: var(--accent);
+    font-size: .68rem;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+  }
+
+  .type-table td {
+    padding: .65rem 1rem;
+    border-bottom: 1px solid var(--border);
+    color: var(--text);
+  }
+
+  .type-table tr:hover td { background: var(--surface2); }
+  .type-table .keyword { color: #c792ea; }
+  .type-table .bytes   { color: var(--accent3); text-align: center; }
+  .type-table .example { color: var(--green); }
+
+  .op-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: .75rem;
+    margin: 1.5rem 0;
+  }
+
+  .op-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: .9rem 1.1rem;
+    display: flex;
+    align-items: flex-start;
+    gap: .75rem;
+    transition: border-color .2s;
+  }
+
+  .op-card:hover { border-color: rgba(0,229,255,.25);}
+
+  .op-sym {
+    font-family: var(--mono);
+    font-size: 1.3rem;
+    font-weight: 800;
+    color: var(--accent);
+    min-width: 2rem;
+    text-align: center;
+    line-height: 1;
+    padding-top: 2px;
+  }
+
+  .op-card.green  .op-sym { color: var(--green);}
+  .op-card.amber  .op-sym { color: var(--accent3); }
+  .op-card.purple .op-sym { color: #c792ea; }
+
+  .op-info { flex: 1; }
+  .op-name { font-size: .8rem; color: var(--heading); font-weight: 600; line-height: 1.3; }
+  .op-eg   { font-family: var(--mono); font-size: .72rem; color: var(--muted); margin-top: .2rem; }
+
+  .exercise {
+    background: linear-gradient(135deg, rgba(0,229,255,.04) 0%, rgba(124,58,237,.06) 100%);
+    border: 1px solid rgba(0,229,255,.2);
+    border-radius: 8px;
+    padding: 1.5rem 1.75rem;
+    margin: 2rem 0;
+  }
+
+  .exercise-header {
+    display: flex;
+    align-items: center;
+    gap: .75rem;
+    margin-bottom: 1rem;
+  }
+
+  .exercise-num {
+    background: var(--accent);
+    color: #000;
+    font-family: var(--mono);
+    font-size: .72rem;
+    font-weight: 800;
+    padding: .2rem .6rem;
+    border-radius: 3px;
+  }
+
+  .exercise-title {
+    font-family: var(--display);
+    font-weight: 800;
+    color: var(--heading);
+    font-size: 1rem;
+  }
+
+  .exercise ul {
+    padding-left: 1.2rem;
+    color: var(--text);
+    font-size: .9rem;
+  }
+
+  .exercise li { margin-bottom: .3rem; }
+
+  .exercise .tip {
+    margin-top: 1rem;
+    padding: .75rem 1rem;
+    background: rgba(245,158,11,.07);
+    border-left: 3px solid var(--accent3);
+    border-radius: 0 4px 4px 0;
+    font-size: .85rem;
+    color: var(--accent3);
+  }
+
+  .note {
+    display: flex;
+    gap: .75rem;
+    align-items: flex-start;
+    padding: .9rem 1.1rem;
+    border-radius: 6px;
+    margin: 1rem 0;
+    font-size: .88rem;
+  }
+
+  .note.info    { background: rgba(0,229,255,.07); border: 1px solid rgba(0,229,255,.2); }
+  .note.warning { background: rgba(245,158,11,.07); border: 1px solid rgba(245,158,11,.2); }
+  .note.danger  { background: rgba(248,113,113,.07); border: 1px solid rgba(248,113,113,.2); }
+
+  .note-icon { font-size: 1rem; flex-shrink: 0; padding-top: .1rem; }
+  .note.info    .note-icon { color: var(--accent); }
+  .note.warning .note-icon { color: var(--accent3); }
+  .note.danger  .note-icon { color: var(--red); }
+
+  .loop-vis {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin: 1.5rem 0;
+  }
+
+  .loop-row {
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+    font-family: var(--mono);
+    font-size: .78rem;
+    padding: .3rem 0;
+    color: var(--muted);
+    border-left: 2px solid transparent;
+    padding-left: .75rem;
+    transition: all .15s;
+  }
+
+  .loop-row.active {
+    color: var(--heading);
+    border-left-color: var(--accent);
+    background: rgba(0,229,255,.04);
+  }
+
+  .loop-i { color: var(--accent3); font-weight: 800; min-width: 90px; }
+  .loop-cond { color: var(--green); min-width: 140px; }
+  .loop-out  { color: var(--accent); }
+
+  /* ── GAVETAS (analogia de array) ── */
+  .drawer-wrap {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 2rem 1.5rem;
+    margin: 1.5rem 0;
+    display: flex;
+    gap: .6rem;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  .drawer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: .5rem;
+  }
+
+  .drawer-box {
+    width: 68px;
+    height: 68px;
+    border: 2px solid var(--accent);
+    border-radius: 6px;
+    background: var(--surface2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--mono);
+    font-weight: 800;
+    color: var(--heading);
+    font-size: 1rem;
+  }
+
+  .drawer-idx {
+    font-family: var(--mono);
+    font-size: .68rem;
+    color: var(--accent3);
+  }
+
+  /* ── JANELA (analogia JDialog) ── */
+  .dialog-window {
+    max-width: 360px;
+    margin: 1.5rem auto;
+    border-radius: 8px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+    box-shadow: 0 20px 50px rgba(0,0,0,.4);
+  }
+
+  .dialog-titlebar {
+    background: var(--surface2);
+    padding: .5rem .8rem;
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+    font-family: var(--mono);
+    font-size: .7rem;
+    color: var(--muted);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .dialog-body {
+    background: var(--surface);
+    padding: 1.5rem;
+    text-align: center;
+    color: var(--text);
+    font-size: .9rem;
+  }
+
+  .dialog-input {
+    margin-top: .9rem;
+    width: 100%;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: .5rem .7rem;
+    color: var(--muted);
+    font-family: var(--mono);
+    font-size: .78rem;
+    text-align: left;
+  }
+
+  .dialog-actions {
+    margin-top: 1.1rem;
+    display: flex;
+    gap: .6rem;
+    justify-content: center;
+  }
+
+  .dialog-btn {
+    font-family: var(--mono);
+    font-size: .7rem;
+    padding: .4rem 1rem;
+    border-radius: 4px;
+    border: 1px solid var(--border);
+    color: var(--muted);
+  }
+
+  .dialog-btn.primary { background: var(--accent); color: #000; border-color: var(--accent); font-weight: 800; }
+
+  footer {
+    text-align: center;
+    padding: 4rem 2rem;
+    color: var(--muted);
+    font-family: var(--mono);
+    font-size: .72rem;
+    letter-spacing: .06em;
+    border-top: 1px solid var(--border);
+  }
+
+  footer span { color: var(--accent); }
+
+  @media (max-width: 640px) {
+    nav a { padding: 0 .6rem; font-size: .65rem; }
+    nav .logo { margin-right: 1rem; }
+    .op-grid { grid-template-columns: 1fr 1fr; }
+    .def-grid { grid-template-columns: 1fr; }
+  }
+
+  .reveal {
+    opacity: 0;
+    transform: translateY(24px);
+    transition: opacity .55s ease, transform .55s ease;
+  }
+  .reveal.visible {
+    opacity: 1;
+    transform: none;
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="logo">Java</div>
+  <a href="#tipos">Tipos</a>
+  <a href="#strings">Strings</a>
+  <a href="#arrays">Arrays</a>
+  <a href="#entrada">Entrada/Saída</a>
+  <a href="#exercicios">Exercícios</a>
+</nav>
+
+<!-- HERO -->
+<section id="hero">
+  <div class="hero-tag">Linguagem Java • Tipos primitivos • IO</div>
+  <h1>Aprenda <span>Java</span><br>do zero</h1>
+  <p class="hero-sub">Tipos primitivos, Strings, Arrays e formas de conversar com o usuário pelo terminal ou por janelas.</p>
+  <div class="hero-badges">
+    <span class="badge">int</span>
+    <span class="badge">System.out</span>
+    <span class="badge">Scanner</span>
+    <span class="badge">JOptionPane</span>
+  </div>
+  <div class="scroll-hint">role para baixo</div>
+</section>
+
+
+<!-- ════════════════════════════════════════════
+     SEÇÃO 1 — TIPOS PRIMITIVOS
+════════════════════════════════════════════ -->
+<section id="tipos">
+  <div class="section-label reveal">01 — Fundamentos</div>
+  <h2 class="section-title reveal">Tipos Primitivos</h2>
+  <p class="section-desc reveal">Pense em cada variável como uma 
+	<strong style="color:var(--heading)">caixa de tamanho específico</strong>. 
+	Uma caixa de sapato não guarda um sofá: cada tipo tem tamanho e tipo de conteúdo fixos.
+	<br>Tipos primitivos são predefinidos <a href="https://docs.oracle.com/javase/tutorial/java/nutsandbolts/datatypes.html" style="color:var(--heading)">pela linguagem</a> e nomeados por <strong>palavra reservada</strong>.</p>
+
+  <div class="def-grid reveal">
+    <div class="def-card">
+      <div class="def-term">byte</div>
+      <div class="def-desc">A menor caixa. Guarda números inteiros de -128 a 127.</div>
+    </div>
+    <div class="def-card">
+      <div class="def-term">short</div>
+      <div class="def-desc">Pouco maior que o byte, para inteiros de tamanho médio.</div>
+    </div>
+    <div class="def-card">
+      <div class="def-term">int</div>
+      <div class="def-desc">A caixa "padrão" para números inteiros e mais usada.</div>
+    </div>
+    <div class="def-card">
+      <div class="def-term">long</div>
+      <div class="def-desc">Usada quando o número inteiro é gigante demais para o int.</div>
+    </div>
+    <div class="def-card green">
+      <div class="def-term">float</div>
+      <div class="def-desc">Guarda números reais (casas decimais) com precisão simples. Termina com <code>f</code>: <code>3.5f</code>.</div>
+    </div>
+    <div class="def-card green">
+      <div class="def-term">double</div>
+      <div class="def-desc">Guarda números reais com mais precisão. Padrão para decimais em Java.</div>
+    </div>
+    <div class="def-card amber">
+      <div class="def-term">char</div>
+      <div class="def-desc">Post-it com única letra ou símbolo entre aspas simples: <code>'A'</code>.</div>
+    </div>
+    <div class="def-card purple">
+      <div class="def-term">boolean</div>
+      <div class="def-desc">Um interruptor, apenas dois estados: <code>true</code> (ligado) ou <code>false</code> (desligado).</div>
+    </div>
+  </div>
+
+  <div class="reveal">
+    <table class="type-table">
+      <thead>
+        <tr>
+          <th>Tipo</th>
+          <th>Tamanho</th>
+          <th>Faixa / Conteúdo</th>
+          <th>Exemplo</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="keyword">byte</td>
+          <td class="bytes">1 byte</td>
+          <td>-128 a 127</td>
+          <td class="example">byte idade = 25;</td>
+        </tr>
+        <tr>
+          <td class="keyword">int</td>
+          <td class="bytes">4 bytes</td>
+          <td>~ -2 bi a 2 bi</td>
+          <td class="example">int ano = 2026;</td>
+        </tr>
+        <tr>
+          <td class="keyword">long</td>
+          <td class="bytes">8 bytes</td>
+          <td>números enormes</td>
+          <td class="example">long pop = 8000000000L;</td>
+        </tr>
+        <tr>
+          <td class="keyword">double</td>
+          <td class="bytes">8 bytes</td>
+          <td>decimais precisos</td>
+          <td class="example">double pi = 3.14159;</td>
+        </tr>
+        <tr>
+          <td class="keyword">char</td>
+          <td class="bytes">2 bytes</td>
+          <td>1 caractere</td>
+          <td class="example">char letra = 'J';</td>
+        </tr>
+        <tr>
+          <td class="keyword">boolean</td>
+          <td class="bytes">1 bit*</td>
+          <td>true ou false</td>
+          <td class="example">boolean ativo = true;</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="code-wrap reveal">
+    <div class="code-header">
+      <div class="code-dots"><span></span><span></span><span></span></div>
+      <span class="code-filename">Tipos.java</span>
+    </div>
+    <pre><span class="k">public</span> <span class="k">class</span> <span class="cl">Tipos</span> {
+    <span class="k">public</span> <span class="k">static</span> <span class="k">void</span> <span class="fn">main</span>(<span class="t">String</span>[] <span class="v">args</span>) {
+
+        <span class="c">// ── Declaração e inicialização ──</span>
+        <span class="t">int</span>     <span class="v">idade</span> <span class="p">=</span> <span class="n">20</span><span class="p">;</span>
+        <span class="t">double</span>  <span class="v">nota</span>  <span class="p">=</span> <span class="n">8.5</span><span class="p">;</span>
+        <span class="t">char</span>    <span class="v">letra</span> <span class="p">=</span> <span class="s">'J'</span><span class="p">;</span>
+        <span class="t">boolean</span> <span class="v">ativo</span> <span class="p">=</span> <span class="k">true</span><span class="p">;</span>
+
+        <span class="c">// ── Exibir valores ──</span>
+        <span class="v">System</span><span class="p">.</span><span class="v">out</span><span class="p">.</span><span class="fn">println</span>(<span class="s">"Idade: "</span> <span class="p">+</span> <span class="v">idade</span>)<span class="p">;</span>
+        <span class="v">System</span><span class="p">.</span><span class="v">out</span><span class="p">.</span><span class="fn">println</span>(<span class="s">"Nota: "</span> <span class="p">+</span> <span class="v">nota</span>)<span class="p">;</span>
+
+        <span class="c">// ── Casting: trocar de caixa ──</span>
+        <span class="t">double</span> <span class="v">preco</span> <span class="p">=</span> <span class="n">19.9</span><span class="p">;</span>
+        <span class="t">int</span> <span class="v">precoInteiro</span> <span class="p">=</span> (<span class="t">int</span>) <span class="v">preco</span><span class="p">;</span> <span class="c">// vira 19, perde o resto</span>
+        <span class="v">System</span><span class="p">.</span><span class="v">out</span><span class="p">.</span><span class="fn">println</span>(<span class="v">precoInteiro</span>)<span class="p">;</span>
+    }
+}</pre>
+  </div>
+
+  <div class="note info reveal">
+    <span class="note-icon">💡</span>
+    <div><strong style="color:var(--heading)">Casting é trocar de caixa</strong>. Colocar <code>double</code> dentro de <code>int</code> é como fazer suco de fruta. As cascas não fazem parte e são descartadas (casas decimais cortadas ao invés de arredondar o número).</div>
+  </div>
+</section>
+
+
+<!-- ════════════════════════════════════════════
+     SEÇÃO 2 — STRINGS
+════════════════════════════════════════════ -->
+<section id="strings">
+  <div class="section-label reveal">02 — Texto</div>
+  <h2 class="section-title reveal">Strings</h2>
+  <p class="section-desc reveal">Uma <strong style="color:var(--heading)">String</strong> é como uma corrente de aço e cada elo é uma letra. Strings <em>não podem ser alteradas</em> após sua criação.</p>
+
+  <div class="def-grid reveal">
+    <div class="def-card">
+      <div class="def-term">String</div>
+      <div class="def-desc">Um texto, sempre entre aspas duplas: <code>"Olá"</code>. Por trás, é uma sequência de <code>char</code>.</div>
+    </div>
+    <div class="def-card amber">
+      <div class="def-term">Imutabilidade</div>
+      <div class="def-desc">Uma String nunca muda depois de criada. "Editar" cria uma corrente nova e não modifica a antiga.</div>
+    </div>
+    <div class="def-card green">
+      <div class="def-term">Concatenação</div>
+      <div class="def-desc">Juntar textos com <code>+</code>. Como soldar duas correntes pelas pontas.</div>
+    </div>
+    <div class="def-card purple">
+      <div class="def-term">.equals()</div>
+      <div class="def-desc">Compara o <em>conteúdo</em> da String. É assim que se compara texto em Java e nunca se usa <code>==</code>.</div>
+    </div>
+    <div class="def-card red">
+      <div class="def-term">.length()</div>
+      <div class="def-desc">Conta quantos elos (caracteres) tem a corrente.</div>
+    </div>
+    <div class="def-card">
+      <div class="def-term">.charAt() / .substring()</div>
+      <div class="def-desc">Pega um caractere específico ou pedaço do texto.</div>
+    </div>
+  </div>
+
+  <div class="code-wrap reveal">
+    <div class="code-header">
+      <div class="code-dots"><span></span><span></span><span></span></div>
+      <span class="code-filename">Strings.java</span>
+    </div>
+    <pre><span class="k">public</span> <span class="k">class</span> <span class="cl">Strings</span> {
+    <span class="k">public</span> <span class="k">static</span> <span class="k">void</span> <span class="fn">main</span>(<span class="t">String</span>[] <span class="v">args</span>) {
+
+        <span class="t">String</span> <span class="v">nome</span> <span class="p">=</span> <span class="s">"Java"</span><span class="p">;</span>
+        <span class="t">String</span> <span class="v">sobrenome</span> <span class="p">=</span> <span class="s">"Básico"</span><span class="p">;</span>
+
+        <span class="c">// ── Concatenação ──</span>
+        <span class="t">String</span> <span class="v">completo</span> <span class="p">=</span> <span class="v">nome</span> <span class="p">+</span> <span class="s">" "</span> <span class="p">+</span> <span class="v">sobrenome</span><span class="p">;</span>
+        <span class="v">System</span><span class="p">.</span><span class="v">out</span><span class="p">.</span><span class="fn">println</span>(<span class="v">completo</span>)<span class="p">;</span> <span class="c">// Java Básico</span>
+
+        <span class="c">// ── Métodos úteis ──</span>
+        <span class="v">System</span><span class="p">.</span><span class="v">out</span><span class="p">.</span><span class="fn">println</span>(<span class="v">completo</span><span class="p">.</span><span class="fn">length</span>())<span class="p">;</span>       <span class="c">// 11</span>
+        <span class="v">System</span><span class="p">.</span><span class="v">out</span><span class="p">.</span><span class="fn">println</span>(<span class="v">completo</span><span class="p">.</span><span class="fn">toUpperCase</span>())<span class="p">;</span> <span class="c">// JAVA BÁSICO</span>
+        <span class="v">System</span><span class="p">.</span><span class="v">out</span><span class="p">.</span><span class="fn">println</span>(<span class="v">completo</span><span class="p">.</span><span class="fn">charAt</span>(<span class="n">0</span>))<span class="p">;</span>     <span class="c">// J</span>
+        <span class="v">System</span><span class="p">.</span><span class="v">out</span><span class="p">.</span><span class="fn">println</span>(<span class="v">completo</span><span class="p">.</span><span class="fn">substring</span>(<span class="n">0</span>,<span class="n">4</span>))<span class="p">;</span> <span class="c">// Java</span>
+
+        <span class="c">// ── Comparação correta ──</span>
+        <span class="t">String</span> <span class="v">a</span> <span class="p">=</span> <span class="s">"Java"</span><span class="p">;</span>
+        <span class="t">String</span> <span class="v">b</span> <span class="p">=</span> <span class="k">new</span> <span class="t">String</span>(<span class="s">"Java"</span>)<span class="p">;</span>
+        <span class="v">System</span><span class="p">.</span><span class="v">out</span><span class="p">.</span><span class="fn">println</span>(<span class="v">a</span> <span class="p">==</span> <span class="v">b</span>)<span class="p">;</span>        <span class="c">// false — colares diferentes</span>
+        <span class="v">System</span><span class="p">.</span><span class="v">out</span><span class="p">.</span><span class="fn">println</span>(<span class="v">a</span><span class="p">.</span><span class="fn">equals</span>(<span class="v">b</span>))<span class="p">;</span> <span class="c">// true — mesmo conteúdo</span>
+    }
+}</pre>
+  </div>
+
+  <div class="note warning reveal">
+    <span class="note-icon">⚠️</span>
+    <div><strong style="color:var(--heading)">== e equals()</strong>: <code>==</code> pergunta "é a <em>mesma corrente</em> na memória?". <code>equals()</code> pergunta "as correntes são <em>iguais</em>?". Para texto, sempre use <code>equals()</code>.</div>
+  </div>
+</section>
+
+
+<!-- ════════════════════════════════════════════
+     SEÇÃO 3 — ARRAYS
+════════════════════════════════════════════ -->
+<section id="arrays">
+  <div class="section-label reveal">03 — Coleções</div>
+  <h2 class="section-title reveal">Arrays (Vetores)</h2>
+  <p class="section-desc reveal">Um array é um <strong style="color:var(--heading)">armário de gavetas numeradas</strong>, 
+  todas do mesmo tipo. A primeira gaveta é sempre a <strong>gaveta 0</strong>.
+  <br>Arrays podem ser declarados como em C porém isto 
+  <a href="https://www.oracle.com/java/technologies/javase/codeconventions-declarations.html#2992" style="color:var(--heading)">não é recomendado</a> pelas convenções da linguagem Java.</p>
+
+  <div class="def-grid reveal">
+    <div class="def-card">
+      <div class="def-term">Declaração</div>
+      <div class="def-desc">Cria o armário: <code>int[] numeros = new int[5];</code>: 5 gavetas vazias (iniciadas com zero).</div>
+    </div>
+    <div class="def-card amber">
+      <div class="def-term">Índice</div>
+      <div class="def-desc">O número da gaveta. Começa em 0 e vai até <code>tamanho - 1</code>.</div>
+    </div>
+    <div class="def-card green">
+      <div class="def-term">Tamanho fixo</div>
+      <div class="def-desc">Depois de criado, o número de gavetas não muda. Para mais gavetas se cria um array novo.</div>
+    </div>
+    <div class="def-card purple">
+      <div class="def-term">.length</div>
+      <div class="def-desc">Propriedade (sem parênteses!) que conta quantas posições (gavetas) o array tem.</div>
+    </div>
+    <div class="def-card red">
+      <div class="def-term">ArrayIndexOutOfBounds</div>
+      <div class="def-desc">Erro ao tentar abrir uma gaveta que não existe, como a gaveta 5 num armário de 5 (0 a 4).</div>
+    </div>
+    <div class="def-card">
+      <div class="def-term">for-each</div>
+      <div class="def-desc">Percorre todas as gavetas sem se preocupar com o número de cada uma.</div>
+    </div>
+  </div>
+
+  <!-- Visual das gavetas -->
+  <div class="drawer-wrap reveal">
+    <div class="drawer"><div class="drawer-box">10</div><span class="drawer-idx">[0]</span></div>
+    <div class="drawer"><div class="drawer-box">25</div><span class="drawer-idx">[1]</span></div>
+    <div class="drawer"><div class="drawer-box">7</div><span class="drawer-idx">[2]</span></div>
+    <div class="drawer"><div class="drawer-box">42</div><span class="drawer-idx">[3]</span></div>
+    <div class="drawer"><div class="drawer-box">3</div><span class="drawer-idx">[4]</span></div>
+  </div>
+
+  <div class="code-wrap reveal">
+    <div class="code-header">
+      <div class="code-dots"><span></span><span></span><span></span></div>
+      <span class="code-filename">Arrays.java</span>
+    </div>
+    <pre><span class="k">public</span> <span class="k">class</span> <span class="cl">Arrays</span> {
+    <span class="k">public</span> <span class="k">static</span> <span class="k">void</span> <span class="fn">main</span>(<span class="t">String</span>[] <span class="v">args</span>) {
+
+        <span class="c">// ── Criando e preenchendo o armário ──</span>
+        <span class="t">int</span>[] <span class="v">numeros</span> <span class="p">=</span> {<span class="n">10</span>, <span class="n">25</span>, <span class="n">7</span>, <span class="n">42</span>, <span class="n">3</span>}<span class="p">;</span>
+
+        <span class="c">// ── Acessando uma gaveta pelo índice ──</span>
+        <span class="v">System</span><span class="p">.</span><span class="v">out</span><span class="p">.</span><span class="fn">println</span>(<span class="v">numeros</span>[<span class="n">0</span>])<span class="p">;</span> <span class="c">// 10 — a primeira gaveta</span>
+
+        <span class="c">// ── Percorrendo com for tradicional ──</span>
+        <span class="k">for</span> (<span class="t">int</span> <span class="v">i</span> <span class="p">=</span> <span class="n">0</span><span class="p">;</span> <span class="v">i</span> <span class="p">&lt;</span> <span class="v">numeros</span><span class="p">.</span><span class="v">length</span><span class="p">;</span> <span class="v">i</span><span class="p">++</span>) {
+            <span class="v">System</span><span class="p">.</span><span class="v">out</span><span class="p">.</span><span class="fn">println</span>(<span class="s">"Gaveta "</span> <span class="p">+</span> <span class="v">i</span> <span class="p">+</span> <span class="s">": "</span> <span class="p">+</span> <span class="v">numeros</span>[<span class="v">i</span>])<span class="p">;</span>
+        }
+
+        <span class="c">// ── Percorrendo com for-each ──</span>
+        <span class="k">for</span> (<span class="t">int</span> <span class="v">n</span> <span class="p">:</span> <span class="v">numeros</span>) {
+            <span class="v">System</span><span class="p">.</span><span class="v">out</span><span class="p">.</span><span class="fn">print</span>(<span class="v">n</span> <span class="p">+</span> <span class="s">" "</span>)<span class="p">;</span> <span class="c">// 10 25 7 42 3</span>
+        }
+    }
+}</pre>
+  </div>
+
+  <div class="loop-vis reveal">
+    <div style="font-family:var(--mono);font-size:.65rem;color:var(--muted);letter-spacing:.1em;text-transform:uppercase;">for (int i = 0; i &lt; numeros.length; i++)</div>
+    <div class="loop-row active"><span class="loop-i">i = 0</span><span class="loop-cond">0 &lt; 5 ✓</span><span class="loop-out">abre gaveta [0] → 10</span></div>
+    <div class="loop-row active"><span class="loop-i">i = 1</span><span class="loop-cond">1 &lt; 5 ✓</span><span class="loop-out">abre gaveta [1] → 25</span></div>
+    <div class="loop-row active"><span class="loop-i">i = 2</span><span class="loop-cond">2 &lt; 5 ✓</span><span class="loop-out">abre gaveta [2] → 7</span></div>
+    <div class="loop-row active"><span class="loop-i">i = 3</span><span class="loop-cond">3 &lt; 5 ✓</span><span class="loop-out">abre gaveta [3] → 42</span></div>
+    <div class="loop-row active"><span class="loop-i">i = 4</span><span class="loop-cond">4 &lt; 5 ✓</span><span class="loop-out">abre gaveta [4] → 3</span></div>
+    <div class="loop-row" style="color:var(--red)"><span class="loop-i" style="color:var(--red)">i = 5</span><span style="color:var(--red)">5 &lt; 5 ✗ → PARA (gaveta 5 não existe!)</span></div>
+  </div>
+
+  <div class="note danger reveal">
+    <span class="note-icon">🔴</span>
+    <div><strong style="color:var(--heading)">Cuidado com o limite</strong> — Um armário de 5 gavetas tem índices de <code>0</code> a <code>4</code>. Tentar acessar <code>numeros[5]</code> quebra o programa com <code>ArrayIndexOutOfBoundsException</code>.</div>
+  </div>
+</section>
+
+
+<!-- ════════════════════════════════════════════
+     SEÇÃO 4 — ENTRADA E SAÍDA
+════════════════════════════════════════════ -->
+<section id="entrada">
+  <div class="section-label reveal">04 — Comunicação</div>
+  <h2 class="section-title reveal">Entrada e Saída</h2>
+  <p class="section-desc reveal">Um programa precisa <strong style="color:var(--heading)">falar</strong> com o usuário. Duas formas comuns são a conversa por <em>texto no terminal</em> e por <em>janelas pop-up</em>.</p>
+
+  <div class="def-grid reveal">
+    <div class="def-card">
+      <div class="def-term">System.out.println</div>
+      <div class="def-desc">Fala com o usuário pelo terminal e adiciona quebra de linha.</div>
+    </div>
+    <div class="def-card">
+      <div class="def-term">System.out.printf</div>
+      <div class="def-desc">Fala formatando o texto como em C: <code>%d</code> para inteiro, <code>%s</code> para texto.</div>
+    </div>
+    <div class="def-card green">
+      <div class="def-term">Scanner</div>
+      <div class="def-desc">O "microfone" que escuta o que o usuário digita no terminal.</div>
+    </div>
+    <div class="def-card amber">
+      <div class="def-term">JOptionPane</div>
+      <div class="def-desc">Cria janelas pop-up de mensagem ou pergunta. São um tipo de <code>JDialog</code>.</div>
+    </div>
+    <div class="def-card purple">
+      <div class="def-term">JDialog</div>
+      <div class="def-desc">Janela genérica do Swing. <code>JOptionPane</code> é uma versão simplificada para uso.</div>
+    </div>
+    <div class="def-card red">
+      <div class="def-term">import</div>
+      <div class="def-desc">Para usar Scanner ou JOptionPane é preciso "chamar a ferramenta" com <code>import</code> no topo do arquivo.</div>
+    </div>
+  </div>
+
+  <h3 class="reveal" style="font-family:var(--display);color:var(--heading);margin-bottom:1rem;font-size:1.3rem;">Terminal - conversa por texto</h3>
+  <div class="code-wrap reveal">
+    <div class="code-header">
+      <div class="code-dots"><span></span><span></span><span></span></div>
+      <span class="code-filename">EntradaTerminal.java</span>
+    </div>
+    <pre><span class="m">import</span> <span class="v">java.util.Scanner</span><span class="p">;</span>
+
+<span class="k">public</span> <span class="k">class</span> <span class="cl">EntradaTerminal</span> {
+    <span class="k">public</span> <span class="k">static</span> <span class="k">void</span> <span class="fn">main</span>(<span class="t">String</span>[] <span class="v">args</span>) {
+
+        <span class="t">Scanner</span> <span class="v">leitor</span> <span class="p">=</span> <span class="k">new</span> <span class="t">Scanner</span>(<span class="v">System</span><span class="p">.</span><span class="v">in</span>)<span class="p">; </span><span class="c">// como fgets(txt, sizeof(txt), stdin)</span>
+
+        <span class="v">System</span><span class="p">.</span><span class="v">out</span><span class="p">.</span><span class="fn">print</span>(<span class="s">"Qual seu nome? "</span>)<span class="p">;</span>
+        <span class="t">String</span> <span class="v">nome</span> <span class="p">=</span> <span class="v">leitor</span><span class="p">.</span><span class="fn">nextLine</span>()<span class="p">;</span>  <span class="c">// lê uma linha de texto</span>
+        <span class="c">// String nome = IO.readLn(); -> teria efeito similar</span>
+
+        <span class="v">System</span><span class="p">.</span><span class="v">out</span><span class="p">.</span><span class="fn">print</span>(<span class="s">"Qual sua idade? "</span>)<span class="p">;</span>
+        <span class="t">int</span> <span class="v">idade</span> <span class="p">=</span> <span class="v">leitor</span><span class="p">.</span><span class="fn">nextInt</span>()<span class="p">;</span>   <span class="c">// lê um número inteiro</span>
+        <span class="c">// int idade = Integer.parseInt(IO.readLn()); -> necessita conversão</span>
+
+        <span class="v">System</span><span class="p">.</span><span class="v">out</span><span class="p">.</span><span class="fn">printf</span>(<span class="s">"Olá %s, você tem %d anos!\n"</span>, <span class="v">nome</span>, <span class="v">idade</span>)<span class="p">;</span>
+
+        <span class="v">leitor</span><span class="p">.</span><span class="fn">close</span>()<span class="p">;</span> <span class="c">// desliga o microfone</span>
+    }
+}</pre>
+  </div>
+
+  <h3 class="reveal" style="font-family:var(--display);color:var(--heading);margin:2.5rem 0 1rem;font-size:1.3rem;">Janelas - conversa por pop-up</h3>
+  <p class="reveal" style="color:var(--muted);font-size:.9rem;margin-bottom:1rem;">O <code>JOptionPane</code> permite interação com janelas que aparecem na tela.</p>
+
+  <div class="dialog-window reveal">
+    <div class="dialog-titlebar">🪟 Entrada</div>
+    <div class="dialog-body">
+      Qual seu nome?
+      <div class="dialog-input">|</div>
+      <div class="dialog-actions">
+        <span class="dialog-btn primary">OK</span>
+        <span class="dialog-btn">Cancelar</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="code-wrap reveal">
+    <div class="code-header">
+      <div class="code-dots"><span></span><span></span><span></span></div>
+      <span class="code-filename">EntradaJanela.java</span>
+    </div>
+    <pre><span class="m">import</span> <span class="v">javax.swing.JOptionPane</span><span class="p">;</span>
+
+<span class="k">public</span> <span class="k">class</span> <span class="cl">EntradaJanela</span> {
+    <span class="k">public</span> <span class="k">static</span> <span class="k">void</span> <span class="fn">main</span>(<span class="t">String</span>[] <span class="v">args</span>) {
+
+        <span class="c">// ── Pergunta numa janela pop-up ──</span>
+        <span class="t">String</span> <span class="v">nome</span> <span class="p">=</span> <span class="v">JOptionPane</span><span class="p">.</span><span class="fn">showInputDialog</span>(<span class="s">"Qual seu nome?"</span>)<span class="p">;</span>
+
+        <span class="c">// ── Entrada de texto vira número ──</span>
+        <span class="t">String</span> <span class="v">textoIdade</span> <span class="p">=</span> <span class="v">JOptionPane</span><span class="p">.</span><span class="fn">showInputDialog</span>(<span class="s">"Qual sua idade?"</span>)<span class="p">;</span>
+        <span class="t">int</span> <span class="v">idade</span> <span class="p">=</span> <span class="t">Integer</span><span class="p">.</span><span class="fn">parseInt</span>(<span class="v">textoIdade</span>)<span class="p">;</span> <span class="c">// mesma conversão de IO.readLn()</span>
+
+        <span class="c">// ── Mostra mensagem em janela ──</span>
+        <span class="v">JOptionPane</span><span class="p">.</span><span class="fn">showMessageDialog</span>(<span class="k">null</span>, <span class="s">"Olá "</span> <span class="p">+</span> <span class="v">nome</span> <span class="p">+</span> <span class="s">", você tem "</span> <span class="p">+</span> <span class="v">idade</span> <span class="p">+</span> <span class="s">" anos!"</span>)<span class="p">;</span>
+    }
+}</pre>
+  </div>
+
+  <div class="note info reveal">
+    <span class="note-icon">💡</span>
+    <div><strong style="color:var(--heading)">Por que Integer.parseInt?</strong> Estas entradas recebem <code>String</code> (texto puro). <code>parseInt</code> faz casting de texto para int.</div>
+  </div>
+
+  <div class="note warning reveal">
+    <span class="note-icon">⚠️</span>
+    <div><strong style="color:var(--heading)">JOptionPane vs JDialog</strong> — <code>JOptionPane</code> é um atalho: já vem com botões e caixa de texto prontos. <code>JDialog</code> é a janela "crua", usada quando você quer montar sua própria janela do zero, com seus próprios botões e campos.</div>
+  </div>
+</section>
+
+
+<!-- ════════════════════════════════════════════
+     SEÇÃO 5 — EXERCÍCIOS
+════════════════════════════════════════════ -->
+<section id="exercicios">
+  <div class="section-label reveal">05 — Pratique</div>
+  <h2 class="section-title reveal">Exercícios</h2>
+  <p class="section-desc reveal">A melhor forma de aprender é codando. Tente resolver cada exercício antes de ver a dica!</p>
+
+  <div class="exercise reveal">
+    <div class="exercise-header">
+      <span class="exercise-num">EX 01</span>
+      <span class="exercise-title">Caixinhas Certas</span>
+    </div>
+    <ul>
+      <li>Crie variáveis: um <code>int</code> para idade, um <code>double</code> para altura e um <code>char</code> para a inicial do nome.</li>
+      <li>Exiba os três valores com <code>System.out.println</code>.</li>
+      <li>Faça um casting do <code>double</code> da altura para <code>int</code> e veja o que acontece.</li>
+    </ul>
+    <div class="tip">💡 Dica: casting é <code>(int) minhaVariavelDouble;</code></div>
+  </div>
+
+  <div class="exercise reveal" style="border-color:rgba(34,211,164,.2)">
+    <div class="exercise-header">
+      <span class="exercise-num" style="background:var(--green);color:#000">EX 02</span>
+      <span class="exercise-title">Corrente de Letras</span>
+    </div>
+    <ul>
+      <li>Guarde seu nome completo numa <code>String</code>.</li>
+      <li>Exiba quantidade de letras com <code>.length()</code>.</li>
+      <li>Exiba a primeira letra com <code>.charAt(0)</code>.</li>
+      <li>Exiba o nome todo em maiúsculas com <code>.toUpperCase()</code>.</li>
+    </ul>
+    <div class="tip" style="border-color:var(--green);color:var(--green)">💡 Dica: espaços no nome também são caracteres.</div>
+  </div>
+
+  <div class="exercise reveal" style="border-color:rgba(245,158,11,.2)">
+    <div class="exercise-header">
+      <span class="exercise-num" style="background:var(--accent3);color:#000">EX 03</span>
+      <span class="exercise-title">Armário de Notas</span>
+    </div>
+    <ul>
+      <li>Crie um array <code>double[]</code> com 5 notas.</li>
+      <li>Percorra o array com um <code>for</code> tradicional, somando as notas.</li>
+      <li>Divida a soma por <code>notas.length</code> para achar a média.</li>
+    </ul>
+    <div class="tip" style="border-color:var(--accent3);color:var(--accent3)">💡 Dica: cuidado ao dividir pois dividir dois <code>int</code> fará o Java descartar as casas decimais.</div>
+  </div>
+
+  <div class="exercise reveal" style="border-color:rgba(124,58,237,.2)">
+    <div class="exercise-header">
+      <span class="exercise-num" style="background:var(--accent2)">EX 04</span>
+      <span class="exercise-title">Entrevista no Terminal</span>
+    </div>
+    <ul>
+      <li>Use <code>Scanner</code> ou <code>IO</code> para perguntar nome, idade e cidade do usuário.</li>
+      <li>Guarde os valores em variáveis com tipo correto.</li>
+      <li>Exiba um resumo formatado com <code>System.out.printf</code>.</li>
+    </ul>
+    <div class="tip" style="border-color:var(--accent2);color:#c792ea">💡 Dica: depois de ler um número com <code>nextInt()</code>, use <code>leitor.nextLine()</code> uma vez a mais para "limpar" o Enter antes de ler texto.</div>
+  </div>
+
+  <div class="exercise reveal" style="border-color:rgba(248,113,113,.2)">
+    <div class="exercise-header">
+      <span class="exercise-num" style="background:var(--red)">EX 05</span>
+      <span class="exercise-title">Calculadora em Janelas</span>
+    </div>
+    <ul>
+      <li>Use <code>JOptionPane.showInputDialog</code> para pedir dois números.</li>
+      <li>Converta o texto de cada um para <code>double</code> com <code>Double.parseDouble</code>.</li>
+      <li>Some os dois valores (ou peça outra operação ao usuário).</li>
+      <li>Mostre o resultado com <code>JOptionPane.showMessageDialog</code>.</li>
+    </ul>
+    <div class="tip" style="border-color:var(--red);color:var(--red)">💡 Dica: se o usuário digitar letras ao invés de números o programa quebrará. Erro comum de conversão de dados.</div>
+  </div>
+
+  <h3 class="reveal" style="font-family:var(--display);color:var(--heading);margin:2.5rem 0 .75rem;font-size:1.2rem;">Gabarito — Exercício 03 (média)</h3>
+  <div class="code-wrap reveal">
+    <div class="code-header">
+      <div class="code-dots"><span></span><span></span><span></span></div>
+      <span class="code-filename">Media.java</span>
+    </div>
+    <pre><span class="k">public</span> <span class="k">class</span> <span class="cl">Media</span> {
+    <span class="k">public</span> <span class="k">static</span> <span class="k">void</span> <span class="fn">main</span>(<span class="t">String</span>[] <span class="v">args</span>) {
+
+        <span class="t">double</span>[] <span class="v">notas</span> <span class="p">=</span> {<span class="n">7.5</span>, <span class="n">8.0</span>, <span class="n">6.5</span>, <span class="n">9.0</span>, <span class="n">10.0</span>}<span class="p">;</span>
+        <span class="t">double</span> <span class="v">soma</span> <span class="p">=</span> <span class="n">0</span><span class="p">;</span>
+
+        <span class="k">for</span> (<span class="t">int</span> <span class="v">i</span> <span class="p">=</span> <span class="n">0</span><span class="p">;</span> <span class="v">i</span> <span class="p">&lt;</span> <span class="v">notas</span><span class="p">.</span><span class="v">length</span><span class="p">;</span> <span class="v">i</span><span class="p">++</span>) {
+            <span class="v">soma</span> <span class="p">+=</span> <span class="v">notas</span>[<span class="v">i</span>]<span class="p">;</span>
+        }
+
+        <span class="t">double</span> <span class="v">media</span> <span class="p">=</span> <span class="v">soma</span> <span class="p">/</span> <span class="v">notas</span><span class="p">.</span><span class="v">length</span><span class="p">;</span>
+        <span class="v">System</span><span class="p">.</span><span class="v">out</span><span class="p">.</span><span class="fn">printf</span>(<span class="s">"Média: %.2f\n"</span>, <span class="v">media</span>)<span class="p">;</span> <span class="c">// Média: 8.20</span>
+    }
+}</pre>
+  </div>
+</section>
+
+
+<!-- FOOTER -->
+<footer>
+  <div>Feito para quem está começando em <span>Java</span>.</div>
+  <div style="margin-top:.5rem;color:#2e3450">Guia Visual Java Básico • 2026</div>
+</footer>
+
+<script>
+  const reveals = document.querySelectorAll('.reveal');
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.08, rootMargin: '0px 0px -40px 0px' });
+
+  reveals.forEach(el => observer.observe(el));
+
+  const sections = document.querySelectorAll('section[id]');
+  const navLinks = document.querySelectorAll('nav a');
+
+  window.addEventListener('scroll', () => {
+    let current = '';
+    sections.forEach(section => {
+      const top = section.offsetTop - 80;
+      if (window.scrollY >= top) current = section.getAttribute('id');
+    });
+    navLinks.forEach(a => {
+      a.style.color = a.getAttribute('href') === '#' + current ? 'var(--heading)' : '';
+      a.style.borderColor = a.getAttribute('href') === '#' + current ? 'var(--accent)' : 'transparent';
+    });
+  });
+</script>
+</body>
+</html>

@@ -13,6 +13,30 @@ class Header extends HTMLElement {
 			<hr>
 			<ul class="nav nav-pills flex-column mb-auto">
 			  <li class="nav-item">
+				<a href="/xall/html/devmob/home.html" id="devmob" class="nav-link text-white">
+				  <i class="bi me-2 bi-phone" width="16" height="16"></i>
+				  Desenvolvimento Mobile
+				</a>
+			  </li>
+			  <li class="nav-item devmob" hidden>
+				<a href="/xall/html/devmob/react-native.html" class="nav-link text-white">
+				  <i class="bi me-5" width="16" height="16"></i>
+				  React Native
+				</a>
+			  </li>
+			  <li class="nav-item">
+				<a href="/xall/html/engsoft/home.html" id="engsoft" class="nav-link text-white">
+				  <i class="bi me-2 bi-pencil" width="16" height="16"></i>
+				  Engenharia de Software
+				</a>
+			  </li>
+			  <li class="nav-item">
+				<a href="/xall/html/itccc/home.html" id="itccc" class="nav-link text-white">
+				  <i class="bi me-2 bi-cloud-snow" width="16" height="16"></i>
+				  IoT, Cloud e CyberSeg
+				</a>
+			  </li>
+			  <li class="nav-item">
 				<a href="/xall/html/progmodi/home.html" id="progmodi" class="nav-link text-white">
 				  <i class="bi me-2 bi-bar-chart-steps" width="16" height="16"></i>
 				  Programação Modular I
@@ -31,21 +55,9 @@ class Header extends HTMLElement {
 				</a>
 			  </li>
 			  <li class="nav-item">
-				<a href="/xall/html/devmob/home.html" id="devmob" class="nav-link text-white">
-				  <i class="bi me-2 bi-phone" width="16" height="16"></i>
-				  Desenvolvimento Mobile
-				</a>
-			  </li>
-			  <li class="nav-item devmob" hidden>
-				<a href="/xall/html/devmob/react-native.html" class="nav-link text-white">
-				  <i class="bi me-5" width="16" height="16"></i>
-				  React Native
-				</a>
-			  </li>
-			  <li class="nav-item">
-				<a href="/xall/html/engsoft/home.html" id="engsoft" class="nav-link text-white">
-				  <i class="bi me-2 bi-pencil" width="16" height="16"></i>
-				  Engenharia de Software
+				<a href="/xall/html/progooi/home.html" id="progooi" class="nav-link text-white">
+				  <i class="bi me-2 bi-boxes" width="16" height="16"></i>
+				  Programação OO I
 				</a>
 			  </li>
 			  <li class="nav-item">
